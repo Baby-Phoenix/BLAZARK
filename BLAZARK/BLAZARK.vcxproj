@@ -18,6 +18,13 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Code Files\Game.cpp" />
+    <ClCompile Include="Code Files\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code Files\Game.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -142,9 +149,6 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\Dependencies\bullet3d\lib;$(SolutionDir)\Dependencies\glad\bin\Debug-windows-x86_64\Glad;$(SolutionDir)\Dependencies\glfw\Lib;$(SolutionDir)\Dependencies\imgui\bin\Debug-windows-x86_64\ImGui;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Source Files\main.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
