@@ -14,7 +14,16 @@ public:
 	~Application() = default;
 
 	static void Init(const std::string& name, bool isFullscreen);
+	static void Tick();
+	static void FrameStart();
+	static void SwapBuffers();
+	static bool IsExitProgram();
+
+	static void SetClearColor(const glm::vec4& clearColor);
 
 private:
 	static GLFWwindow* m_window;
+	static float m_prevTime;
+	static float m_deltaTime;
+	static bool m_imguiInit;
 };

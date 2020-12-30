@@ -1,6 +1,10 @@
 #include "Application.h"
+#include "Input.h"
 
 GLFWwindow* Application::m_window = nullptr;
+float Application::m_prevTime = 0.0f;
+float Application::m_deltaTime = 0.0f;
+bool Application::m_imguiInit = false;
 
 void Application::Init(const std::string& name, bool isFullscreen)
 {
@@ -22,6 +26,8 @@ void Application::Init(const std::string& name, bool isFullscreen)
 
 	glfwMakeContextCurrent(m_window);
 
+	glfwSetKeyCallback(m_window, Input::GLFWInputCallback);
+
 	//Initialize GLAD
 	if (gladLoadGLLoader((GLADloadproc)glfwGetProcAddress) == 0)
 	{
@@ -40,4 +46,39 @@ void Application::Init(const std::string& name, bool isFullscreen)
 
 	//Disable cursor
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void Application::Tick()
+{
+	float time = static_cast<float>(glfwGetTime());
+	m_deltaTime = time - m_prevTime;
+	m_prevTime = time;
+}
+
+void Application::FrameStart()
+{
+	//Calculate our delta time for this frame.
+	Tick();
+
+	//Input polling.
+	Input::FrameStart();
+	glfwPollEvents();
+
+	//Clear our window.
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Application::SwapBuffers()
+{
+
+}
+
+bool Application::IsExitProgram()
+{
+	return glfwWindowShouldClose(m_window);
+}
+
+void Application::SetClearColor(const glm::vec4& clearColor)
+{
+	glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 }

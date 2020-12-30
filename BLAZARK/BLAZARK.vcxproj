@@ -23,15 +23,19 @@
     <ClCompile Include="Code Files\Application.cpp" />
     <ClCompile Include="Code Files\ECS.cpp" />
     <ClCompile Include="Code Files\Game.cpp" />
+    <ClCompile Include="Code Files\Input.cpp" />
     <ClCompile Include="Code Files\main.cpp" />
     <ClCompile Include="Code Files\Mesh.cpp" />
+    <ClCompile Include="Code Files\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code Files\Application.h" />
     <ClInclude Include="Code Files\Camera.h" />
     <ClInclude Include="Code Files\ECS.h" />
     <ClInclude Include="Code Files\Game.h" />
+    <ClInclude Include="Code Files\Input.h" />
     <ClInclude Include="Code Files\Mesh.h" />
+    <ClInclude Include="Code Files\Transform.h" />
     <ClInclude Include="Code Files\Vertex.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -104,6 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,6 +123,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,6 +139,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\Dependencies\bullet3d\include\bullet;$(SolutionDir)\Dependencies\glad\include;$(SolutionDir)\Dependencies\glfw\Include;$(SolutionDir)\Dependencies\glm\Include;$(SolutionDir)\Dependencies\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,6 +157,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\Dependencies\bullet3d\include\bullet;$(SolutionDir)\Dependencies\glad\include;$(SolutionDir)\Dependencies\glfw\Include;$(SolutionDir)\Dependencies\glm\Include;$(SolutionDir)\Dependencies\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
