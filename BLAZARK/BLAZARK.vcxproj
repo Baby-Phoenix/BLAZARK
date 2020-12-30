@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Code Files\Camera.cpp" />
     <ClCompile Include="Code Files\Application.cpp" />
+    <ClCompile Include="Code Files\ECS.cpp" />
     <ClCompile Include="Code Files\Game.cpp" />
     <ClCompile Include="Code Files\main.cpp" />
     <ClCompile Include="Code Files\Mesh.cpp" />
@@ -28,6 +29,7 @@
   <ItemGroup>
     <ClInclude Include="Code Files\Application.h" />
     <ClInclude Include="Code Files\Camera.h" />
+    <ClInclude Include="Code Files\ECS.h" />
     <ClInclude Include="Code Files\Game.h" />
     <ClInclude Include="Code Files\Mesh.h" />
     <ClInclude Include="Code Files\Vertex.h" />

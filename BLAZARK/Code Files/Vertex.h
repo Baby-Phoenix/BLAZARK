@@ -32,19 +32,19 @@ public:
 	}
 
 	// Getters //
-	GLuint getID() const {
+	GLuint GetID() const {
 		return m_bufferID;
 	}
 
-	GLint getTypeLen() const {
+	GLint GetTypeLen() const {
 		return m_typeLen;
 	}
 
-	GLsizei getTypeSize() const {
+	GLsizei GetTypeSize() const {
 		return m_typeSize;
 	}
 
-	GLsizei getBufferLen() const {
+	GLsizei GetBufferLen() const {
 		return m_bufferLen;
 	}
 
@@ -74,13 +74,13 @@ public:
 
 		glBindVertexArray(m_arrayID);
 		glEnableVertexAttribArray(bufferAttrib);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo.getID());
-		glVertexAttribPointer(bufferAttrib, vbo.getTypeLen(), GL_FLOAT, GL_FALSE, 0, (const void*)0);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo.GetID());
+		glVertexAttribPointer(bufferAttrib, vbo.GetTypeLen(), GL_FLOAT, GL_FALSE, 0, (const void*)0);
 	}
 
 	void DrawArray() {
 		glBindVertexArray(m_arrayID);
-		glDrawArrays(GL_TRIANGLES, 0, m_vboDict.begin()->second->getBufferLen());
+		glDrawArrays(GL_TRIANGLES, 0, m_vboDict.begin()->second->GetBufferLen());
 	}
 
 private:
