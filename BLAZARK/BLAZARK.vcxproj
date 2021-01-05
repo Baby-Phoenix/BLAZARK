@@ -26,6 +26,7 @@
     <ClCompile Include="Code Files\Input.cpp" />
     <ClCompile Include="Code Files\main.cpp" />
     <ClCompile Include="Code Files\Mesh.cpp" />
+    <ClCompile Include="Code Files\StaticRenderer.cpp" />
     <ClCompile Include="Code Files\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -35,6 +36,7 @@
     <ClInclude Include="Code Files\Game.h" />
     <ClInclude Include="Code Files\Input.h" />
     <ClInclude Include="Code Files\Mesh.h" />
+    <ClInclude Include="Code Files\StaticRenderer.h" />
     <ClInclude Include="Code Files\Transform.h" />
     <ClInclude Include="Code Files\Vertex.h" />
   </ItemGroup>

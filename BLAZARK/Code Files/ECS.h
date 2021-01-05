@@ -1,21 +1,23 @@
 #pragma once
 #include "Dependencies/entt/entt.hpp"
+#include "Transform.h"
 
-class gameObject
+class GameObject
 {
 public:
+	Transform transform;
 
 	//constructor
-	gameObject(entt::entity ID);
-	gameObject(gameObject&&) = delete;
+	GameObject(entt::entity ID);
+	GameObject(GameObject&&) = delete;
 
-	static gameObject Create();
-	static std::unique_ptr<gameObject> Allocate();
+	static GameObject Create();
+	static std::unique_ptr<GameObject> Allocate();
 
 	static void SetRegistry(entt::registry* reg);
 
 	//destructor
-	virtual ~gameObject();
+	virtual ~GameObject();
 
 	//attaches a component
 	template<typename T, typename... Args>
