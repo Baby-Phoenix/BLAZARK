@@ -10,11 +10,11 @@ int main() {
 	{
 		Application::FrameStart();
 
-		
+		float dt = Application::GetDeltaTime();
+
+
 
 		Application::SwapBuffers();
-
-	
 	}
 		
 

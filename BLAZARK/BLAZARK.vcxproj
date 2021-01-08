@@ -27,6 +27,7 @@
     <ClCompile Include="Code Files\main.cpp" />
     <ClCompile Include="Code Files\Mesh.cpp" />
     <ClCompile Include="Code Files\StaticRenderer.cpp" />
+    <ClCompile Include="Code Files\Texture.cpp" />
     <ClCompile Include="Code Files\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -38,6 +39,7 @@
     <ClInclude Include="Code Files\Mesh.h" />
     <ClInclude Include="Code Files\OBJLoader.h" />
     <ClInclude Include="Code Files\StaticRenderer.h" />
+    <ClInclude Include="Code Files\Texture.h" />
     <ClInclude Include="Code Files\Transform.h" />
     <ClInclude Include="Code Files\Vertex.h" />
   </ItemGroup>
