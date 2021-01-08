@@ -10,9 +10,11 @@ int main() {
 	{
 		Application::FrameStart();
 
-
+		
 
 		Application::SwapBuffers();
+
+	
 	}
 		
 
