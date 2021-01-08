@@ -71,5 +71,8 @@
     <ClInclude Include="Code Files\StaticRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Code Files\OBJLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

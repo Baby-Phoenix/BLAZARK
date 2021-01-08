@@ -20,7 +20,7 @@ void Mesh::SetNormals(const std::vector<glm::vec3>& normals)
 	SetVBO(VertexAttrib::NORMAL, normals, 3);
 }
 
-void Mesh::SetTexCoords(const std::vector<glm::vec3>& texCoords)
+void Mesh::SetTexCoords(const std::vector<glm::vec2>& texCoords)
 {
 	SetVBO(VertexAttrib::TEXCOORD, texCoords, 2);
 }

@@ -25,7 +25,7 @@ public:
 	void SetVBO(VertexAttrib bufferAttrib, const std::vector<dataType>& data, GLint typeLen);
 	void SetPositions(const std::vector<glm::vec3>& positions);
 	void SetNormals(const std::vector<glm::vec3>& normals);
-	void SetTexCoords(const std::vector<glm::vec3>& texCoords);
+	void SetTexCoords(const std::vector<glm::vec2>& texCoords);
 
 private:
 	std::map<VertexAttrib, std::unique_ptr<VertexBuffer>> m_vboDict;
