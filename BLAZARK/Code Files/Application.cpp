@@ -4,7 +4,6 @@
 GLFWwindow* Application::m_window = nullptr;
 float Application::m_prevTime = 0.0f;
 float Application::m_deltaTime = 0.0f;
-bool Application::m_imguiInit = false;
 
 void Application::Init(const std::string& name, bool isFullscreen)
 {
@@ -31,7 +30,7 @@ void Application::Init(const std::string& name, bool isFullscreen)
 
 	glfwMakeContextCurrent(m_window);
 
-	glfwSetKeyCallback(m_window, Input::GLFWInputCallback);
+	//glfwSetKeyCallback(m_window, Input::GLFWInputCallback);
 
 	//Initialize GLAD
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -55,29 +54,34 @@ void Application::Init(const std::string& name, bool isFullscreen)
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
-void Application::Tick()
+void Application::DeltaTime()
 {
-	float time = static_cast<float>(glfwGetTime());
-	m_deltaTime = time - m_prevTime;
-	m_prevTime = time;
+	float t = static_cast<float>(glfwGetTime());
+
+	m_deltaTime = t - m_prevTime;
+	m_prevTime = t;
 }
 
 void Application::FrameStart()
 {
-	//Calculate our delta time for this frame.
-	Tick();
+	//Calculate delta time
+	DeltaTime();
 
-	//Input polling.
-	Input::FrameStart();
+	//Input
 	glfwPollEvents();
 
-	//Clear our window.
+	//Clearwindow.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Application::SwapBuffers()
 {
 	glfwSwapBuffers(m_window);
+}
+
+float Application::GetDeltaTime()
+{
+	return m_deltaTime;
 }
 
 bool Application::IsExitProgram()
