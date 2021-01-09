@@ -23,9 +23,13 @@
     <ClCompile Include="Code Files\Application.cpp" />
     <ClCompile Include="Code Files\ECS.cpp" />
     <ClCompile Include="Code Files\Game.cpp" />
+    <ClCompile Include="Code Files\GamepadInput.cpp" />
     <ClCompile Include="Code Files\Input.cpp" />
     <ClCompile Include="Code Files\main.cpp" />
     <ClCompile Include="Code Files\Mesh.cpp" />
+    <ClCompile Include="Code Files\Random.cpp" />
+    <ClCompile Include="Code Files\Scene.cpp" />
+    <ClCompile Include="Code Files\Shader.cpp" />
     <ClCompile Include="Code Files\StaticRenderer.cpp" />
     <ClCompile Include="Code Files\Texture.cpp" />
     <ClCompile Include="Code Files\Transform.cpp" />
@@ -35,9 +39,13 @@
     <ClInclude Include="Code Files\Camera.h" />
     <ClInclude Include="Code Files\ECS.h" />
     <ClInclude Include="Code Files\Game.h" />
+    <ClInclude Include="Code Files\GamepadInput.h" />
     <ClInclude Include="Code Files\Input.h" />
     <ClInclude Include="Code Files\Mesh.h" />
     <ClInclude Include="Code Files\OBJLoader.h" />
+    <ClInclude Include="Code Files\Random.h" />
+    <ClInclude Include="Code Files\Scene.h" />
+    <ClInclude Include="Code Files\Shader.h" />
     <ClInclude Include="Code Files\StaticRenderer.h" />
     <ClInclude Include="Code Files\Texture.h" />
     <ClInclude Include="Code Files\Transform.h" />
