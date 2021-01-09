@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -30,6 +30,7 @@
     <ClCompile Include="Code Files\Random.cpp" />
     <ClCompile Include="Code Files\Scene.cpp" />
     <ClCompile Include="Code Files\Shader.cpp" />
+    <ClCompile Include="Code Files\Skybox.cpp" />
     <ClCompile Include="Code Files\StaticRenderer.cpp" />
     <ClCompile Include="Code Files\Texture.cpp" />
     <ClCompile Include="Code Files\Transform.cpp" />
@@ -46,10 +47,15 @@
     <ClInclude Include="Code Files\Random.h" />
     <ClInclude Include="Code Files\Scene.h" />
     <ClInclude Include="Code Files\Shader.h" />
+    <ClInclude Include="Code Files\Skybox.h" />
     <ClInclude Include="Code Files\StaticRenderer.h" />
     <ClInclude Include="Code Files\Texture.h" />
     <ClInclude Include="Code Files\Transform.h" />
     <ClInclude Include="Code Files\Vertex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resource Files\Shaders\skybox_frag_shader.glsl" />
+    <None Include="Resource Files\Shaders\skybox_vert_shader.glsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

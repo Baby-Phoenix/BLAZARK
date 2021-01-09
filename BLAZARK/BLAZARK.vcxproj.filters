@@ -57,6 +57,9 @@
     <ClCompile Include="Code Files\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Code Files\Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code Files\Game.h">
@@ -104,5 +107,12 @@
     <ClInclude Include="Code Files\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Code Files\Skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resource Files\Shaders\skybox_frag_shader.glsl" />
+    <None Include="Resource Files\Shaders\skybox_vert_shader.glsl" />
   </ItemGroup>
 </Project>

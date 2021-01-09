@@ -1,6 +1,5 @@
 #include "GamePadInput.h"
 
-enum Direction { LEFT = 0, RIGHT };
 
 bool GamePad::getGamepadInput()
 {
@@ -59,6 +58,12 @@ bool GamePad::getGamepadInput()
 
 	//Y button
 	this->buttons.Y = GLFW_PRESS == buttons[3];
+
+	//LB
+	this->bumper.LB = GLFW_PRESS == buttons[4];
+
+	//RB
+	this->bumper.RB = GLFW_PRESS == buttons[5];
 
 	return true;
 

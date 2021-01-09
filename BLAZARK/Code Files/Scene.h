@@ -2,12 +2,12 @@
 
 #include <string>
 #include "Camera.h"
-#include <glfw3.h>
-#include <iostream>
+
 //#include "libs.h"
 //#include "ParticleSystem.h"
 //#include "Projectile.h"
 #include "Random.h"
+#include "GamepadInput.h"
 
 using namespace std;
 
@@ -58,6 +58,8 @@ protected:
 
 	//Entites
 	entt::registry* m_sceneReg = nullptr;
+
+	GamePad gamepad;
 
 	//shaders
 	//vector<Shader*> shaders;
