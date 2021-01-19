@@ -84,6 +84,11 @@ float Application::GetDeltaTime()
 	return m_deltaTime;
 }
 
+GLFWwindow* Application::GetWindow()
+{
+	return m_window;
+}
+
 bool Application::IsExitProgram()
 {
 	return glfwWindowShouldClose(m_window);

@@ -20,6 +20,8 @@ public:
 
 	static float GetDeltaTime();
 
+	static GLFWwindow* GetWindow();
+
 	static bool IsExitProgram();
 
 	static void SetClearColor(const glm::vec4& clearColor);
