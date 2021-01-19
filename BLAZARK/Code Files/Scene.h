@@ -2,7 +2,7 @@
 
 #include <string>
 #include "Camera.h"
-
+#include"StaticRenderer.h"
 //#include "libs.h"
 //#include "ParticleSystem.h"
 //#include "Projectile.h"

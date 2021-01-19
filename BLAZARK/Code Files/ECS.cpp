@@ -21,6 +21,11 @@ std::unique_ptr<GameObject> GameObject::Allocate()
 	return std::move(std::make_unique<GameObject>(temp_id));
 }
 
+bool GameObject::IsEmpty()
+{
+	return m_reg->empty();
+}
+
 void GameObject::SetRegistry(entt::registry* reg)
 {
 	m_reg = reg;

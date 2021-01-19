@@ -14,6 +14,8 @@ public:
 	static GameObject Create();
 	static std::unique_ptr<GameObject> Allocate();
 
+	static bool IsEmpty();
+
 	static void SetRegistry(entt::registry* reg);
 
 	//destructor

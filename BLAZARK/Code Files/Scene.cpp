@@ -21,10 +21,16 @@ void Scene::Update(float deltaTime)
 void Scene::InitScene()
 {
 	//creating a new registry for the scene when initialised
+	if (m_sceneReg == nullptr)
 	m_sceneReg = new entt::registry();
 
 	//Giving the ECS the same registry as the current scene
 	GameObject::SetRegistry(m_sceneReg);
+
+	if (GameObject::IsEmpty()) {
+		//add entites in here if not initialised
+	}
+
 }
 
 void Scene::SetWindow(GLFWwindow* window)
