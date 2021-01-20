@@ -11,50 +11,35 @@ Game::Game(GLFWwindow* window)
 }
 
 
-Game::~Game()
-{
-
-	/*for (size_t i = 0; i < this->m_scenes.size(); i++)
-		delete this->m_scenes[i];
-
-	for (auto*& i : this->m_curScene->GetEntityRegistry())
-		delete i;*/
-}
-
 void Game::InitGame()
 {
-	////pushing back all the scenes 
-	//m_scenes.push_back(new Menu("Menu", &SceneNo, &switchIt));
-	//m_scenes.push_back(new Universe("Universe_19", &SceneNo, &switchIt));
-	//m_scenes.push_back(new Universe("Universe_27", &SceneNo, &switchIt));
-	//m_scenes.push_back(new Universe("Universe_5", &SceneNo, &switchIt));
-	//m_scenes.push_back(new Menu("Pause", &SceneNo, &switchIt));
+	//pushing back all the scenes 
+	m_scenes.push_back(new Menu("Menu", &m_SceneNo, &m_isSceneSwitch));
+	m_scenes.push_back(new Universe("Universe_19", &m_SceneNo, &m_isSceneSwitch));
+	m_scenes.push_back(new Universe("Universe_27", &m_SceneNo, &m_isSceneSwitch));
+	m_scenes.push_back(new Universe("Universe_5", &m_SceneNo, &m_isSceneSwitch));
+	m_scenes.push_back(new Menu("Pause", &m_SceneNo, &m_isSceneSwitch));
 
-	////giving all the scenes the projection matrix
-	//m_scenes[scenes::UNIVERSE_19]->SetProjectionMatrix(&ProjectionMatrix);
-	//m_scenes[scenes::UNIVERSE_27]->SetProjectionMatrix(&ProjectionMatrix);
-	//m_scenes[scenes::UNIVERSE_5]->SetProjectionMatrix(&ProjectionMatrix);
-
-	////setting the first scene
-	//m_curScene = m_scenes[scenes::UNIVERSE_19];
-	//m_curScene->InitScene();
-	//m_curScene->SetWindow(m_window);// giving the current scene the window
+	//setting the first scene
+	m_curScene = m_scenes[int(ScenesNum::MENU)];
+	m_curScene->InitScene();
+	m_curScene->SetWindow(m_window);// giving the current scene the window
 }
 
-void Game::SwitchScene(unsigned int sceneNo)
+void Game::SwitchScene()
 {
-	/*m_curScene = m_scenes[sceneNo];
+	m_curScene = m_scenes[m_SceneNo];
 	m_curScene->InitScene();
 	initUniforms();
 	m_curScene->SetWindow(Application::GetWindow());
-	m_isSceneSwitch = false;*/
+	m_isSceneSwitch = false;
 }
 
 void Game::update(float deltaTime)
 {
 	m_dt = deltaTime;
 
-	UpdateScene(deltaTime);
+	UpdateScene();
 
 	render();
 }
@@ -64,7 +49,7 @@ void Game::render()
 	//Update the uniforms
 	updateUniforms();
 
-	//m_curScene->Render(Application::GetDeltaTime());
+	m_curScene->Render(m_dt);
 
 	glBindVertexArray(0);
 	glUseProgram(0);
@@ -99,12 +84,12 @@ void Game::updateUniforms()
 	//this->m_curScene->GetShader()[SHADER_CORE_PROGRAM]->setMat4fv(this->ProjectionMatrix, "ProjectionMatrix");
 }
 
-void Game::UpdateScene(float deltaTime)
+void Game::UpdateScene()
 {
-	/*if (m_isSceneSwitch)
-		SwitchScene(SceneNo);
+	if (m_isSceneSwitch)
+		SwitchScene();
 
-	m_curScene->Update(deltaTime);*/
+	m_curScene->Update(m_dt);
 }
 
 

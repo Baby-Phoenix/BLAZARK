@@ -14,8 +14,6 @@ using namespace std;
 
 enum class ScenesNum { MENU = 0, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5, PAUSE };
 
-enum class EntityType { PLAYER = 0, S_ENEMY, K_ENEMY, ASTEROID, PLANET, NO_COLLIDE };
-
 class Scene {
 
 public:
