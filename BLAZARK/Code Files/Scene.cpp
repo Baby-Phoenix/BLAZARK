@@ -1,4 +1,7 @@
 #include "Scene.h"
+#include "btBulletDynamicsCommon.h"
+
+btVector3 a;
 
 Scene::Scene(string name)
 	:m_name(name)
@@ -139,6 +142,10 @@ void Menu::GamepadInput()
 
 	else
 		std::cout << "No controller connected" << std::endl;
+
+	auto entity = GameObject::Allocate();
+
+	entity.get()->AttachComponent<StaticRenderer>();
 
 }
 

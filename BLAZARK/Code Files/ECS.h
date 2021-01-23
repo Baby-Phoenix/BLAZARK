@@ -28,10 +28,6 @@ public:
 		return m_reg->emplace<T>(m_ID, std::forward<Args>(args)...);
 	}
 
-	template<typename T>
-	void AttachComponent() {
-		m_reg->assign<T>(m_ID);
-	}
 
 	//returns the component
 	template<typename T>
