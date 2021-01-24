@@ -19,7 +19,7 @@ subject to the following restrictions:
 #include "btScalar.h"
 #include "btMinMax.h"
 #include "btAlignedAllocator.h"
-#include"glm.hpp"
+#include "glm.hpp"
 
 #ifdef BT_USE_DOUBLE_PRECISION
 #define btVector3Data btVector3DoubleData

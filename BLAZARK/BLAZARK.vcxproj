@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Code Files\AudioEngine.cpp" />
     <ClCompile Include="Code Files\Camera.cpp" />
     <ClCompile Include="Code Files\Application.cpp" />
     <ClCompile Include="Code Files\ECS.cpp" />
@@ -37,10 +38,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code Files\Application.h" />
+    <ClInclude Include="Code Files\AudioEngine.h" />
     <ClInclude Include="Code Files\Camera.h" />
     <ClInclude Include="Code Files\ECS.h" />
     <ClInclude Include="Code Files\Game.h" />
     <ClInclude Include="Code Files\GamepadInput.h" />
+    <ClInclude Include="Code Files\GLTFLoader.h" />
     <ClInclude Include="Code Files\Input.h" />
     <ClInclude Include="Code Files\Mesh.h" />
     <ClInclude Include="Code Files\OBJLoader.h" />
@@ -157,13 +160,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Dependencies\bullet3\include\bullet;$(SolutionDir)\Dependencies\glad\include;$(SolutionDir)\Dependencies\glfw\Include;$(SolutionDir)\Dependencies\glm\Include;$(SolutionDir)\Dependencies\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Dependencies\bullet3\include\bullet;$(SolutionDir)\Dependencies\fmod\include;$(SolutionDir)\Dependencies\glad\include;$(SolutionDir)\Dependencies\glfw\Include;$(SolutionDir)\Dependencies\glm\Include;$(SolutionDir)\Dependencies\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\Dependencies\bullet3d\lib;$(SolutionDir)\Dependencies\glad\bin\Debug-windows-x86_64\Glad;$(SolutionDir)\Dependencies\glfw\lib-vc2019;$(SolutionDir)\Dependencies\imgui\bin\Debug-windows-x86_64\ImGui;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\Dependencies\bullet3d\lib;$(SolutionDir)\Dependencies\fmod\lib;$(SolutionDir)\Dependencies\glad\bin\Debug-windows-x86_64\Glad;$(SolutionDir)\Dependencies\glfw\lib-vc2019;$(SolutionDir)\Dependencies\imgui\bin\Debug-windows-x86_64\ImGui;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;glad.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -175,7 +178,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Dependencies\bullet3d\include\bullet;$(SolutionDir)\Dependencies\glad\include;$(SolutionDir)\Dependencies\glfw\Include;$(SolutionDir)\Dependencies\glm\Include;$(SolutionDir)\Dependencies\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Dependencies\bullet3\include\bullet;$(SolutionDir)\Dependencies\fmod\include;$(SolutionDir)\Dependencies\glad\include;$(SolutionDir)\Dependencies\glfw\Include;$(SolutionDir)\Dependencies\glm\Include;$(SolutionDir)\Dependencies\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -183,7 +186,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\Dependencies\bullet3d\lib;$(SolutionDir)\Dependencies\glad\bin\Debug-windows-x86_64\Glad;$(SolutionDir)\Dependencies\glfw\lib-vc2019;$(SolutionDir)\Dependencies\imgui\bin\Debug-windows-x86_64\ImGui;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\Dependencies\bullet3d\lib;$(SolutionDir)\Dependencies\fmod\lib;$(SolutionDir)\Dependencies\glad\bin\Debug-windows-x86_64\Glad;$(SolutionDir)\Dependencies\glfw\lib-vc2019;$(SolutionDir)\Dependencies\imgui\bin\Debug-windows-x86_64\ImGui;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;glad.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
