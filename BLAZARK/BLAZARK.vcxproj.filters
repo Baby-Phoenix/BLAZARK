@@ -121,7 +121,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resource Files\Shaders\skybox_frag_shader.glsl" />
-    <None Include="Resource Files\Shaders\skybox_vert_shader.glsl" />
+    <None Include="Resource Files\Shaders\skybox_frag_shader.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource Files\Shaders\skybox_vert_shader.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
