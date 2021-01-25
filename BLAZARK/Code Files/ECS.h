@@ -5,7 +5,6 @@
 class GameObject
 {
 public:
-	Transform transform;
 
 	//constructor
 	GameObject(entt::entity ID);

@@ -2,12 +2,13 @@
 
 #include <string>
 #include "Camera.h"
-#include"StaticRenderer.h"
+#include "StaticRenderer.h"
 //#include "libs.h"
 //#include "ParticleSystem.h"
 //#include "Projectile.h"
 #include "Random.h"
 #include "GamepadInput.h"
+#include "OBJLoader.h"
 
 using namespace std;
 
@@ -60,7 +61,7 @@ protected:
 	GamePad gamepad;
 
 	//shaders
-	//vector<Shader*> shaders;
+	vector<Shader*> m_shaders;
 
 };
 

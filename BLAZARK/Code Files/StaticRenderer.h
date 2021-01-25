@@ -9,7 +9,7 @@
 class StaticRenderer {
 public:
 	StaticRenderer() = default;
-	StaticRenderer(GameObject& entity, const Mesh& mesh, Texture* texture = nullptr);
+	StaticRenderer(std::unique_ptr<GameObject>& entity, const Mesh& mesh, Texture* texture = nullptr);
 	virtual ~StaticRenderer() = default;
 
 	StaticRenderer(StaticRenderer&&) = default;
@@ -22,7 +22,7 @@ public:
 private:
 	std::unique_ptr<VertexArray> m_vao;
 
-	GameObject* m_entity;
+	std::unique_ptr<GameObject> m_entity;
 
 	Texture* m_tex;
 };

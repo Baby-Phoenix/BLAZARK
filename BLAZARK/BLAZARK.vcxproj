@@ -45,6 +45,7 @@
     <ClInclude Include="Code Files\GamepadInput.h" />
     <ClInclude Include="Code Files\GLTFLoader.h" />
     <ClInclude Include="Code Files\Input.h" />
+    <ClInclude Include="Code Files\JSON.h" />
     <ClInclude Include="Code Files\Mesh.h" />
     <ClInclude Include="Code Files\OBJLoader.h" />
     <ClInclude Include="Code Files\Random.h" />
@@ -59,6 +60,8 @@
   <ItemGroup>
     <None Include="Resource Files\Shaders\skybox_frag_shader.glsl" />
     <None Include="Resource Files\Shaders\skybox_vert_shader.glsl" />
+    <None Include="Resource Files\Shaders\static_shader.frag" />
+    <None Include="Resource Files\Shaders\static_shader.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

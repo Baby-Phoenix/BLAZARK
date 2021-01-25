@@ -56,15 +56,34 @@ Menu::Menu(string name, unsigned int* num, bool* change)
 
 void Menu::InitScene()
 {
+	m_shaders.push_back(new Shader("static_shader.vert", "static_shader.frag"));
+
 	//creating a new registry for the scene when initialised
 	m_sceneReg = new entt::registry();
 
 	//Giving the ECS the same registry as the current scene
 	GameObject::SetRegistry(m_sceneReg);
+
+	auto testMesh = std::make_unique<Mesh>();
+	loadOBJ("Resource Files\OBJFiles", *testMesh);
+
+	std::unique_ptr<GameObject> CamEntity = GameObject::Allocate();
+	CamEntity->AttachComponent<Camera>(CamEntity);
+	CamEntity->AttachComponent<Transform>();
+	CamEntity->GetComponent<Camera>().PerspectiveProj(60.0f, 1.0f, 0.1f, 100.0f);
+	CamEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 2.0f));
+
+	std::unique_ptr<GameObject> TestEntity = GameObject::Allocate();
+	TestEntity->AttachComponent<StaticRenderer>(TestEntity, *testMesh);
 }
 
 void Menu::Update(float deltaTime)
 {
+	auto CamView = m_sceneReg->view<Camera>();
+
+	for (auto entity : CamView) {
+		CamView.get(entity).Update();
+	}
 }
 
 void Menu::KeyInput()
@@ -152,6 +171,11 @@ void Menu::GamepadInput()
 
 void Menu::Render(float deltaTime)
 {
+	auto StaticView = m_sceneReg->view<StaticRenderer>();
+
+	for (auto entity : StaticView) {
+		StaticView.get(entity).Draw(m_shaders[0]);
+	}
 }
 
 Universe::Universe(string name, unsigned int* num, bool* change)

@@ -1,6 +1,6 @@
 #include "StaticRenderer.h"
 
-StaticRenderer::StaticRenderer(GameObject& entity, const Mesh& mesh, Texture* texture) {
+StaticRenderer::StaticRenderer(std::unique_ptr<GameObject>& entity, const Mesh& mesh, Texture* texture) {
 	m_tex = texture;
 	m_entity = &entity;
 	m_vao = std::make_unique<VertexArray>();
@@ -21,7 +21,7 @@ void StaticRenderer::SetVAO(const Mesh& mesh) {
 }
 
 void StaticRenderer::Draw(Shader* shader) {
-	auto& transform = m_entity->transform;
+	auto& transform = m_entity->GetComponent<Transform>();
 
 	//TODO: Material/Texture and Shader implementation
 	m_tex->bind(0);
