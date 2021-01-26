@@ -1,8 +1,8 @@
 #include "StaticRenderer.h"
 
-StaticRenderer::StaticRenderer(std::unique_ptr<GameObject>& entity, const Mesh& mesh, Texture* texture) {
+StaticRenderer::StaticRenderer(GameObject* entity, const Mesh& mesh, Texture* texture) {
 	m_tex = texture;
-	m_entity = &entity;
+	m_entity = std::unique_ptr<GameObject>(entity);
 	m_vao = std::make_unique<VertexArray>();
 	SetVAO(mesh);
 }

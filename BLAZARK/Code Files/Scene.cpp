@@ -1,7 +1,6 @@
 #include "Scene.h"
 #include "btBulletDynamicsCommon.h"
 
-btVector3 a;
 
 Scene::Scene(string name)
 	:m_name(name)
@@ -56,34 +55,39 @@ Menu::Menu(string name, unsigned int* num, bool* change)
 
 void Menu::InitScene()
 {
-	m_shaders.push_back(new Shader("static_shader.vert", "static_shader.frag"));
-
-	//creating a new registry for the scene when initialised
-	m_sceneReg = new entt::registry();
+	//m_shaders.push_back(new Shader("static_shader.vert", "static_shader.frag"));
+//creating a new registry for the scene when initialised
+	if (m_sceneReg == nullptr)
+		m_sceneReg = new entt::registry();
 
 	//Giving the ECS the same registry as the current scene
 	GameObject::SetRegistry(m_sceneReg);
 
+	if (GameObject::IsEmpty()) {
+		//add entites in here if not initialised
+	}
+
 	auto testMesh = std::make_unique<Mesh>();
-	loadOBJ("Resource Files\OBJFiles", *testMesh);
+	loadOBJ("Resource Files/OBJFiles/Home_Planet.obj", *testMesh);
 
 	std::unique_ptr<GameObject> CamEntity = GameObject::Allocate();
-	CamEntity->AttachComponent<Camera>(CamEntity);
+	CamEntity->AttachComponent<Camera>(CamEntity.get());
 	CamEntity->AttachComponent<Transform>();
 	CamEntity->GetComponent<Camera>().PerspectiveProj(60.0f, 1.0f, 0.1f, 100.0f);
 	CamEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 2.0f));
 
 	std::unique_ptr<GameObject> TestEntity = GameObject::Allocate();
-	TestEntity->AttachComponent<StaticRenderer>(TestEntity, *testMesh);
+	TestEntity->AttachComponent<Transform>();
+	TestEntity->AttachComponent<StaticRenderer>(TestEntity.get(), *testMesh);
 }
 
 void Menu::Update(float deltaTime)
 {
-	auto CamView = m_sceneReg->view<Camera>();
+	/*auto CamView = m_sceneReg->view<Camera>();
 
 	for (auto entity : CamView) {
 		CamView.get(entity).Update();
-	}
+	}*/
 }
 
 void Menu::KeyInput()
@@ -162,20 +166,18 @@ void Menu::GamepadInput()
 	else
 		std::cout << "No controller connected" << std::endl;
 
-	auto entity = GameObject::Allocate();
-
-	entity.get()->AttachComponent<StaticRenderer>();
+	
 
 }
 
 
 void Menu::Render(float deltaTime)
 {
-	auto StaticView = m_sceneReg->view<StaticRenderer>();
+	/*auto StaticView = m_sceneReg->view<StaticRenderer>();
 
 	for (auto entity : StaticView) {
 		StaticView.get(entity).Draw(m_shaders[0]);
-	}
+	}*/
 }
 
 Universe::Universe(string name, unsigned int* num, bool* change)
@@ -213,83 +215,69 @@ void Universe::MouseInput()
 void Universe::GamepadInput()
 {
 
-	int present = glfwJoystickPresent(GLFW_JOYSTICK_1);
+	if (gamepad.getGamepadInput()) {
+		//button input
+		if (gamepad.buttons.A) {
 
-	//DEBUGGING
-		/*std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout << "Left Stick X Axis: " << axes[0] << std::endl;
-		std::cout << "Left Stick Y Axis: " << axes[1] << std::endl;
-		std::cout << "Right Stick X Axis: " << axes[2] << std::endl;
-		std::cout << "Right Stick Y Axis: " << axes[3] << std::endl;
-		std::cout << "Left Trigger/L2: " << axes[4] << std::endl;
-		std::cout << "Right Trigger/R2: " << axes[5] << std::endl;*/
-
-
-	if (present == 1)
-	{
-		int axesCount;
-		const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
-
-		float temp;
-
-		//Turn left
-		if (axes[0] < -0.2f) //Joystick left
-		{
 		}
-		//Turn right
-		if (axes[1] > 0.2f) //Joystick right
-		{
+		else if (gamepad.buttons.B) {
+
+		}
+		else if (gamepad.buttons.X) {
+
+		}
+		else if (gamepad.buttons.Y) {
 
 		}
 
-		if (axes[2]) //Right Stick X 
-		{
+		//trigger input
+		if (gamepad.trigger.LT > 0 && gamepad.trigger.LT < 1) {
 
 		}
 
-		if (axes[3]) //Right Stick Y 
-		{
+		else if (gamepad.trigger.LT > -1 && gamepad.trigger.LT < 0) {
 
 		}
 
-		if (axes[5] > -0.7) //Right Trigger 
-		{
+		if (gamepad.trigger.RT > 0 && gamepad.trigger.RT < 1) {
 
 		}
 
+		else if (gamepad.trigger.RT > -1 && gamepad.trigger.RT < 0) {
+
+		}
+
+		//axes input
+		if (gamepad.axes[Direction::LEFT].X > 0 && gamepad.axes[Direction::LEFT].X < 1) {
+
+		}
+		else if (gamepad.axes[Direction::LEFT].X > -1 && gamepad.axes[Direction::LEFT].X < 0) {
+
+		}
+
+		if (gamepad.axes[Direction::LEFT].Y > 0 && gamepad.axes[Direction::LEFT].Y < 1) {
+
+		}
+		else if (gamepad.axes[Direction::LEFT].Y > -1 && gamepad.axes[Direction::LEFT].Y < 0) {
+
+		}
+
+		if (gamepad.axes[Direction::RIGHT].X > 0 && gamepad.axes[Direction::RIGHT].X < 1) {
+
+		}
+		else if (gamepad.axes[Direction::RIGHT].X > -1 && gamepad.axes[Direction::RIGHT].X < 0) {
+
+		}
+
+		if (gamepad.axes[Direction::RIGHT].Y > 0 && gamepad.axes[Direction::RIGHT].Y < 1) {
+
+		}
+		else if (gamepad.axes[Direction::RIGHT].Y > -1 && gamepad.axes[Direction::RIGHT].Y < 0) {
+
+		}
 	}
 
-
-
-	int buttonCount;
-	const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
-
-	if (GLFW_PRESS == buttons[0])
-	{
-		std::cout << "A button pressed: " << std::endl;
-	}
-
-	if (GLFW_PRESS == buttons[1])
-	{
-		std::cout << "B button pressed: " << std::endl;
-	}
-
-	if (GLFW_PRESS == buttons[2])
-	{
-		std::cout << "X button pressed: " << std::endl;
-	}
-
-	if (GLFW_PRESS == buttons[3])
-	{
-		std::cout << "Y button pressed: " << std::endl;
-	}
+	else
+		std::cout << "No controller connected" << std::endl;
 
 }

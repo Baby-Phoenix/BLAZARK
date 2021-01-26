@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ECS.h"
-#include "Mesh.h"
+#include "OBJLoader.h"
 #include "Vertex.h"
 #include "Shader.h"
 #include "Texture.h"
@@ -9,7 +9,7 @@
 class StaticRenderer {
 public:
 	StaticRenderer() = default;
-	StaticRenderer(std::unique_ptr<GameObject>& entity, const Mesh& mesh, Texture* texture = nullptr);
+	StaticRenderer(GameObject* entity, const Mesh& mesh, Texture* texture = nullptr);
 	virtual ~StaticRenderer() = default;
 
 	StaticRenderer(StaticRenderer&&) = default;

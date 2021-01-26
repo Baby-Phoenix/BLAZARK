@@ -4,7 +4,7 @@
 
 class Camera {
 public:
-	Camera(std::unique_ptr<GameObject>& entity);
+	Camera(GameObject* entity);
 	virtual ~Camera() = default;
 
 	void PerspectiveProj(float near, float far, float aspect, float FoVY);
