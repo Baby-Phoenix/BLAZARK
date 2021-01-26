@@ -20,5 +20,5 @@ private:
 	glm::mat4 m_proj;
 	glm::mat4 m_viewProj;
 
-	std::unique_ptr<GameObject> m_entity;
+	GameObject* m_entity;
 };

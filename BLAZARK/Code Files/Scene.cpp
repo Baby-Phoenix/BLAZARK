@@ -1,7 +1,6 @@
 #include "Scene.h"
 #include "btBulletDynamicsCommon.h"
 
-
 Scene::Scene(string name)
 	:m_name(name)
 {
@@ -70,15 +69,15 @@ void Menu::InitScene()
 	auto testMesh = std::make_unique<Mesh>();
 	loadOBJ("Resource Files/OBJFiles/Home_Planet.obj", *testMesh);
 
-	std::unique_ptr<GameObject> CamEntity = GameObject::Allocate();
-	CamEntity->AttachComponent<Camera>(CamEntity.get());
-	CamEntity->AttachComponent<Transform>();
-	CamEntity->GetComponent<Camera>().PerspectiveProj(60.0f, 1.0f, 0.1f, 100.0f);
-	CamEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 2.0f));
+	auto CamEntity = GameObject::Allocate();
+	CamEntity.get()->AttachComponent<Camera>(CamEntity.get());
+	CamEntity.get()->AttachComponent<Transform>();
+	//CamEntity.get()->GetComponent<Camera>().PerspectiveProj(60.0f, 1.0f, 0.1f, 100.0f);
+	CamEntity.get()->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 2.0f));
 
-	std::unique_ptr<GameObject> TestEntity = GameObject::Allocate();
-	TestEntity->AttachComponent<Transform>();
-	TestEntity->AttachComponent<StaticRenderer>(TestEntity.get(), *testMesh);
+	auto TestEntity = GameObject::Allocate();
+	/*TestEntity->AttachComponent<Transform>();
+	TestEntity->AttachComponent<StaticRenderer>(TestEntity.get(), *testMesh);*/
 }
 
 void Menu::Update(float deltaTime)

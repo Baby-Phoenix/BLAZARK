@@ -1,7 +1,7 @@
 #include "Camera.h"
 
 Camera::Camera(GameObject* entity) {
-	m_entity = std::unique_ptr<GameObject>(entity);
+	m_entity = entity;
 }
 
 void Camera::PerspectiveProj(float near, float far, float aspect, float FoVY) {
