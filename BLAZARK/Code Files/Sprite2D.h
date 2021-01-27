@@ -1,16 +1,19 @@
 #pragma once
 
-#include "glm.hpp"
-#include <string>
 #include "Mesh.h"
-
+#include "Texture.h"
+#include "OBJLoader.h"
+#include "Shader.h"
+#include "Camera.h"
 
 class Sprite2D
 {
 
 public:
+	
+	Sprite2D(Texture* tex, GameObject* entity,float width = 1, float height = 1, float transparency = 1);
 
-
+	void Draw(Shader* shader, Camera* cam);
 
 private:
 
@@ -23,7 +26,8 @@ private:
 	float m_height = 0;
 	float m_transparency = 0;
 
-	VertexBuffer VBO;
-	VertexArray VAO;
+	static Mesh* m_planeMesh;
 
+	Texture* m_texture;
+	GameObject* m_entity;
 };

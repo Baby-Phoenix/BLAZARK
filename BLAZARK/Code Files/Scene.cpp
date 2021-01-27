@@ -54,7 +54,10 @@ Menu::Menu(string name, unsigned int* num, bool* change)
 
 void Menu::InitScene()
 {
-	//m_shaders.push_back(new Shader("static_shader.vert", "static_shader.frag"));
+	m_shaders.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader.frag"));
+	m_shaders.push_back(new Shader("Resource Files/Shaders/Sprite2D.vert", "Resource Files/Shaders/Sprite2D.frag"));
+
+	m_textures.push_back(new Texture("Resource Files/Textures/blazark.png", GL_TEXTURE_2D));
 //creating a new registry for the scene when initialised
 	if (m_sceneReg == nullptr)
 		m_sceneReg = new entt::registry();
@@ -70,23 +73,47 @@ void Menu::InitScene()
 	loadOBJ("Resource Files/OBJFiles/Home_Planet.obj", *testMesh);
 
 	auto CamEntity = GameObject::Allocate();
-	CamEntity.get()->AttachComponent<Camera>(CamEntity.get());
-	CamEntity.get()->AttachComponent<Transform>();
-	CamEntity.get()->GetComponent<Camera>().PerspectiveProj(60.0f, 1.0f, 0.1f, 100.0f);
-	CamEntity.get()->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 1000.0f));
+	CamEntity->AttachComponent<Transform>();
+	CamEntity->AttachComponent<Camera>(CamEntity.get());
+	CamEntity->GetComponent<Camera>().PerspectiveProj(60.0f, 1.0f, 0.1f, 100.0f);
+	CamEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 1000.0f));
+	
 
 	auto TestEntity = GameObject::Allocate();
 	TestEntity->AttachComponent<Transform>();
 	TestEntity->AttachComponent<StaticRenderer>(CamEntity.get(), TestEntity.get(), *testMesh);
+
+	auto SpriteEntity = GameObject::Allocate();
+	SpriteEntity->AttachComponent<Sprite2D>(m_textures[0],SpriteEntity.get(), 10, 10);
+	SpriteEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 1000.0f));
+
 }
 
 void Menu::Update(float deltaTime)
 {
-	auto CamView = m_sceneReg->view<Camera>();
+	//Camera Update
+	
 
-	for (auto entity : CamView) {
-		CamView.get(entity).Update();
+	{
+		auto CamView = m_sceneReg->view<Camera>();
+
+		for (auto entity : CamView) {
+			CamView.get(entity).Update();
+			cam = &CamView.get<Camera>(entity);
+		}
 	}
+	
+	{
+		auto view = m_sceneReg->view<Sprite2D, Transform>();
+
+		for (auto entity : view) {
+			auto& spr = view.get<Sprite2D>(entity);
+			
+			spr.Draw(m_shaders[1], cam);
+			
+		}
+	}
+
 }
 
 void Menu::KeyInput()

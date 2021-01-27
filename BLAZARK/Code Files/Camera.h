@@ -14,6 +14,7 @@ public:
 
 	// Getters //
 	const glm::mat4& GetViewProj();
+	const glm::mat4& GetView();
 
 private:
 	glm::mat4 m_view;
