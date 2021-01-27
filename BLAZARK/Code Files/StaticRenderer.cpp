@@ -1,6 +1,6 @@
 #include "StaticRenderer.h"
 
-StaticRenderer::StaticRenderer(Camera* camera, GameObject* entity, const Mesh& mesh, Texture* texture) {
+StaticRenderer::StaticRenderer(GameObject* camera, GameObject* entity, const Mesh& mesh, Texture* texture) {
 	m_tex = texture;
 	m_camera = camera;
 	m_entity = entity;
@@ -29,7 +29,8 @@ void StaticRenderer::Draw(Shader* shader) {
 
 	shader->use();
 
-	shader->setMat4fv(m_camera->GetViewProj(), "ViewProjection");
+	shader->setVec3f(m_camera->GetComponent<Transform>().GetLocalPos(), "camPos");
+	shader->setMat4fv(m_camera->GetComponent<Camera>().GetViewProj(), "ViewProjection");
 	shader->setMat4fv(transform.GetGlobal(), "ModelMatrix");
 	shader->setMat3fv(transform.GetNormal(), "NormalMatrix");
 

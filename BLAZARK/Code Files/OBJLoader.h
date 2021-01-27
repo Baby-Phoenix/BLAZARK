@@ -15,8 +15,6 @@ static void loadOBJ(const char* file_name, Mesh& mesh) {
 		throw "ERROR::OBJLOADER::Could not open file.";
 	}
 
-	std::cout << "It works so far";
-
 	std::stringstream ss;
 	std::string obj_line = "";
 	std::string prefix = "";
@@ -93,14 +91,9 @@ static void loadOBJ(const char* file_name, Mesh& mesh) {
 
 	// Arrange raw data as per indicies
 	for (size_t i = 0; i < vertex_position_indicies.size(); ++i) {
-		
-
 		vertex_positions.push_back(raw_vertex_positions[vertex_position_indicies[i] - 1]);
 		vertex_normals.push_back(raw_vertex_normals[vertex_normal_indicies[i] - 1]);
 		vertex_texcoords.push_back(raw_vertex_texcoords[vertex_texcoord_indicies[i] - 1]);
-
-		
-
 	}
 	
 	mesh.SetPositions(vertex_positions);
