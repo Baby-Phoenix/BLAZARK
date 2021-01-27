@@ -122,6 +122,9 @@
     <ClInclude Include="Code Files\JSON.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Code Files\Sprite2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resource Files\Shaders\skybox_frag_shader.glsl">
