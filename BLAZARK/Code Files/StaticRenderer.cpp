@@ -1,8 +1,9 @@
 #include "StaticRenderer.h"
 
-StaticRenderer::StaticRenderer(GameObject* entity, const Mesh& mesh, Texture* texture) {
+StaticRenderer::StaticRenderer(Camera* camera, GameObject* entity, const Mesh& mesh, Texture* texture) {
 	m_tex = texture;
-	m_entity = std::unique_ptr<GameObject>(entity);
+	m_camera = camera;
+	m_entity = entity;
 	m_vao = std::make_unique<VertexArray>();
 	SetVAO(mesh);
 }
@@ -28,6 +29,7 @@ void StaticRenderer::Draw(Shader* shader) {
 
 	shader->use();
 
+	shader->setMat4fv(m_camera->GetViewProj(), "ViewProjection");
 	shader->setMat4fv(transform.GetGlobal(), "ModelMatrix");
 	shader->setMat3fv(transform.GetNormal(), "NormalMatrix");
 

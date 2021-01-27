@@ -72,21 +72,21 @@ void Menu::InitScene()
 	auto CamEntity = GameObject::Allocate();
 	CamEntity.get()->AttachComponent<Camera>(CamEntity.get());
 	CamEntity.get()->AttachComponent<Transform>();
-	//CamEntity.get()->GetComponent<Camera>().PerspectiveProj(60.0f, 1.0f, 0.1f, 100.0f);
-	CamEntity.get()->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 2.0f));
+	CamEntity.get()->GetComponent<Camera>().PerspectiveProj(60.0f, 1.0f, 0.1f, 100.0f);
+	CamEntity.get()->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 1000.0f));
 
 	auto TestEntity = GameObject::Allocate();
-	/*TestEntity->AttachComponent<Transform>();
-	TestEntity->AttachComponent<StaticRenderer>(TestEntity.get(), *testMesh);*/
+	TestEntity->AttachComponent<Transform>();
+	TestEntity->AttachComponent<StaticRenderer>(CamEntity.get(), TestEntity.get(), *testMesh);
 }
 
 void Menu::Update(float deltaTime)
 {
-	/*auto CamView = m_sceneReg->view<Camera>();
+	auto CamView = m_sceneReg->view<Camera>();
 
 	for (auto entity : CamView) {
 		CamView.get(entity).Update();
-	}*/
+	}
 }
 
 void Menu::KeyInput()
@@ -172,11 +172,11 @@ void Menu::GamepadInput()
 
 void Menu::Render(float deltaTime)
 {
-	/*auto StaticView = m_sceneReg->view<StaticRenderer>();
+	auto StaticView = m_sceneReg->view<StaticRenderer>();
 
 	for (auto entity : StaticView) {
 		StaticView.get(entity).Draw(m_shaders[0]);
-	}*/
+	}
 }
 
 Universe::Universe(string name, unsigned int* num, bool* change)

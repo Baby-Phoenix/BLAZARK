@@ -5,11 +5,12 @@
 #include "Vertex.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "Camera.h"
 
 class StaticRenderer {
 public:
 	StaticRenderer() = default;
-	StaticRenderer(GameObject* entity, const Mesh& mesh, Texture* texture = nullptr);
+	StaticRenderer(Camera* camera, GameObject* entity, const Mesh& mesh, Texture* texture = nullptr);
 	virtual ~StaticRenderer() = default;
 
 	StaticRenderer(StaticRenderer&&) = default;
@@ -22,7 +23,8 @@ public:
 private:
 	std::unique_ptr<VertexArray> m_vao;
 
-	std::unique_ptr<GameObject> m_entity;
+	Camera* m_camera;
+	GameObject* m_entity;
 
 	Texture* m_tex;
 };
