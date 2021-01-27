@@ -23,3 +23,8 @@ const glm::mat4& Camera::GetViewProj()
 {
 	return m_viewProj;
 }
+
+const glm::mat4& Camera::GetView()
+{
+	return m_view;
+}

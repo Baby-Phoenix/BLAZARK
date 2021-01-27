@@ -63,6 +63,9 @@
     <ClCompile Include="Code Files\AudioEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Code Files\Sprite2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code Files\Game.h">

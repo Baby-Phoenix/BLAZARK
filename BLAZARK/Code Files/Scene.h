@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
-#include "Camera.h"
 #include "StaticRenderer.h"
+#include "Sprite2D.h"
 //#include "libs.h"
 //#include "ParticleSystem.h"
 //#include "Projectile.h"
@@ -60,9 +60,11 @@ protected:
 
 	GamePad gamepad;
 
+	Camera* cam;
+
 	//shaders
 	vector<Shader*> m_shaders;
-
+	vector<Texture*> m_textures;
 };
 
 class Menu : public Scene

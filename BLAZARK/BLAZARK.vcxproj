@@ -32,6 +32,7 @@
     <ClCompile Include="Code Files\Scene.cpp" />
     <ClCompile Include="Code Files\Shader.cpp" />
     <ClCompile Include="Code Files\Skybox.cpp" />
+    <ClCompile Include="Code Files\Sprite2D.cpp" />
     <ClCompile Include="Code Files\StaticRenderer.cpp" />
     <ClCompile Include="Code Files\Texture.cpp" />
     <ClCompile Include="Code Files\Transform.cpp" />
