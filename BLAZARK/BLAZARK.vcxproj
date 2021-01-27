@@ -52,6 +52,7 @@
     <ClInclude Include="Code Files\Scene.h" />
     <ClInclude Include="Code Files\Shader.h" />
     <ClInclude Include="Code Files\Skybox.h" />
+    <ClInclude Include="Code Files\Sprite2D.h" />
     <ClInclude Include="Code Files\StaticRenderer.h" />
     <ClInclude Include="Code Files\Texture.h" />
     <ClInclude Include="Code Files\Transform.h" />
