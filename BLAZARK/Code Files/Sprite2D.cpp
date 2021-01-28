@@ -14,7 +14,7 @@ Sprite2D::Sprite2D(Texture* tex, GameObject* entity, float width, float height, 
 	if (m_planeMesh == nullptr) {
 	
 		m_planeMesh = new Mesh();
-		loadOBJ("Resource Files/OBJFiles/plane.obj", *m_planeMesh);
+		loadOBJ("Resource Files/OBJFiles/Home_Planet.obj", *m_planeMesh);
 	}
 
 }
@@ -22,8 +22,6 @@ Sprite2D::Sprite2D(Texture* tex, GameObject* entity, float width, float height, 
 void Sprite2D::Draw(Shader* shader, Camera* cam)
 {
 	auto& transform = m_entity->GetComponent<Transform>();
-
-	
 
 	VertexArray* temp_vao = new VertexArray();
 
@@ -46,7 +44,7 @@ void Sprite2D::Draw(Shader* shader, Camera* cam)
 	shader->setMat4fv(cam->GetViewProj(), "ViewProjection");
 	shader->setMat4fv(transform.GetGlobal(), "ModelMatrix");
 	shader->setMat4fv(cam->GetProj(), "Projection");
-
+	shader->setMat4fv(cam->GetView(), "View");
 	//binds and draws
 	temp_vao->DrawArray();
 

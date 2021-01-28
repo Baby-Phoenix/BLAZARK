@@ -11,7 +11,7 @@ class Sprite2D
 
 public:
 	
-	Sprite2D(Texture* tex, GameObject* entity,float width = 1, float height = 1, float transparency = 1);
+	Sprite2D(Texture* tex, GameObject* entity,float width = 50, float height = 50, float transparency = 1);
 
 	void Draw(Shader* shader, Camera* cam);
 

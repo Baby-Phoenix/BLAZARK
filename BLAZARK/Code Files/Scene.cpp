@@ -82,8 +82,8 @@ void Menu::InitScene()
 	cament = GameObject::Allocate();
 	cament->AttachComponent<Transform>();
 	cam = &cament->AttachComponent<Camera>(cament.get());
-	cament->GetComponent<Camera>().PerspectiveProj(60.0f, 1.0f, 0.1f, 100.0f);
-	cament->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, -10.0f));
+	cament->GetComponent<Camera>().PerspectiveProj(1.0f, 60.0f, 1.0f, 100.0f);
+	cament->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 100.0f));
 	
 
 	planetent = GameObject::Allocate();
@@ -93,7 +93,10 @@ void Menu::InitScene()
 
 	spriteent = GameObject::Allocate();
 	spriteent->AttachComponent<Sprite2D>(m_textures[0], spriteent.get(), 10, 10);
-	spriteent->AttachComponent<Transform>();
+
+	auto temp = glm::vec3(90, 0, 0);
+
+	spriteent->AttachComponent<Transform>().RotateLocalFixed(temp);
 
 }
 
@@ -104,6 +107,7 @@ void Menu::Update(float deltaTime)
 
 	KeyInput();
 	cam->Update();
+	spriteent->GetComponent<Transform>().UpdateGlobal();
 	
 }
 
@@ -210,7 +214,7 @@ void Menu::GamepadInput()
 void Menu::Render(float deltaTime)
 {
 	
-	
+
 		//planetent->GetComponent<StaticRenderer>().Draw(m_shaders[0]);
 
 		spriteent->GetComponent<Sprite2D>().Draw(m_shaders[1], cam);

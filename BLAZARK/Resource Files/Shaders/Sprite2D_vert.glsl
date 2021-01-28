@@ -10,10 +10,10 @@ out vec3 fragPosition;
 uniform mat4 ModelMatrix;
 uniform mat4 ViewProjection;
 uniform mat4 Projection;
+uniform mat4 View;
 
 void main()
 {
-        mat4 View = ViewProjection / Projection;
     gl_Position = ViewProjection * ModelMatrix * vec4(position, 1.0);
     TexCoords.x = texCoord.x;
     TexCoords.y = 1.0 - texCoord.y;   
