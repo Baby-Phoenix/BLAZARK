@@ -1,15 +1,17 @@
 #include "StaticRenderer.h"
 
-StaticRenderer::StaticRenderer(GameObject* camera, GameObject* entity, const Mesh& mesh, Texture* texture) {
+StaticRenderer::StaticRenderer(GameObject* camera, GameObject* entity, const Mesh& mesh, Shader* shader,Texture* texture) {
 	m_tex = texture;
 	m_camera = camera;
 	m_entity = entity;
 	m_vao = std::make_unique<VertexArray>();
-	SetVAO(mesh);
+	SetVAO(mesh,shader);
 }
 
-void StaticRenderer::SetVAO(const Mesh& mesh) {
+void StaticRenderer::SetVAO(const Mesh& mesh, Shader* shader) {
 	const VertexBuffer* vbo;
+
+	shader->use();
 
 	if ((vbo = mesh.GetVBO(Mesh::VertexAttrib::POSITION)) != nullptr)
 		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::POSITION);
@@ -25,16 +27,14 @@ void StaticRenderer::Draw(Shader* shader) {
 	auto& transform = m_entity->GetComponent<Transform>();
 
 	//TODO: Material/Texture and Shader implementation
+	shader->use();
+
 	m_tex->bind(0);
-
-	
-
 	shader->setVec3f(m_camera->GetComponent<Transform>().GetLocalPos(), "camPos");
 	shader->setMat4fv(m_camera->GetComponent<Camera>().GetViewProj(), "ViewProjection");
 	shader->setMat4fv(transform.GetGlobal(), "ModelMatrix");
 	shader->setMat3fv(transform.GetNormal(), "NormalMatrix");
 
-	shader->use();
-
+	
 	m_vao->DrawArray();
 }

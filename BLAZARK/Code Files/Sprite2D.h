@@ -22,9 +22,9 @@ private:
 
 	glm::vec2 m_textureSize = glm::vec2();
 
-	float m_width = 0;
-	float m_height = 0;
-	float m_transparency = 0;
+	float m_width;
+	float m_height;
+	float m_transparency;
 
 	static Mesh* m_planeMesh;
 

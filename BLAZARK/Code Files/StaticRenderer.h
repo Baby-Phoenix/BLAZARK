@@ -10,13 +10,13 @@
 class StaticRenderer {
 public:
 	StaticRenderer() = default;
-	StaticRenderer(GameObject* camera, GameObject* entity, const Mesh& mesh, Texture* texture = nullptr);
+	StaticRenderer(GameObject* camera, GameObject* entity, const Mesh& mesh, Shader* shader,Texture* texture = nullptr);
 	virtual ~StaticRenderer() = default;
 
 	StaticRenderer(StaticRenderer&&) = default;
 	StaticRenderer& operator=(StaticRenderer&&) = default;
 
-	void SetVAO(const Mesh& mesh);
+	void SetVAO(const Mesh& mesh, Shader* shader);
 
 	virtual void Draw(Shader* shader);
 

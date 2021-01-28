@@ -28,3 +28,10 @@ const glm::mat4& Camera::GetView()
 {
 	return m_view;
 }
+
+const glm::mat4& Camera::GetProj()
+{
+	return m_proj;
+}
+
+

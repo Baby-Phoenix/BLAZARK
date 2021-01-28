@@ -45,7 +45,7 @@ void Sprite2D::Draw(Shader* shader, Camera* cam)
 	shader->set1f(m_transparency, "uTransparency");
 	shader->setMat4fv(cam->GetViewProj(), "ViewProjection");
 	shader->setMat4fv(transform.GetGlobal(), "ModelMatrix");
-	shader->setMat4fv(cam->GetView(), "View");
+	shader->setMat4fv(cam->GetProj(), "Projection");
 
 	//binds and draws
 	temp_vao->DrawArray();

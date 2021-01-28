@@ -4,7 +4,7 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
-uniform sampler2D uTex;
+layout (binding = 0) uniform sampler2D uTex;
 uniform float uTransparency = 1.0f;
 
 void main() 

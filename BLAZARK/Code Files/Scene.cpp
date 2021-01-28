@@ -62,7 +62,7 @@ void Menu::InitScene()
 	m_shaders.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader.frag"));
 	m_shaders.push_back(new Shader("Resource Files/Shaders/Sprite2D_vert.glsl", "Resource Files/Shaders/Sprite2D_frag.glsl"));
 
-	m_textures.push_back(new Texture("Resource Files/Textures/blazark.png", GL_TEXTURE_2D));
+	m_textures.push_back(new Texture("Resource Files/Textures/tempPlanetTex.png", GL_TEXTURE_2D));
 	
 	//creating a new registry for the scene when initialised
 	if (m_sceneReg == nullptr) 
@@ -83,31 +83,52 @@ void Menu::InitScene()
 	cament->AttachComponent<Transform>();
 	cam = &cament->AttachComponent<Camera>(cament.get());
 	cament->GetComponent<Camera>().PerspectiveProj(60.0f, 1.0f, 0.1f, 100.0f);
-	cament->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 1000.0f));
+	cament->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, -10.0f));
 	
 
 	planetent = GameObject::Allocate();
 	planetent->AttachComponent<Transform>();
-	planetent->AttachComponent<StaticRenderer>(cament.get(), planetent.get(), *testMesh, m_textures[0]);
+	planetent->AttachComponent<StaticRenderer>(cament.get(), planetent.get(), *testMesh, m_shaders[0],m_textures[0]);
 
 
 	spriteent = GameObject::Allocate();
 	spriteent->AttachComponent<Sprite2D>(m_textures[0], spriteent.get(), 10, 10);
-	spriteent->AttachComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 1000.0f));
+	spriteent->AttachComponent<Transform>();
 
 }
 
 void Menu::Update(float deltaTime)
 {
 	//Camera Update
-	{
-		
-		cam->Update();
-	}
+	
+
+	KeyInput();
+	cam->Update();
+	
 }
 
 void Menu::KeyInput()
 {
+	if (glfwGetKey(this->m_window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(45.f, 0, 0);
+		spriteent->GetComponent<Transform>().RotateLocalFixed(temp);
+	}
+	if (glfwGetKey(this->m_window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(0.f, -45, 0);
+		spriteent->GetComponent<Transform>().RotateLocalFixed(temp);
+	}
+	if (glfwGetKey(this->m_window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(-45.f, 0, 0);
+		spriteent->GetComponent<Transform>().RotateLocalFixed(temp);
+	}
+	if (glfwGetKey(this->m_window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(0.f, 45, 0);
+		spriteent->GetComponent<Transform>().RotateLocalFixed(temp);
+	}
 }
 
 void Menu::MouseInput()
@@ -185,7 +206,6 @@ void Menu::GamepadInput()
 	
 
 }
-
 
 void Menu::Render(float deltaTime)
 {
