@@ -23,7 +23,7 @@ void Sprite2D::Draw(Shader* shader, Camera* cam)
 {
 	auto& transform = m_entity->GetComponent<Transform>();
 
-	m_texture->bind(0);
+	
 
 	VertexArray* temp_vao = new VertexArray();
 
@@ -37,15 +37,15 @@ void Sprite2D::Draw(Shader* shader, Camera* cam)
 
 	if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::NORMAL)) != nullptr)
 		temp_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::NORMAL);
-
 	//shader stuff
 	shader->use();
 
+	shader->set1i(0, "uTex");
+	m_texture->bind(0);
 	shader->set1f(m_transparency, "uTransparency");
 	shader->setMat4fv(cam->GetViewProj(), "ViewProjection");
 	shader->setMat4fv(transform.GetGlobal(), "ModelMatrix");
-	shader->setMat3fv(cam->GetView(), "View");
-
+	shader->setMat4fv(cam->GetView(), "View");
 
 	//binds and draws
 	temp_vao->DrawArray();
@@ -55,5 +55,6 @@ void Sprite2D::Draw(Shader* shader, Camera* cam)
 
 	m_texture->unbind();
 
+	shader->unuse();
 	delete temp_vao;
 }

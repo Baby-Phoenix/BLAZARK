@@ -27,12 +27,14 @@ void StaticRenderer::Draw(Shader* shader) {
 	//TODO: Material/Texture and Shader implementation
 	m_tex->bind(0);
 
-	shader->use();
+	
 
 	shader->setVec3f(m_camera->GetComponent<Transform>().GetLocalPos(), "camPos");
 	shader->setMat4fv(m_camera->GetComponent<Camera>().GetViewProj(), "ViewProjection");
 	shader->setMat4fv(transform.GetGlobal(), "ModelMatrix");
 	shader->setMat3fv(transform.GetNormal(), "NormalMatrix");
+
+	shader->use();
 
 	m_vao->DrawArray();
 }

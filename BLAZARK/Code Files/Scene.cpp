@@ -1,6 +1,11 @@
 #include "Scene.h"
 #include "btBulletDynamicsCommon.h"
 
+std::unique_ptr<GameObject> cament;
+std::unique_ptr<GameObject> spriteent;
+std::unique_ptr<GameObject> planetent;
+
+
 Scene::Scene(string name)
 	:m_name(name)
 {
@@ -55,13 +60,14 @@ Menu::Menu(string name, unsigned int* num, bool* change)
 void Menu::InitScene()
 {
 	m_shaders.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader.frag"));
-	m_shaders.push_back(new Shader("Resource Files/Shaders/Sprite2D.vert", "Resource Files/Shaders/Sprite2D.frag"));
+	m_shaders.push_back(new Shader("Resource Files/Shaders/Sprite2D_vert.glsl", "Resource Files/Shaders/Sprite2D_frag.glsl"));
 
 	m_textures.push_back(new Texture("Resource Files/Textures/blazark.png", GL_TEXTURE_2D));
-//creating a new registry for the scene when initialised
-	if (m_sceneReg == nullptr)
+	
+	//creating a new registry for the scene when initialised
+	if (m_sceneReg == nullptr) 
 		m_sceneReg = new entt::registry();
-
+	
 	//Giving the ECS the same registry as the current scene
 	GameObject::SetRegistry(m_sceneReg);
 
@@ -69,51 +75,35 @@ void Menu::InitScene()
 		//add entites in here if not initialised
 	}
 
+
 	auto testMesh = std::make_unique<Mesh>();
 	loadOBJ("Resource Files/OBJFiles/Home_Planet.obj", *testMesh);
 
-	auto CamEntity = GameObject::Allocate();
-	CamEntity->AttachComponent<Transform>();
-	CamEntity->AttachComponent<Camera>(CamEntity.get());
-	CamEntity->GetComponent<Camera>().PerspectiveProj(60.0f, 1.0f, 0.1f, 100.0f);
-	CamEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 1000.0f));
+	cament = GameObject::Allocate();
+	cament->AttachComponent<Transform>();
+	cam = &cament->AttachComponent<Camera>(cament.get());
+	cament->GetComponent<Camera>().PerspectiveProj(60.0f, 1.0f, 0.1f, 100.0f);
+	cament->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 1000.0f));
 	
 
-	auto TestEntity = GameObject::Allocate();
-	TestEntity->AttachComponent<Transform>();
-	TestEntity->AttachComponent<StaticRenderer>(CamEntity.get(), TestEntity.get(), *testMesh);
+	planetent = GameObject::Allocate();
+	planetent->AttachComponent<Transform>();
+	planetent->AttachComponent<StaticRenderer>(cament.get(), planetent.get(), *testMesh, m_textures[0]);
 
-	auto SpriteEntity = GameObject::Allocate();
-	SpriteEntity->AttachComponent<Sprite2D>(m_textures[0],SpriteEntity.get(), 10, 10);
-	SpriteEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 1000.0f));
+
+	spriteent = GameObject::Allocate();
+	spriteent->AttachComponent<Sprite2D>(m_textures[0], spriteent.get(), 10, 10);
+	spriteent->AttachComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 1000.0f));
 
 }
 
 void Menu::Update(float deltaTime)
 {
 	//Camera Update
-	
-
 	{
-		auto CamView = m_sceneReg->view<Camera>();
-
-		for (auto entity : CamView) {
-			CamView.get(entity).Update();
-			cam = &CamView.get<Camera>(entity);
-		}
+		
+		cam->Update();
 	}
-	
-	{
-		auto view = m_sceneReg->view<Sprite2D, Transform>();
-
-		for (auto entity : view) {
-			auto& spr = view.get<Sprite2D>(entity);
-			
-			spr.Draw(m_shaders[1], cam);
-			
-		}
-	}
-
 }
 
 void Menu::KeyInput()
@@ -199,11 +189,14 @@ void Menu::GamepadInput()
 
 void Menu::Render(float deltaTime)
 {
-	auto StaticView = m_sceneReg->view<StaticRenderer>();
+	
+	
+		//planetent->GetComponent<StaticRenderer>().Draw(m_shaders[0]);
 
-	for (auto entity : StaticView) {
-		StaticView.get(entity).Draw(m_shaders[0]);
-	}
+		spriteent->GetComponent<Sprite2D>().Draw(m_shaders[1], cam);
+
+		
+	
 }
 
 Universe::Universe(string name, unsigned int* num, bool* change)

@@ -27,6 +27,7 @@ public:
 		return m_reg->emplace<T>(m_ID, std::forward<Args>(args)...);
 	}
 
+	
 
 	//returns the component
 	template<typename T>
