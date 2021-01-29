@@ -13,63 +13,19 @@ class Skybox
 {
 public:
 
-	Skybox() {};
+	Skybox() = default;
+	~Skybox() = default;
 
-	void Init();
-	
-	void Update(glm::mat4 camViewMatrix, glm::mat4* ProjectionMatrix);
-	
+	static void Init();
+
+	static void Update(glm::mat4 camViewMatrix, glm::mat4* ProjectionMatrix);
+
 private:
-	GLuint LoadCubemap(std::vector<const GLchar*> faces);
+	static GLuint LoadCubemap(std::vector<const GLchar*> faces);
 
-	GLuint m_skyboxVAO;
-	GLuint m_cubemapTexture;
+	static GLuint m_skyboxVAO;
+	static GLuint m_cubemapTexture;
 
-	Shader* m_shader;
-
-	GLfloat skyboxVertices[108] = {
-		// positions          
-		-1.0f,  1.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-
-		-1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
-
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-
-		-1.0f, -1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
-
-		-1.0f,  1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f, -1.0f,
-
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f
-	};
+	static Shader* m_shader;
 
 };

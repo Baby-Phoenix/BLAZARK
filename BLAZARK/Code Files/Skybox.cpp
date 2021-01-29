@@ -1,8 +1,57 @@
 #include "Skybox.h"
 
+GLuint Skybox::m_skyboxVAO = NULL;
+GLuint Skybox::m_cubemapTexture = NULL;
+Shader* Skybox::m_shader = nullptr;
+
 void Skybox::Init()
 {
 	m_shader = new Shader("Resource Files/Shaders/skybox_vert_shader.glsl", "Resource Files/Shaders/skybox_frag_shader.glsl");
+
+	GLfloat skyboxVertices[108] = {
+		// positions          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
+	};
 
 	for (size_t i = 0; i < 108; i++)
 	{
@@ -11,10 +60,10 @@ void Skybox::Init()
 
 	//Setup VAO
 	GLuint skyboxVBO;
-	glGenVertexArrays(1, &this->m_skyboxVAO);
+	glGenVertexArrays(1, &m_skyboxVAO);
 	glGenBuffers(1, &skyboxVBO);
-	glBindVertexArray(this->m_skyboxVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, this->m_skyboxVAO);
+	glBindVertexArray(m_skyboxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_skyboxVAO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
@@ -28,7 +77,7 @@ void Skybox::Init()
 	faces.push_back("Resource Files/Textures/UniverseOne/SkyBox/4.png");
 	faces.push_back("Resource Files/Textures/UniverseOne/SkyBox/5.png");
 	faces.push_back("Resource Files/Textures/UniverseOne/SkyBox/6.png");
-	this->m_cubemapTexture = LoadCubemap(faces);
+	m_cubemapTexture = LoadCubemap(faces);
 }
 
 void Skybox::Update(glm::mat4 camViewMatrix, glm::mat4* ProjectionMatrix)
@@ -42,8 +91,8 @@ void Skybox::Update(glm::mat4 camViewMatrix, glm::mat4* ProjectionMatrix)
 	glUniformMatrix4fv(glGetUniformLocation(m_shader->m_id, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(ViewMatrix));
 	glUniformMatrix4fv(glGetUniformLocation(m_shader->m_id, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(*ProjectionMatrix));
 	//skybox cube
-	glBindVertexArray(this->m_skyboxVAO);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, this->m_cubemapTexture);
+	glBindVertexArray(m_skyboxVAO);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubemapTexture);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS); // Set depth function back to default

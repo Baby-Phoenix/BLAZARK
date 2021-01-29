@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "btBulletDynamicsCommon.h"
+#include "Skybox.h"
 
 std::unique_ptr<GameObject> cament;
 std::unique_ptr<GameObject> spriteent;
@@ -82,7 +83,7 @@ void Menu::InitScene()
 	cament = GameObject::Allocate();
 	cament->AttachComponent<Transform>();
 	cam = &cament->AttachComponent<Camera>(cament.get());
-	cament->GetComponent<Camera>().PerspectiveProj(1.0f, 60.0f, 1.0f, 100.0f);
+	cament->GetComponent<Camera>().PerspectiveProj(0.1f, 1000.0f, 1.0f, 90.0f);
 	cament->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 100.0f));
 	
 
@@ -100,6 +101,8 @@ void Menu::InitScene()
 
 	spriteent->AttachComponent<Transform>().RotateLocalFixed(temp);
 
+	Skybox::Init();
+
 }
 
 void Menu::Update(float deltaTime)
@@ -111,6 +114,8 @@ void Menu::Update(float deltaTime)
 	cam->Update();
 	spriteent->GetComponent<Transform>().UpdateGlobal();
 	planetent->GetComponent<Transform>().UpdateGlobal();
+	auto temp = cam->GetProj();
+	Skybox::Update(cam->GetView(), &temp);
 }
 
 void Menu::KeyInput()
@@ -234,6 +239,7 @@ void Universe::InitScene()
 
 void Universe::InitSkyBox()
 {
+	
 }
 
 void Universe::Update(float deltaTime)
@@ -246,6 +252,7 @@ void Universe::Render(float deltaTime)
 
 void Universe::UpdateSkyBox()
 {
+	
 }
 
 void Universe::KeyInput()
