@@ -1,17 +1,26 @@
 #include "StaticRenderer.h"
 
-StaticRenderer::StaticRenderer(GameObject* camera, GameObject* entity, const Mesh& mesh, Shader* shader,Texture* texture) {
+StaticRenderer::StaticRenderer(GameObject* camera, GameObject* entity, const Mesh& mesh, Texture* texture) {
 	m_tex = texture;
 	m_camera = camera;
 	m_entity = entity;
 	m_vao = std::make_unique<VertexArray>();
-	SetVAO(mesh,shader);
-}
-
-void StaticRenderer::SetVAO(const Mesh& mesh, Shader* shader) {
+	
 	const VertexBuffer* vbo;
 
-	shader->use();
+	if ((vbo = mesh.GetVBO(Mesh::VertexAttrib::POSITION)) != nullptr)
+		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::POSITION);
+
+	if ((vbo = mesh.GetVBO(Mesh::VertexAttrib::NORMAL)) != nullptr)
+		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::NORMAL);
+
+	if ((vbo = mesh.GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
+		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::TEXCOORD);
+	//SetVAO(mesh);
+}
+
+void StaticRenderer::SetVAO(const Mesh& mesh) {
+	const VertexBuffer* vbo;
 
 	if ((vbo = mesh.GetVBO(Mesh::VertexAttrib::POSITION)) != nullptr)
 		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::POSITION);
@@ -37,4 +46,7 @@ void StaticRenderer::Draw(Shader* shader) {
 
 	
 	m_vao->DrawArray();
+	//shader->unuse();
+	//glBindVertexArray(GL_NONE);
+
 }

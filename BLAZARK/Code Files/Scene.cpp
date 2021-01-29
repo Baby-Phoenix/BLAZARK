@@ -59,7 +59,7 @@ Menu::Menu(string name, unsigned int* num, bool* change)
 
 void Menu::InitScene()
 {
-	m_shaders.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader.frag"));
+	m_shaders.push_back(new Shader("Resource Files/Shaders/static_shader_vert.glsl", "Resource Files/Shaders/static_shader_frag.glsl"));
 	m_shaders.push_back(new Shader("Resource Files/Shaders/Sprite2D_vert.glsl", "Resource Files/Shaders/Sprite2D_frag.glsl"));
 
 	m_textures.push_back(new Texture("Resource Files/Textures/tempPlanetTex.png", GL_TEXTURE_2D));
@@ -77,7 +77,7 @@ void Menu::InitScene()
 
 
 	auto testMesh = std::make_unique<Mesh>();
-	loadOBJ("Resource Files/OBJFiles/Home_Planet.obj", *testMesh);
+	loadOBJ("Resource Files/OBJFiles/cube.obj", *testMesh);
 
 	cament = GameObject::Allocate();
 	cament->AttachComponent<Transform>();
@@ -87,12 +87,11 @@ void Menu::InitScene()
 	
 
 	planetent = GameObject::Allocate();
-	planetent->AttachComponent<Transform>();
-	planetent->AttachComponent<StaticRenderer>(cament.get(), planetent.get(), *testMesh, m_shaders[0],m_textures[0]);
-
-
+	planetent->AttachComponent<StaticRenderer>(cament.get(), planetent.get(), *testMesh, m_textures[0]);
+	planetent->AttachComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+	
 	spriteent = GameObject::Allocate();
-	spriteent->AttachComponent<Sprite2D>(m_textures[0], spriteent.get(), 10, 10);
+	spriteent->AttachComponent<Sprite2D>(m_textures[0], spriteent.get(), 50, 50);
 
 	auto temp = glm::vec3(90, 0, 0);
 
@@ -108,7 +107,7 @@ void Menu::Update(float deltaTime)
 	KeyInput();
 	cam->Update();
 	spriteent->GetComponent<Transform>().UpdateGlobal();
-	
+	planetent->GetComponent<Transform>().UpdateGlobal();
 }
 
 void Menu::KeyInput()
@@ -116,7 +115,9 @@ void Menu::KeyInput()
 	if (glfwGetKey(this->m_window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		glm::vec3 temp = glm::vec3(45.f, 0, 0);
+		planetent->GetComponent<Transform>().RotateLocalFixed(temp);
 		spriteent->GetComponent<Transform>().RotateLocalFixed(temp);
+
 	}
 	if (glfwGetKey(this->m_window, GLFW_KEY_A) == GLFW_PRESS)
 	{
@@ -215,9 +216,9 @@ void Menu::Render(float deltaTime)
 {
 	
 
-		//planetent->GetComponent<StaticRenderer>().Draw(m_shaders[0]);
+		planetent->GetComponent<StaticRenderer>().Draw(m_shaders[0]);
 
-		spriteent->GetComponent<Sprite2D>().Draw(m_shaders[1], cam);
+		//spriteent->GetComponent<Sprite2D>().Draw(m_shaders[1], cam);
 
 		
 	

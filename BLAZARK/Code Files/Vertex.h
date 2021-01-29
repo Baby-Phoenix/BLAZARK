@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <map>
+#include<iostream>
 
 class VertexBuffer {
 public:
@@ -81,6 +82,7 @@ public:
 	void DrawArray() {
 		glBindVertexArray(m_arrayID);
 		glDrawArrays(GL_TRIANGLES, 0, m_vboDict.begin()->second->GetBufferLen());
+		//std::cout << "hi \n";
 	}
 
 private:
