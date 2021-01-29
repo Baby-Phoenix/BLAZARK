@@ -76,8 +76,8 @@ void Menu::InitScene()
 	}
 
 
-	auto testMesh = std::make_unique<Mesh>();
-	loadOBJ("Resource Files/OBJFiles/cube.obj", *testMesh);
+	auto testMesh = new Mesh();
+	loadOBJ("Resource Files/OBJFiles/Home_Planet.obj", *testMesh);
 
 	cament = GameObject::Allocate();
 	cament->AttachComponent<Transform>();
@@ -88,8 +88,11 @@ void Menu::InitScene()
 
 	planetent = GameObject::Allocate();
 	planetent->AttachComponent<StaticRenderer>(cament.get(), planetent.get(), *testMesh, m_textures[0]);
-	planetent->AttachComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+	planetent->AttachComponent<Transform>().SetLocalScale(glm::vec3(1, 1, 1));
+
 	
+	
+
 	spriteent = GameObject::Allocate();
 	spriteent->AttachComponent<Sprite2D>(m_textures[0], spriteent.get(), 50, 50);
 
@@ -214,13 +217,10 @@ void Menu::GamepadInput()
 
 void Menu::Render(float deltaTime)
 {
-	
 
 		planetent->GetComponent<StaticRenderer>().Draw(m_shaders[0]);
 
 		//spriteent->GetComponent<Sprite2D>().Draw(m_shaders[1], cam);
-
-		
 	
 }
 
