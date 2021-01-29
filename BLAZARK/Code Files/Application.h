@@ -26,9 +26,12 @@ public:
 
 	static void SetClearColor(const glm::vec4& clearColor);
 
+	static int GetWindowWidth();
+	static int GetWindowHeight();
+
 private:
 	static GLFWwindow* m_window;
-
+	static int m_width, m_height;
 	static float m_prevTime;
 	static float m_deltaTime;
 };

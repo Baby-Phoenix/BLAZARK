@@ -5,6 +5,9 @@ GLFWwindow* Application::m_window = nullptr;
 float Application::m_prevTime = 0.0f;
 float Application::m_deltaTime = 0.0f;
 
+int Application::m_width;
+int Application::m_height;
+
 void Application::Init(const std::string& name, bool isFullscreen)
 {
 	//Initialize GLFW
@@ -26,8 +29,11 @@ void Application::Init(const std::string& name, bool isFullscreen)
 	if(isFullscreen)
 		m_window = glfwCreateWindow(800, 800, name.c_str(), glfwGetPrimaryMonitor(), NULL);
 	else
-		m_window = glfwCreateWindow(800, 800, name.c_str(), nullptr, nullptr);
-
+	{
+		m_width  = 1440;
+		m_height = 900;
+		m_window = glfwCreateWindow(m_width, m_height, name.c_str(), nullptr, nullptr);
+	}
 	glfwMakeContextCurrent(m_window);
 
 	//glfwSetKeyCallback(m_window, Input::GLFWInputCallback);
@@ -39,11 +45,13 @@ void Application::Init(const std::string& name, bool isFullscreen)
 		glfwTerminate();
 	}
 
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, m_width, m_height);
 
 	glEnable(GL_DEPTH_TEST);
 
 	glEnable(GL_CULL_FACE);
+
+	//glDisable(GL_CULL_FACE);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -97,4 +105,14 @@ bool Application::IsExitProgram()
 void Application::SetClearColor(const glm::vec4& clearColor)
 {
 	glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+}
+
+int Application::GetWindowWidth()
+{
+	return m_width;
+}
+
+int Application::GetWindowHeight()
+{
+	return m_height;
 }

@@ -80,7 +80,7 @@ void Skybox::Init()
 	m_cubemapTexture = LoadCubemap(faces);
 }
 
-void Skybox::Update(glm::mat4 camViewMatrix, glm::mat4* ProjectionMatrix)
+void Skybox::Draw(glm::mat4 camViewMatrix, glm::mat4 ProjectionMatrix)
 {
 	glm::mat4 ViewMatrix;
 
@@ -89,7 +89,7 @@ void Skybox::Update(glm::mat4 camViewMatrix, glm::mat4* ProjectionMatrix)
 	m_shader->use();
 	ViewMatrix = glm::mat4(glm::mat3(camViewMatrix));	// Remove any translation component of the view matrix
 	glUniformMatrix4fv(glGetUniformLocation(m_shader->m_id, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(ViewMatrix));
-	glUniformMatrix4fv(glGetUniformLocation(m_shader->m_id, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(*ProjectionMatrix));
+	glUniformMatrix4fv(glGetUniformLocation(m_shader->m_id, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(ProjectionMatrix));
 	//skybox cube
 	glBindVertexArray(m_skyboxVAO);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubemapTexture);

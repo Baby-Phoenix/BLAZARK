@@ -18,7 +18,7 @@ public:
 
 	static void Init();
 
-	static void Update(glm::mat4 camViewMatrix, glm::mat4* ProjectionMatrix);
+	static void Draw(glm::mat4 camViewMatrix, glm::mat4 ProjectionMatrix);
 
 private:
 	static GLuint LoadCubemap(std::vector<const GLchar*> faces);

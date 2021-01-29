@@ -6,17 +6,7 @@ StaticRenderer::StaticRenderer(GameObject* camera, GameObject* entity, const Mes
 	m_entity = entity;
 	m_vao = std::make_unique<VertexArray>();
 	
-	const VertexBuffer* vbo;
-
-	if ((vbo = mesh.GetVBO(Mesh::VertexAttrib::POSITION)) != nullptr)
-		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::POSITION);
-
-	if ((vbo = mesh.GetVBO(Mesh::VertexAttrib::NORMAL)) != nullptr)
-		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::NORMAL);
-
-	if ((vbo = mesh.GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
-		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::TEXCOORD);
-	//SetVAO(mesh);
+	SetVAO(mesh);
 }
 
 void StaticRenderer::SetVAO(const Mesh& mesh) {

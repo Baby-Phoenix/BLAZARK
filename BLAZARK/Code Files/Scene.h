@@ -2,6 +2,9 @@
 
 #include <string>
 #include "StaticRenderer.h"
+#include "Application.h"
+#include "btBulletDynamicsCommon.h"
+#include "Skybox.h"
 #include "Sprite2D.h"
 //#include "libs.h"
 //#include "ParticleSystem.h"
@@ -63,8 +66,9 @@ protected:
 	Camera* cam;
 
 	//shaders
-	vector<Shader*> m_shaders;
-	vector<Texture*> m_textures;
+	static vector<Shader*> m_shaders;
+	static vector<Texture*> m_textures;
+	static vector<Mesh*> m_meshes;
 };
 
 class Menu : public Scene
@@ -116,55 +120,6 @@ private:
 
 	float deltaTime;
 
-	////Skybox
-	//GLfloat skyboxVertices[108] = {
-	//	// positions          
-	//	-1.0f,  1.0f, -1.0f,
-	//	-1.0f, -1.0f, -1.0f,
-	//	 1.0f, -1.0f, -1.0f,
-	//	 1.0f, -1.0f, -1.0f,
-	//	 1.0f,  1.0f, -1.0f,
-	//	-1.0f,  1.0f, -1.0f,
-
-	//	-1.0f, -1.0f,  1.0f,
-	//	-1.0f, -1.0f, -1.0f,
-	//	-1.0f,  1.0f, -1.0f,
-	//	-1.0f,  1.0f, -1.0f,
-	//	-1.0f,  1.0f,  1.0f,
-	//	-1.0f, -1.0f,  1.0f,
-
-	//	 1.0f, -1.0f, -1.0f,
-	//	 1.0f, -1.0f,  1.0f,
-	//	 1.0f,  1.0f,  1.0f,
-	//	 1.0f,  1.0f,  1.0f,
-	//	 1.0f,  1.0f, -1.0f,
-	//	 1.0f, -1.0f, -1.0f,
-
-	//	-1.0f, -1.0f,  1.0f,
-	//	-1.0f,  1.0f,  1.0f,
-	//	 1.0f,  1.0f,  1.0f,
-	//	 1.0f,  1.0f,  1.0f,
-	//	 1.0f, -1.0f,  1.0f,
-	//	-1.0f, -1.0f,  1.0f,
-
-	//	-1.0f,  1.0f, -1.0f,
-	//	 1.0f,  1.0f, -1.0f,
-	//	 1.0f,  1.0f,  1.0f,
-	//	 1.0f,  1.0f,  1.0f,
-	//	-1.0f,  1.0f,  1.0f,
-	//	-1.0f,  1.0f, -1.0f,
-
-	//	-1.0f, -1.0f, -1.0f,
-	//	-1.0f, -1.0f,  1.0f,
-	//	 1.0f, -1.0f, -1.0f,
-	//	 1.0f, -1.0f, -1.0f,
-	//	-1.0f, -1.0f,  1.0f,
-	//	 1.0f, -1.0f,  1.0f
-	//};
-	//GLuint skyboxVAO;
-	//GLuint cubemapTexture;
-
-	//Particles
-	//std::vector<ParticleController*> particles;
+	
 
 };
