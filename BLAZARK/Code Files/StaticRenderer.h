@@ -18,11 +18,11 @@ public:
 
 	void SetVAO(const Mesh& mesh);
 
-	virtual void Draw(Shader* shader);
+	virtual void Draw();
 
 private:
 	std::unique_ptr<VertexArray> m_vao;
-
+	static Shader* m_static_shader;
 	GameObject* m_camera;
 	GameObject* m_entity;
 

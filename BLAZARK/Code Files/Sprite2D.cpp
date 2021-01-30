@@ -2,6 +2,7 @@
 
 Mesh* Sprite2D::m_planeMesh = nullptr;
 VertexArray* Sprite2D::VAO = nullptr;
+Shader* Sprite2D::m_Sprite2D_shader = nullptr;
 
 Sprite2D::Sprite2D(Texture* tex, GameObject* entity, float width, float height, float transparency)
 {
@@ -11,6 +12,10 @@ Sprite2D::Sprite2D(Texture* tex, GameObject* entity, float width, float height, 
 	m_height = height;
 	m_transparency = transparency;
 	m_entity = entity;
+
+	if (m_Sprite2D_shader == nullptr) 
+		m_Sprite2D_shader = new Shader("Resource Files/Shaders/Sprite2D_vert.glsl", "Resource Files/Shaders/Sprite2D_frag.glsl");
+	
 
 	if (m_planeMesh == nullptr) {
 	
@@ -35,21 +40,22 @@ Sprite2D::Sprite2D(Texture* tex, GameObject* entity, float width, float height, 
 
 }
 
-void Sprite2D::Draw(Shader* shader, Camera* cam)
+
+void Sprite2D::Draw(Camera* cam)
 {
 	auto& transform = m_entity->GetComponent<Transform>();
 
 	
 	//shader stuff
-	shader->use();
+	m_Sprite2D_shader->use();
 
-	shader->set1i(0, "uTex");
+	m_Sprite2D_shader->set1i(0, "uTex");
 	m_texture->bind(0);
-	shader->set1f(m_transparency, "uTransparency");
-	shader->setMat4fv(cam->GetViewProj(), "ViewProjection");
-	shader->setMat4fv(transform.GetGlobal(), "ModelMatrix");
-	shader->setMat4fv(cam->GetProj(), "Projection");
-	shader->setMat4fv(cam->GetView(), "View");
+	m_Sprite2D_shader->set1f(m_transparency, "uTransparency");
+	m_Sprite2D_shader->setMat4fv(cam->GetViewProj(), "ViewProjection");
+	m_Sprite2D_shader->setMat4fv(transform.GetGlobal(), "ModelMatrix");
+	m_Sprite2D_shader->setMat4fv(cam->GetProj(), "Projection");
+	m_Sprite2D_shader->setMat4fv(cam->GetView(), "View");
 	//binds and draws
 	VAO->DrawArray();
 

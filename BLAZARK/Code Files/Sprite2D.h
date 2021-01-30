@@ -12,8 +12,9 @@ class Sprite2D
 public:
 	
 	Sprite2D(Texture* tex, GameObject* entity,float width = 1, float height = 1, float transparency = 1);
+	virtual	~Sprite2D() = default;
 
-	void Draw(Shader* shader, Camera* cam);
+	void Draw(Camera* cam);
 
 private:
 
@@ -28,6 +29,7 @@ private:
 
 	static Mesh* m_planeMesh;
 	static VertexArray* VAO;
+	static Shader* m_Sprite2D_shader;
 
 	Texture* m_texture;
 	GameObject* m_entity;

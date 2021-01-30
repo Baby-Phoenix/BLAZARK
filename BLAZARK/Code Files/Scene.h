@@ -65,8 +65,6 @@ protected:
 
 	Camera* cam;
 
-	//shaders
-	static vector<Shader*> m_shaders;
 	static vector<Texture*> m_textures;
 	static vector<Mesh*> m_meshes;
 };

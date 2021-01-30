@@ -5,18 +5,12 @@ std::unique_ptr<GameObject> cament;
 std::unique_ptr<GameObject> spriteent;
 std::unique_ptr<GameObject> planetent;
 
-vector<Shader*> Scene::m_shaders;
 vector<Mesh*> Scene::m_meshes;
 vector<Texture*> Scene::m_textures;
 
 Scene::Scene(string name)
 	:m_name(name)
 {
-
-	if (m_shaders.size() < 1) {
-		m_shaders.push_back(new Shader("Resource Files/Shaders/static_shader_vert.glsl", "Resource Files/Shaders/static_shader_frag.glsl"));
-		m_shaders.push_back(new Shader("Resource Files/Shaders/Sprite2D_vert.glsl", "Resource Files/Shaders/Sprite2D_frag.glsl"));
-	}
 
 	if (m_textures.size() < 1) {
 		m_textures.push_back(new Texture("Resource Files/Textures/tempPlanetTex.png", GL_TEXTURE_2D));
@@ -96,7 +90,7 @@ void Menu::InitScene()
 			planetent = GameObject::Allocate();
 			planetent->AttachComponent<StaticRenderer>(cament.get(), planetent.get(), *m_meshes[0], m_textures[0]);
 			planetent->AttachComponent<Transform>().SetLocalScale(glm::vec3(1, 1, 1));
-
+			planetent->GetComponent<Transform>().SetLocalPos(glm::vec3(100, 0, 0));
 
 
 
@@ -114,6 +108,12 @@ void Menu::InitScene()
 			cament->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 100.0f));
 		}
 	}
+
+	Transform* temp = new Transform();
+
+	delete temp;
+
+	temp = new Transform();
 
 	Skybox::Init();
 
@@ -133,6 +133,10 @@ void Menu::Update(float deltaTime)
 
 void Menu::KeyInput()
 {
+	if (glfwGetKey(this->m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(this->m_window, GLFW_TRUE);
+	
+	//player movement
 	if (glfwGetKey(this->m_window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		glm::vec3 temp = glm::vec3(45.f, 0, 0);
@@ -156,6 +160,8 @@ void Menu::KeyInput()
 		spriteent->GetComponent<Transform>().RotateLocalFixed(temp);
 	}
 
+
+	//camera movement
 	if (glfwGetKey(this->m_window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
 		glm::vec3 temp = glm::vec3(0, 0, -5);
@@ -171,13 +177,13 @@ void Menu::KeyInput()
 	}
 	if (glfwGetKey(this->m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(-5.f, 0, 0);
-		cament->GetComponent<Transform>().MoveLocalPos(temp);
+		glm::vec3 temp = glm::vec3(-0.5f, 0, 0);
+		cament->GetComponent<Transform>().RotateLocal(temp);
 	}
 	if (glfwGetKey(this->m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(5.f, 0, 0);
-		cament->GetComponent<Transform>().MoveLocalPos(temp);
+		glm::vec3 temp = glm::vec3(0.5f, 0, 0);
+		cament->GetComponent<Transform>().RotateLocal(temp);
 	}
 }
 
@@ -260,9 +266,9 @@ void Menu::GamepadInput()
 void Menu::Render(float deltaTime)
 {
 
-		planetent->GetComponent<StaticRenderer>().Draw(m_shaders[0]);
+		planetent->GetComponent<StaticRenderer>().Draw();
 		Skybox::Draw(cam->GetView(), cam->GetProj());
-		//spriteent->GetComponent<Sprite2D>().Draw(m_shaders[1], cam);
+		spriteent->GetComponent<Sprite2D>().Draw(cam);
 	
 }
 
