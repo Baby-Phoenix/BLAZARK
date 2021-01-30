@@ -94,6 +94,8 @@ static void loadOBJ(const char* file_name, Mesh& mesh) {
 		vertex_positions.push_back(raw_vertex_positions[vertex_position_indicies[i] - 1]);
 		vertex_normals.push_back(raw_vertex_normals[vertex_normal_indicies[i] - 1]);
 		vertex_texcoords.push_back(raw_vertex_texcoords[vertex_texcoord_indicies[i] - 1]);
+
+		std::cout << raw_vertex_texcoords[vertex_texcoord_indicies[i]-1].x<<","<<raw_vertex_texcoords[vertex_texcoord_indicies[i] - 1].y<<std::endl;
 	}
 	
 	mesh.SetPositions(vertex_positions);

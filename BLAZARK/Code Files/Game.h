@@ -31,8 +31,6 @@ private:
 	bool m_isSceneSwitch = false;
 
 	//Private functions
-	void initUniforms();
-	void updateUniforms();
 	void UpdateScene();
 };
 

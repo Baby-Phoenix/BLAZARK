@@ -20,7 +20,7 @@ Sprite2D::Sprite2D(Texture* tex, GameObject* entity, float width, float height, 
 	if (m_planeMesh == nullptr) {
 	
 		m_planeMesh = new Mesh();
-		loadOBJ("Resource Files/OBJFiles/Home_Planet.obj", *m_planeMesh);
+		loadOBJ("Resource Files/OBJFiles/plane.obj", *m_planeMesh);
 	}
 
 	if (VAO == nullptr) {
@@ -45,7 +45,9 @@ void Sprite2D::Draw(Camera* cam)
 {
 	auto& transform = m_entity->GetComponent<Transform>();
 
-	
+	transform.SetLocalScale(glm::vec3(m_width,1, m_height));
+	transform.SetLocalRot(glm::vec3(90, 0, 90));
+	transform.UpdateGlobal();
 	//shader stuff
 	m_Sprite2D_shader->use();
 

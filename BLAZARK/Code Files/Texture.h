@@ -11,10 +11,10 @@
 class Texture
 {
 public:
-	Texture(const char* fileName, GLenum type);
+	Texture(const char* fileName);
 
 
-	Texture(std::vector<const GLchar*> faces, GLenum type);
+	Texture(std::vector<const GLchar*> faces);
 
 
 	~Texture();
@@ -35,6 +35,5 @@ private:
 	GLuint id;
 	int width;
 	int height;
-	unsigned int type;
 };
 

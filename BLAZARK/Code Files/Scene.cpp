@@ -13,7 +13,9 @@ Scene::Scene(string name)
 {
 
 	if (m_textures.size() < 1) {
-		m_textures.push_back(new Texture("Resource Files/Textures/tempPlanetTex.png", GL_TEXTURE_2D));
+		m_textures.push_back(new Texture("Resource Files/Textures/tempPlanetTex.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/spider.png"));
+
 	}
 	if (m_meshes.size() < 1) {
 		m_meshes.push_back(new Mesh());
@@ -95,9 +97,9 @@ void Menu::InitScene()
 
 
 			spriteent = GameObject::Allocate();
-			spriteent->AttachComponent<Sprite2D>(m_textures[0], spriteent.get(), 50, 50);
-			auto temp = glm::vec3(90, 0, 0);
-			spriteent->AttachComponent<Transform>().RotateLocalFixed(temp);
+			spriteent->AttachComponent<Sprite2D>(m_textures[1], spriteent.get(), 100, 100);
+			spriteent->AttachComponent<Transform>();
+			//spriteent->GetComponent<Transform>().SetLocalScale(temp);
 		}
 
 		else if (m_name == "Pause") {
@@ -108,12 +110,6 @@ void Menu::InitScene()
 			cament->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 100.0f));
 		}
 	}
-
-	Transform* temp = new Transform();
-
-	delete temp;
-
-	temp = new Transform();
 
 	Skybox::Init();
 
@@ -126,7 +122,6 @@ void Menu::Update(float deltaTime)
 
 	KeyInput();
 	cam->Update();
-	spriteent->GetComponent<Transform>().UpdateGlobal();
 	planetent->GetComponent<Transform>().UpdateGlobal();
 	
 }
@@ -139,24 +134,24 @@ void Menu::KeyInput()
 	//player movement
 	if (glfwGetKey(this->m_window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(45.f, 0, 0);
+		glm::vec3 temp = glm::vec3(5.f, 0, 0);
 		planetent->GetComponent<Transform>().RotateLocalFixed(temp);
 		spriteent->GetComponent<Transform>().RotateLocalFixed(temp);
 
 	}
 	if (glfwGetKey(this->m_window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0.f, -45, 0);
+		glm::vec3 temp = glm::vec3(0.f, -5, 0);
 		spriteent->GetComponent<Transform>().RotateLocalFixed(temp);
 	}
 	if (glfwGetKey(this->m_window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(-45.f, 0, 0);
+		glm::vec3 temp = glm::vec3(-5.f, 0, 0);
 		spriteent->GetComponent<Transform>().RotateLocalFixed(temp);
 	}
 	if (glfwGetKey(this->m_window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0.f, 45, 0);
+		glm::vec3 temp = glm::vec3(0.f, 5, 0);
 		spriteent->GetComponent<Transform>().RotateLocalFixed(temp);
 	}
 

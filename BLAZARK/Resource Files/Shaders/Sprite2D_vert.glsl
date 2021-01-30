@@ -15,8 +15,8 @@ uniform mat4 View;
 void main()
 {
     gl_Position = ViewProjection * ModelMatrix * vec4(position, 1.0);
-    TexCoords.x = texCoord.x;
-    TexCoords.y = 1.0 - texCoord.y;   
+    TexCoords.x = 1.0 - texCoord.x;
+    TexCoords.y = texCoord.y;   
     normal0 = mat3(View) * mat3(ModelMatrix) * normal;
     fragPosition = (ViewProjection * ModelMatrix * vec4(position, 1.0)).rgb;
 }

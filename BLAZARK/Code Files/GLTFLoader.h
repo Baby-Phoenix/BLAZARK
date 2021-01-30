@@ -21,7 +21,7 @@ struct DATAGETTER {
 	int componentSize;
 };
 
-static void loadGLTF(const char* fileName, Mesh& mesh, bool UVYFlip = true) {
+void loadGLTF(const char* fileName, Mesh& mesh, bool UVYFlip = true) {
 	auto model = std::make_unique<tinygltf::Model>();
 	std::string warn, err;
 	bool status;

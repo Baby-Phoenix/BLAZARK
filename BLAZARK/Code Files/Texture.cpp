@@ -3,24 +3,23 @@
 #define STB_IMAGE_IMPLEMENTATION 
 #include "Dependencies/tinygltf/stb_image.h"
 
-Texture::Texture(const char* fileName, GLenum type)
+Texture::Texture(const char* fileName)
 {
-	this->type = type;
 
 	unsigned char* image = stbi_load(fileName, &this->width, &this->height, NULL, 4);
 
 	glGenTextures(1, &this->id);
-	glBindTexture(type, this->id);
+	glBindTexture(GL_TEXTURE_2D, this->id);
 
-	glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 	if (image)
 	{
-		glTexImage2D(type, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-		glGenerateMipmap(type);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
 	{
@@ -28,24 +27,23 @@ Texture::Texture(const char* fileName, GLenum type)
 	}
 
 	glActiveTexture(0);
-	glBindTexture(type, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	stbi_image_free(image);
 }
 
-Texture::Texture(std::vector<const GLchar*> faces, GLenum type)
+Texture::Texture(std::vector<const GLchar*> faces)
 {
 	unsigned char* image;
 
-	this->type = type;
 
 	glGenTextures(1, &this->id);
-	glBindTexture(type, this->id);
+	glBindTexture(GL_TEXTURE_2D, this->id);
 
-	glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(type, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 	for (GLuint i = 0; i < faces.size(); i++)
 	{
@@ -54,7 +52,7 @@ Texture::Texture(std::vector<const GLchar*> faces, GLenum type)
 		stbi_image_free(image);
 	}
 
-	glBindTexture(type, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 Texture::~Texture()
@@ -70,13 +68,13 @@ inline GLuint Texture::getID()
 void Texture::bind(const GLint texture_unit)
 {
 	glActiveTexture(GL_TEXTURE0 + texture_unit); //Dynamically choose which texture unit to use
-	glBindTexture(this->type, this->id);
+	glBindTexture(GL_TEXTURE_2D, this->id);
 }
 
 void Texture::unbind()
 {
 	glActiveTexture(0);
-	glBindTexture(this->type, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::loadFromFile(const char* fileName)
@@ -89,17 +87,17 @@ void Texture::loadFromFile(const char* fileName)
 	unsigned char* image = stbi_load(fileName, &this->width, &this->height, NULL, 4);
 
 	glGenTextures(1, &this->id);
-	glBindTexture(this->type, this->id);
+	glBindTexture(GL_TEXTURE_2D, this->id);
 
-	glTexParameteri(this->type, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(this->type, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(this->type, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(this->type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 	if (image)
 	{
-		glTexImage2D(this->type, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-		glGenerateMipmap(this->type);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
 	{
@@ -107,7 +105,7 @@ void Texture::loadFromFile(const char* fileName)
 	}
 
 	glActiveTexture(0);
-	glBindTexture(this->type, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	stbi_image_free(image);
 }
 

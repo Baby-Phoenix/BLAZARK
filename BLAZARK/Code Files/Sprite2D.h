@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Mesh.h"
 #include "Texture.h"
 #include "OBJLoader.h"
 #include "Shader.h"
 #include "Camera.h"
+//#include "GLTFLoader.h"
 
 class Sprite2D
 {

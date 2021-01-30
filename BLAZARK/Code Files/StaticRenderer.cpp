@@ -33,6 +33,7 @@ void StaticRenderer::Draw() {
 	//TODO: Material/Texture and Shader implementation
 	m_static_shader->use();
 
+	m_static_shader->set1i(0, "albedo");
 	m_tex->bind(0);
 	m_static_shader->setVec3f(m_camera->GetComponent<Transform>().GetLocalPos(), "camPos");
 	m_static_shader->setMat4fv(m_camera->GetComponent<Camera>().GetViewProj(), "ViewProjection");
