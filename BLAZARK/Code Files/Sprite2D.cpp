@@ -46,7 +46,7 @@ void Sprite2D::Draw(Camera* cam)
 	auto& transform = m_entity->GetComponent<Transform>();
 
 	transform.SetLocalScale(glm::vec3(m_width,1, m_height));
-	transform.SetLocalRot(glm::vec3(90, 0, 90));
+	transform.SetLocalRot(glm::vec3(90, 0, 180));
 	transform.UpdateGlobal();
 	//shader stuff
 	m_Sprite2D_shader->use();

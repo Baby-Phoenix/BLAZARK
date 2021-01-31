@@ -14,7 +14,7 @@ Scene::Scene(string name)
 
 	if (m_textures.size() < 1) {
 		m_textures.push_back(new Texture("Resource Files/Textures/tempPlanetTex.png"));
-		m_textures.push_back(new Texture("Resource Files/Textures/spider.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/venom.png"));
 
 	}
 	if (m_meshes.size() < 1) {
@@ -95,7 +95,6 @@ void Menu::InitScene()
 			planetent->GetComponent<Transform>().SetLocalPos(glm::vec3(100, 0, 0));
 
 
-
 			spriteent = GameObject::Allocate();
 			spriteent->AttachComponent<Sprite2D>(m_textures[1], spriteent.get(), 100, 100);
 			spriteent->AttachComponent<Transform>();
@@ -118,11 +117,18 @@ void Menu::InitScene()
 void Menu::Update(float deltaTime)
 {
 	//Camera Update
-	
+
+	{
+		auto view = m_sceneReg->view<Transform>();
+		for (auto entity : view) {
+			view.get<Transform>(entity).UpdateGlobal();
+		}
+	}
 
 	KeyInput();
 	cam->Update();
-	planetent->GetComponent<Transform>().UpdateGlobal();
+	
+	//planetent->GetComponent<Transform>().UpdateGlobal();
 	
 }
 
@@ -261,9 +267,24 @@ void Menu::GamepadInput()
 void Menu::Render(float deltaTime)
 {
 
-		planetent->GetComponent<StaticRenderer>().Draw();
+	{
+		auto staticView = m_sceneReg->view<StaticRenderer>();
+
+		for (auto entity : staticView) {
+			staticView.get<StaticRenderer>(entity).Draw();
+		}
+	}
+
+	{
+		auto sprite2DView = m_sceneReg->view<Sprite2D>();
+
+		for (auto entity : sprite2DView) {
+			sprite2DView.get<Sprite2D>(entity).Draw(cam);
+		}
+	}
+		//planetent->GetComponent<StaticRenderer>().Draw();
 		Skybox::Draw(cam->GetView(), cam->GetProj());
-		spriteent->GetComponent<Sprite2D>().Draw(cam);
+		//spriteent->GetComponent<Sprite2D>().Draw(cam);
 	
 }
 
