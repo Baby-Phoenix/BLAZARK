@@ -1,11 +1,11 @@
 #pragma once
 
 #include "ECS.h"
-#include "OBJLoader.h"
 #include "Vertex.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "GLTFLoader.h"
 
 class StaticRenderer {
 public:

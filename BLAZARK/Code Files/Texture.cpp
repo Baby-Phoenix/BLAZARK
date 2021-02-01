@@ -1,6 +1,4 @@
 #include "Texture.h"
-
-#define STB_IMAGE_IMPLEMENTATION 
 #include "Dependencies/tinygltf/stb_image.h"
 
 Texture::Texture(const char* fileName)

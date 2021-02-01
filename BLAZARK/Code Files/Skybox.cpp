@@ -61,13 +61,16 @@ void Skybox::Init()
 	//Setup VAO
 	GLuint skyboxVBO;
 	glGenVertexArrays(1, &m_skyboxVAO);
-	glGenBuffers(1, &skyboxVBO);
 	glBindVertexArray(m_skyboxVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, m_skyboxVAO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
+
+	glGenBuffers(1, &skyboxVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-	glBindVertexArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+	glBindVertexArray(GL_NONE);
 
 	//Load images
 	std::vector<const GLchar*> faces;

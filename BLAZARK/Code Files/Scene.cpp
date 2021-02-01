@@ -282,10 +282,9 @@ void Menu::Render(float deltaTime)
 			sprite2DView.get<Sprite2D>(entity).Draw(cam);
 		}
 	}
-		//planetent->GetComponent<StaticRenderer>().Draw();
-		Skybox::Draw(cam->GetView(), cam->GetProj());
-		//spriteent->GetComponent<Sprite2D>().Draw(cam);
-	
+		
+	Skybox::Draw(cam->GetView(), cam->GetProj());
+		
 }
 
 Universe::Universe(string name, unsigned int* num, bool* change)

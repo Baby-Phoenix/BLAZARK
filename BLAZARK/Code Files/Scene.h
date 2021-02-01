@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include "StaticRenderer.h"
 #include "Application.h"
 #include "btBulletDynamicsCommon.h"

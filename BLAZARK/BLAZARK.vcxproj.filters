@@ -66,6 +66,12 @@
     <ClCompile Include="Code Files\Sprite2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Code Files\GLTFLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Code Files\Dependencies\tinygltf\tiny_gltf_impl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code Files\Game.h">
@@ -128,6 +134,15 @@
     <ClInclude Include="Code Files\Sprite2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Code Files\Dependencies\tinygltf\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code Files\Dependencies\tinygltf\stb_image_write.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code Files\Dependencies\tinygltf\tiny_gltf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resource Files\Shaders\skybox_frag_shader.glsl">
@@ -138,5 +153,6 @@
     </None>
     <None Include="Resource Files\Shaders\static_shader.vert" />
     <None Include="Resource Files\Shaders\static_shader.frag" />
+    <None Include="Code Files\Dependencies\tinygltf\LICENSE" />
   </ItemGroup>
 </Project>
