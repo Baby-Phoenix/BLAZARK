@@ -14,6 +14,11 @@ void Camera::OrthographicProj(float near, float far, float left, float right, fl
 	Update();
 }
 
+Transform& Camera::GetTransform()
+{
+	return m_entity->GetComponent<Transform>();
+}
+
 void Camera::Update() {
 	m_view = glm::inverse(m_entity->GetComponent<Transform>().UpdateGlobal());
 	m_viewProj = m_proj * m_view;

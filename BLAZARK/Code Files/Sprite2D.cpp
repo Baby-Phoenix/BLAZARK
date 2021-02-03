@@ -45,6 +45,8 @@ void Sprite2D::Draw(Camera* cam)
 {
 	auto& transform = m_entity->GetComponent<Transform>();
 
+	cam->OrthographicProj(1.0f, 10000.0f, -100.0f, 100.0f, -100.0f, 100.0f);
+
 	transform.SetLocalScale(glm::vec3(m_width,1, m_height));
 	transform.SetLocalRot(glm::vec3(90, 0, 180));
 	transform.UpdateGlobal();
@@ -64,6 +66,7 @@ void Sprite2D::Draw(Camera* cam)
 	//unbinds the vao
 	glBindVertexArray(GL_NONE);
 
+	cam->PerspectiveProj(1.0f, 100000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 100.0f);
 	m_texture->unbind();
 
 }

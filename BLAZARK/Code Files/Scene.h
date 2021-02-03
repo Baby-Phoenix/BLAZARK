@@ -1,7 +1,6 @@
 #pragma once
 
 #include "StaticRenderer.h"
-#include "Application.h"
 #include "btBulletDynamicsCommon.h"
 #include "Skybox.h"
 #include "Sprite2D.h"

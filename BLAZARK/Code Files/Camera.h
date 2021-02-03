@@ -9,6 +9,8 @@ public:
 
 	void PerspectiveProj(float near, float far, float aspect, float FoVY);
 	void OrthographicProj(float near, float far, float left, float right, float bottom, float top);
+	Transform& GetTransform();
+
 
 	void Update();
 

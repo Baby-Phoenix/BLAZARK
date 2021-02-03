@@ -4,7 +4,7 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "Camera.h"
-
+#include "Application.h"
 
 class Sprite2D
 {
@@ -17,9 +17,6 @@ public:
 	void Draw(Camera* cam);
 
 private:
-
-	glm::vec2 m_bottomLeft = glm::vec2(0.f, 0.f);
-	glm::vec2 m_topRight = glm::vec2(1.f, 1.f);
 
 	glm::vec2 m_textureSize = glm::vec2();
 
