@@ -24,6 +24,8 @@
     <ClCompile Include="Code Files\Application.cpp" />
     <ClCompile Include="Code Files\Dependencies\tinygltf\tiny_gltf_impl.cpp" />
     <ClCompile Include="Code Files\ECS.cpp" />
+    <ClCompile Include="Code Files\Effect.cpp" />
+    <ClCompile Include="Code Files\FrameBuffer.cpp" />
     <ClCompile Include="Code Files\Game.cpp" />
     <ClCompile Include="Code Files\GamepadInput.cpp" />
     <ClCompile Include="Code Files\GLTFLoader.cpp" />
@@ -43,10 +45,13 @@
     <ClInclude Include="Code Files\Application.h" />
     <ClInclude Include="Code Files\AudioEngine.h" />
     <ClInclude Include="Code Files\Camera.h" />
+    <ClInclude Include="Code Files\Cube.h" />
     <ClInclude Include="Code Files\Dependencies\tinygltf\stb_image.h" />
     <ClInclude Include="Code Files\Dependencies\tinygltf\stb_image_write.h" />
     <ClInclude Include="Code Files\Dependencies\tinygltf\tiny_gltf.h" />
     <ClInclude Include="Code Files\ECS.h" />
+    <ClInclude Include="Code Files\Effect.h" />
+    <ClInclude Include="Code Files\FrameBuffer.h" />
     <ClInclude Include="Code Files\Game.h" />
     <ClInclude Include="Code Files\GamepadInput.h" />
     <ClInclude Include="Code Files\GLTFLoader.h" />

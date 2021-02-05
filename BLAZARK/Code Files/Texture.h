@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <string>
-
 #include <glad/glad.h>
 #include <glfw3.h>
 
@@ -19,7 +18,7 @@ public:
 
 	~Texture();
 
-	inline GLuint getID();
+	inline GLuint& getID();
 
 	void bind(const GLint texture_unit);
 

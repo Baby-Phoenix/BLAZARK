@@ -117,18 +117,9 @@ void Menu::InitScene()
 void Menu::Update(float deltaTime)
 {
 	//Camera Update
-
-	{
-		auto view = m_sceneReg->view<Transform>();
-		for (auto entity : view) {
-			view.get<Transform>(entity).UpdateGlobal();
-		}
-	}
-
+	 m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal();});
 	KeyInput();
 	cam->Update();
-	
-	//planetent->GetComponent<Transform>().UpdateGlobal();
 	
 }
 
@@ -267,24 +258,9 @@ void Menu::GamepadInput()
 void Menu::Render(float deltaTime)
 {
 
-	{
-		auto staticView = m_sceneReg->view<StaticRenderer>();
-
-		for (auto entity : staticView) {
-			staticView.get<StaticRenderer>(entity).Draw();
-		}
-	}
-
-	{
-		auto sprite2DView = m_sceneReg->view<Sprite2D>();
-
-		for (auto entity : sprite2DView) {
-			sprite2DView.get<Sprite2D>(entity).Draw(cam);
-		}
-	}
-		
+	m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& render) {render.Draw(); });
+	m_sceneReg->view<Sprite2D>().each([=](Sprite2D& render) {render.Draw(cam); });	
 	Skybox::Draw(cam->GetView(), cam->GetProj());
-		
 }
 
 Universe::Universe(string name, unsigned int* num, bool* change)

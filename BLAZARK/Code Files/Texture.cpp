@@ -4,10 +4,10 @@
 Texture::Texture(const char* fileName)
 {
 
-	unsigned char* image = stbi_load(fileName, &this->width, &this->height, NULL, 4);
+	unsigned char* image = stbi_load(fileName, &width, &height, NULL, 4);
 
-	glGenTextures(1, &this->id);
-	glBindTexture(GL_TEXTURE_2D, this->id);
+	glGenTextures(1, &id);
+	glBindTexture(GL_TEXTURE_2D, id);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -16,7 +16,7 @@ Texture::Texture(const char* fileName)
 
 	if (image)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
@@ -34,8 +34,8 @@ Texture::Texture(std::vector<const GLchar*> faces)
 	unsigned char* image;
 
 
-	glGenTextures(1, &this->id);
-	glBindTexture(GL_TEXTURE_2D, this->id);
+	glGenTextures(1, &id);
+	glBindTexture(GL_TEXTURE_2D, id);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -45,8 +45,8 @@ Texture::Texture(std::vector<const GLchar*> faces)
 
 	for (GLuint i = 0; i < faces.size(); i++)
 	{
-		image = stbi_load(faces[i], &this->width, &this->height, 0, 3);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, this->width, this->height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+		image = stbi_load(faces[i], &width, &height, 0, 3);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 		stbi_image_free(image);
 	}
 
@@ -55,18 +55,18 @@ Texture::Texture(std::vector<const GLchar*> faces)
 
 Texture::~Texture()
 {
-	glDeleteTextures(1, &this->id);
+	glDeleteTextures(1, &id);
 }
 
-inline GLuint Texture::getID()
+inline GLuint& Texture::getID()
 {
-	return this->id;
+	return id;
 }
 
 void Texture::bind(const GLint texture_unit)
 {
 	glActiveTexture(GL_TEXTURE0 + texture_unit); //Dynamically choose which texture unit to use
-	glBindTexture(GL_TEXTURE_2D, this->id);
+	glBindTexture(GL_TEXTURE_2D, id);
 }
 
 void Texture::unbind()
@@ -77,15 +77,15 @@ void Texture::unbind()
 
 void Texture::loadFromFile(const char* fileName)
 {
-	if (this->id)
+	if (id)
 	{
-		glDeleteTextures(1, &this->id);
+		glDeleteTextures(1, &id);
 	}
 
-	unsigned char* image = stbi_load(fileName, &this->width, &this->height, NULL, 4);
+	unsigned char* image = stbi_load(fileName, &width, &height, NULL, 4);
 
-	glGenTextures(1, &this->id);
-	glBindTexture(GL_TEXTURE_2D, this->id);
+	glGenTextures(1, &id);
+	glBindTexture(GL_TEXTURE_2D, id);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -94,7 +94,7 @@ void Texture::loadFromFile(const char* fileName)
 
 	if (image)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->width, this->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
