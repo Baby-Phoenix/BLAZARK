@@ -58,7 +58,7 @@ Texture::~Texture()
 	glDeleteTextures(1, &id);
 }
 
-inline GLuint& Texture::getID()
+ GLuint& Texture::getID()
 {
 	return id;
 }

@@ -11,14 +11,14 @@ class Texture
 {
 public:
 	Texture(const char* fileName);
-
+	Texture() { width = 0; height = 0; id = GL_NONE; }
 
 	Texture(std::vector<const GLchar*> faces);
 
 
 	~Texture();
 
-	inline GLuint& getID();
+	GLuint& getID();
 
 	void bind(const GLint texture_unit) const;
 

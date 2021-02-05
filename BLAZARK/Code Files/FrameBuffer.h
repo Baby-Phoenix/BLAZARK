@@ -24,6 +24,7 @@ struct Color
 
 class FrameBuffer 
 {
+public:
 	FrameBuffer();
 	~FrameBuffer();
 
