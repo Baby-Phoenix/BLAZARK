@@ -128,49 +128,142 @@ void FrameBuffer::BindColorTexture(unsigned colorBuffer, int textureSlot) const
 
 void FrameBuffer::UnbindTexture(int textureSlot) const
 {
+	glActiveTexture(GL_TEXTURE0 + textureSlot);
+	glBindTexture(GL_TEXTURE_2D, GL_NONE);
 }
 
 void FrameBuffer::ReshapeBuffer(unsigned int width, unsigned int height)
 {
+	SetSize(width, height);
+	Unload();
+	m_depth.UnloadDepth();
+	m_color.UnloadColor();
+
+	Init();
+
+
 }
 
 void FrameBuffer::SetSize(unsigned width, unsigned height)
 {
+	m_width = width;
+	m_height = height;
 }
 
 void FrameBuffer::SetViewport() const
 {
+	glViewport(0, 0, m_width, m_height);
 }
 
 void FrameBuffer::Bind() const
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+
+	if (m_color.m_numAttachments)
+	{
+		glDrawBuffers(m_color.m_numAttachments, &m_color.m_buffers[0]);
+	}
+
 }
 
 void FrameBuffer::Unbind() const
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 }
 
 void FrameBuffer::RenderToFSQ() const
 {
+	SetViewport();
+	Bind();
+	DrawFullscreenQuad();
+	Unbind();
 }
 
 void FrameBuffer::DrawToBackbuffer()
 {
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_FBO);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GL_NONE);
+
+	glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_NONE);
 }
 
 void FrameBuffer::Clear()
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+	glClear(m_clearFlag);
+	Unbind();
 }
 
 bool FrameBuffer::CheckFBO()
 {
-	return false;
+	Bind();
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "Framebuffer is not ok\n";
+		return false;
+	}
+	return true;
 }
 
 void FrameBuffer::InitFullscreenQuad()
 {
+
+	float VBO_DATA[]
+	{
+		-1.f, -1.f, 0.f,
+		1.f, -1.f, 0.f,
+		-1.f, 1.f, 0.f,
+
+		1.f, 1.f, 0.f,
+		-1.f, 1.f, 0.f,
+		1.f, -1.f, 0.f,
+
+		0.f, 0.f,
+		1.f, 0.f,
+		0.f, 1.f,
+
+		1.f, 1.f,
+		0.f, 1.f,
+		1.f, 0.f
+	};
+
+	//Vertex size is 6pts * 3 data points * sizeof (float)
+	int vertexSize = 6 * 3 * sizeof(float);
+	//texcoord size = 6pts * 2 data points * sizeof(float)
+	int texCoordSize = 6 * 2 * sizeof(float);
+
+	//Generates vertex array
+	glGenVertexArrays(1, &m_fullscreenQuadVAO);
+	//Binds VAO
+	glBindVertexArray(m_fullscreenQuadVAO);
+
+	//Enables 2 vertex attrib array slots
+	glEnableVertexAttribArray(0); //Vertices
+	glEnableVertexAttribArray(1); //UVS
+
+	//Generates VBO
+	glGenBuffers(1, &m_fullscreenQuadVBO);
+
+	//Binds the VBO
+	glBindBuffer(GL_ARRAY_BUFFER, m_fullscreenQuadVBO);
+	//Buffers the vbo data
+	glBufferData(GL_ARRAY_BUFFER, vertexSize + texCoordSize, VBO_DATA, GL_STATIC_DRAW);
+
+	//Sets first attrib array to point to the beginning of the data
+	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(0));
+	//Sets the second attrib array to point to an offset in the data
+	glVertexAttribPointer((GLuint)1, 2, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<void*>(vertexSize));
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+	glBindVertexArray(GL_NONE);
+
 }
 
 void FrameBuffer::DrawFullscreenQuad()
 {
+	glBindVertexArray(m_fullscreenQuadVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindVertexArray(GL_NONE);
 }

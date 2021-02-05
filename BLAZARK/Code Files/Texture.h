@@ -20,7 +20,7 @@ public:
 
 	inline GLuint& getID();
 
-	void bind(const GLint texture_unit);
+	void bind(const GLint texture_unit) const;
 
 
 	void unbind();
