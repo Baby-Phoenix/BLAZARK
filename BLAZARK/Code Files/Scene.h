@@ -14,7 +14,7 @@
 using namespace std;
 
 
-enum class ScenesNum { MENU = 0, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5, PAUSE };
+enum class ScenesNum { TITLE_SCREEN, START_MENU, PAUSE_MENU, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
 
 class Scene {
 
@@ -25,9 +25,9 @@ public:
 	string GetName();
 
 
-	virtual void Render(float deltaTime);
+	virtual void Render(float deltaTime) {	}
 
-	virtual void Update(float deltaTime);
+	virtual void Update(float deltaTime) {	}
 
 	virtual void InitScene();
 

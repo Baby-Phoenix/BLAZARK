@@ -28,14 +28,6 @@ string Scene::GetName()
 	return m_name;
 }
 
-void Scene::Render(float deltaTime)
-{
-}
-
-void Scene::Update(float deltaTime)
-{
-}
-
 void Scene::InitScene()
 {
 	//creating a new registry for the scene when initialised
@@ -81,7 +73,7 @@ void Menu::InitScene()
 	if (GameObject::IsEmpty()) {
 		//add entites in here if not initialised
 
-		if (m_name == "Menu") {
+		if (m_name == "Start_Menu") {
 			cament = GameObject::Allocate();
 			cament->AttachComponent<Transform>();
 			cam = &cament->AttachComponent<Camera>(cament.get());
@@ -101,7 +93,7 @@ void Menu::InitScene()
 			//spriteent->GetComponent<Transform>().SetLocalScale(temp);
 		}
 
-		else if (m_name == "Pause") {
+		else if (m_name == "Pause_Menu") {
 			cament = GameObject::Allocate();
 			cament->AttachComponent<Transform>();
 			cam = &cament->AttachComponent<Camera>(cament.get());
