@@ -3,7 +3,7 @@
 void Effect::Init(unsigned int width, unsigned int height)
 {
 	int index = int(m_buffers.size());
-	m_buffers.push_back(std::move(std::make_unique<FrameBuffer>()));
+	m_buffers.push_back(new FrameBuffer());
 	m_buffers[index]->AddColor(GL_RGBA8);
 	m_buffers[index]->AddDepth();
 	m_buffers[index]->Init(width, height);
@@ -55,9 +55,9 @@ void Effect::Unload()
 {
 	for (int i = 0; i < m_buffers.size(); i++)
 	{
-		if (m_buffers[i].get() != nullptr) {
+		if (m_buffers[i] != nullptr) {
 			m_buffers[i]->Unload();
-			m_buffers[i].reset();
+			delete m_buffers[i];
 		}
 	}
 

@@ -3,12 +3,12 @@
 void GreyscaleEffect::Init(unsigned width, unsigned height)
 {
     int index = int(m_buffers.size());
-    m_buffers.push_back(std::move(std::make_unique<FrameBuffer>()));
+    m_buffers.push_back(new FrameBuffer());
     m_buffers[index]->AddColor(GL_RGBA8);
     m_buffers[index]->Init(width, height);
 
     index = int(m_effect_shaders.size());
-    m_effect_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/passthrough_frag.glsl"));
+    m_effect_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/greyscale_frag.glsl"));
 }
 
 void GreyscaleEffect::ApplyEffect(Effect* previousEffect)

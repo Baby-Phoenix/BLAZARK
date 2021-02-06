@@ -4,6 +4,12 @@
 std::unique_ptr<GameObject> cament;
 std::unique_ptr<GameObject> spriteent;
 std::unique_ptr<GameObject> planetent;
+std::unique_ptr<GameObject> effect;
+std::unique_ptr<GameObject> gseffect;
+
+
+Effect* posteffect = nullptr;
+Effect* greyscaleeffect = nullptr;
 
 vector<Mesh*> Scene::m_meshes;
 vector<Texture*> Scene::m_textures;
@@ -92,7 +98,15 @@ void Menu::InitScene()
 			spriteent->AttachComponent<Transform>();
 			//spriteent->GetComponent<Transform>().SetLocalScale(temp);
 
-			Effect* basicEffect;
+			effect = GameObject::Allocate();
+			posteffect = &effect->AttachComponent<Effect>();
+			posteffect->Init(Application::GetWindowWidth(), Application::GetWindowHeight());
+
+			gseffect = GameObject::Allocate();
+			greyscaleeffect = &gseffect->AttachComponent<GreyscaleEffect>();
+			gseffect->GetComponent<GreyscaleEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
+
+
 		}
 
 		else if (m_name == "Pause_Menu") {
@@ -111,7 +125,9 @@ void Menu::InitScene()
 void Menu::Update(float deltaTime)
 {
 	//Camera Update
-	 m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal();});
+
+	m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal();});
+
 	KeyInput();
 	cam->Update();
 	
@@ -251,10 +267,21 @@ void Menu::GamepadInput()
 
 void Menu::Render(float deltaTime)
 {
+	posteffect->Clear();
+	greyscaleeffect->Clear();
+	
 
 	m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& render) {render.Draw(); });
-	m_sceneReg->view<Sprite2D>().each([=](Sprite2D& render) {render.Draw(cam); });	
+	m_sceneReg->view<Sprite2D>().each([=](Sprite2D& render) {render.Draw(cam); });
 	Skybox::Draw(cam->GetView(), cam->GetProj());
+	posteffect->BindBuffer(0);
+	posteffect->UnbindBuffer();
+
+	greyscaleeffect->ApplyEffect(posteffect);
+	greyscaleeffect->Draw();
+	
+
+
 }
 
 Universe::Universe(string name, unsigned int* num, bool* change)

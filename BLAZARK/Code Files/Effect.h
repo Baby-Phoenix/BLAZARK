@@ -27,7 +27,7 @@ public:
 
 protected:
 
-	std::vector<std::unique_ptr<FrameBuffer>> m_buffers;
+	std::vector<FrameBuffer*> m_buffers;
 
 	std::vector<Shader*> m_effect_shaders;
 	
