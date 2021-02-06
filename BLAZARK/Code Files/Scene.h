@@ -10,6 +10,7 @@
 #include "Random.h"
 #include "GamepadInput.h"
 
+#include "GreyscaleEffect.h"
 
 using namespace std;
 

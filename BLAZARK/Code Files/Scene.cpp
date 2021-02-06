@@ -91,6 +91,8 @@ void Menu::InitScene()
 			spriteent->AttachComponent<Sprite2D>(m_textures[1], spriteent.get(), 100, 100);
 			spriteent->AttachComponent<Transform>();
 			//spriteent->GetComponent<Transform>().SetLocalScale(temp);
+
+			Effect* basicEffect;
 		}
 
 		else if (m_name == "Pause_Menu") {

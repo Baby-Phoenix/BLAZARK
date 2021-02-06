@@ -29,6 +29,7 @@
     <ClCompile Include="Code Files\Game.cpp" />
     <ClCompile Include="Code Files\GamepadInput.cpp" />
     <ClCompile Include="Code Files\GLTFLoader.cpp" />
+    <ClCompile Include="Code Files\GreyscaleEffect.cpp" />
     <ClCompile Include="Code Files\Input.cpp" />
     <ClCompile Include="Code Files\main.cpp" />
     <ClCompile Include="Code Files\Mesh.cpp" />
@@ -55,6 +56,7 @@
     <ClInclude Include="Code Files\Game.h" />
     <ClInclude Include="Code Files\GamepadInput.h" />
     <ClInclude Include="Code Files\GLTFLoader.h" />
+    <ClInclude Include="Code Files\GreyscaleEffect.h" />
     <ClInclude Include="Code Files\Input.h" />
     <ClInclude Include="Code Files\JSON.h" />
     <ClInclude Include="Code Files\Mesh.h" />
