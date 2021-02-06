@@ -16,6 +16,7 @@ public:
 	static bool IsEmpty();
 
 	static void SetRegistry(entt::registry* reg);
+	static entt::registry& GetCurRegistry() { return *m_reg; }
 
 	//destructor
 	virtual ~GameObject();

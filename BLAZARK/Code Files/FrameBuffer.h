@@ -25,7 +25,7 @@ struct Color
 class FrameBuffer 
 {
 public:
-	FrameBuffer();
+	FrameBuffer() = default;
 	~FrameBuffer();
 
 	void Unload();
