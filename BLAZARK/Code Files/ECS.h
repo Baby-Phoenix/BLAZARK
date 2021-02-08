@@ -12,11 +12,23 @@ public:
 
 	static GameObject Create();
 	static std::unique_ptr<GameObject> Allocate();
-
 	static bool IsEmpty();
-
 	static void SetRegistry(entt::registry* reg);
 	static entt::registry& GetCurRegistry() { return *m_reg; }
+	
+	template<typename T>
+	static T& GetComponent(entt::entity id) 
+	{
+		return m_reg->get<T>(id);
+	}
+	static void DestroyEntity(entt::entity id) {
+		if (id != entt::null) {
+			m_reg->destroy(id);
+		}
+	}
+
+	void DestroyEntity();
+	entt::entity GetID();
 
 	//destructor
 	virtual ~GameObject();

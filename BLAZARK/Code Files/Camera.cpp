@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-Camera::Camera(GameObject* entity) {
+Camera::Camera(entt::entity entity) {
 	m_entity = entity;
 }
 
@@ -16,11 +16,11 @@ void Camera::OrthographicProj(float near, float far, float left, float right, fl
 
 Transform& Camera::GetTransform()
 {
-	return m_entity->GetComponent<Transform>();
+	return GameObject::GetComponent<Transform>(m_entity);
 }
 
 void Camera::Update() {
-	m_view = glm::inverse(m_entity->GetComponent<Transform>().UpdateGlobal());
+	m_view = glm::inverse(GameObject::GetComponent<Transform>(m_entity).UpdateGlobal());
 	m_viewProj = m_proj * m_view;
 }
 

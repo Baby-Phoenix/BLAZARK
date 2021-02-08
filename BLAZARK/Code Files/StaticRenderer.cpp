@@ -2,7 +2,7 @@
 
 Shader* StaticRenderer::m_static_shader = nullptr;
 
-StaticRenderer::StaticRenderer(GameObject* camera, GameObject* entity, const Mesh& mesh, Texture* texture) {
+StaticRenderer::StaticRenderer(entt::entity camera, entt::entity entity, const Mesh& mesh, Texture* texture) {
 	m_tex = texture;
 	m_camera = camera;
 	m_entity = entity;
@@ -28,15 +28,15 @@ void StaticRenderer::SetVAO(const Mesh& mesh) {
 }
 
 void StaticRenderer::Draw() {
-	auto& transform = m_entity->GetComponent<Transform>();
+	auto& transform = GameObject::GetComponent<Transform>(m_entity);
 
 	//TODO: Material/Texture and Shader implementation
 	m_static_shader->use();
 
 	m_static_shader->set1i(0, "albedo");
 	m_tex->bind(0);
-	m_static_shader->setVec3f(m_camera->GetComponent<Transform>().GetLocalPos(), "camPos");
-	m_static_shader->setMat4fv(m_camera->GetComponent<Camera>().GetViewProj(), "ViewProjection");
+	m_static_shader->setVec3f(GameObject::GetComponent<Transform>(m_camera).GetLocalPos(), "camPos");
+	m_static_shader->setMat4fv(GameObject::GetComponent<Camera>(m_camera).GetViewProj(), "ViewProjection");
 	m_static_shader->setMat4fv(transform.GetGlobal(), "ModelMatrix");
 	m_static_shader->setMat3fv(transform.GetNormal(), "NormalMatrix");
 

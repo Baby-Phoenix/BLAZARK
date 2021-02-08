@@ -31,10 +31,20 @@ void GameObject::SetRegistry(entt::registry* reg)
 	m_reg = reg;
 }
 
-
-GameObject::~GameObject()
+void GameObject::DestroyEntity()
 {
 	if (m_ID != entt::null) {
 		m_reg->destroy(m_ID);
 	}
+}
+
+entt::entity GameObject::GetID()
+{
+	return m_ID;
+}
+
+
+GameObject::~GameObject()
+{
+
 }

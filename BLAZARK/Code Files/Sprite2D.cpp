@@ -4,7 +4,7 @@ Mesh* Sprite2D::m_planeMesh = nullptr;
 VertexArray* Sprite2D::VAO = nullptr;
 Shader* Sprite2D::m_Sprite2D_shader = nullptr;
 
-Sprite2D::Sprite2D(Texture* tex, GameObject* entity, float width, float height, float transparency)
+Sprite2D::Sprite2D(Texture* tex, entt::entity entity, float width, float height, float transparency)
 {
 
 	m_texture = tex;
@@ -43,7 +43,7 @@ Sprite2D::Sprite2D(Texture* tex, GameObject* entity, float width, float height, 
 
 void Sprite2D::Draw(Camera* cam)
 {
-	auto& transform = m_entity->GetComponent<Transform>();
+	auto& transform = GameObject::GetComponent<Transform>(m_entity);
 
 	cam->OrthographicProj(1.0f, 10000.0f, -100.0f, 100.0f, -100.0f, 100.0f);
 

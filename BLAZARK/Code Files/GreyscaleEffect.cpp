@@ -2,50 +2,55 @@
 
 void GreyscaleEffect::Init(unsigned width, unsigned height)
 {
-    int index = int(m_buffers.size());
-    m_buffers.push_back(new FrameBuffer());
-    m_buffers[index]->AddColor(GL_RGBA8);
-    m_buffers[index]->Init(width, height);
+	int index = int(_buffers.size());
+	_buffers.push_back(new FrameBuffer());
+	_buffers[index]->AddColor(GL_RGBA8);
+	_buffers[index]->AddDepth();
+	_buffers[index]->Init(width, height);
 
-    index = int(m_effect_shaders.size());
-    m_effect_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/greyscale_frag.glsl"));
+	_intensity = 1.0;
+
+	index = int(_shaders.size());
+	_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/greyscale_frag.glsl"));
+
+	PostEffect::Init(width, height);
 }
 
-void GreyscaleEffect::ApplyEffect(Effect* previousEffect)
+void GreyscaleEffect::ApplyEffect(PostEffect* buffer)
 {
-    BindShader(0);
+	BindShader(0);
 
-    m_effect_shaders[0]->set1f(m_intensity, "u_Intensity");
+	_shaders[0]->set1f(_intensity, "u_Intensity");
 
-    previousEffect->BindColorTexture(0, 0, 0);
+	buffer->BindColorAsTexture(0, 0, 0);
 
-    m_buffers[0]->RenderToFSQ();
+	_buffers[0]->RenderToFSQ();
 
-    previousEffect->UnbindTexture(0);
+	buffer->UnbindTexture(0);
 
-    UnBindShader();
+	UnbindShader();
 }
 
-void GreyscaleEffect::Draw()
+void GreyscaleEffect::DrawToScreen()
 {
-    BindShader(0);
-    m_effect_shaders[0]->set1f(m_intensity, "u_Intensity");
+	BindShader(0);
+	_shaders[0]->set1f(_intensity, "U_Intensity");
 
-    BindColorTexture(0, 0, 0);
+	BindColorAsTexture(0, 0, 0);
 
-    m_buffers[0]->DrawFullscreenQuad();
+	_buffers[0]->DrawFullscreenQuad();
 
-    UnbindTexture(0);
+	UnbindTexture(0);
 
-    UnBindShader();
+	UnbindShader();
 }
 
 float GreyscaleEffect::GetIntensity() const
 {
-    return m_intensity;
+	return _intensity;
 }
 
 void GreyscaleEffect::SetIntensity(float intensity)
 {
-    m_intensity = intensity;
+	_intensity = intensity;
 }

@@ -1,35 +1,44 @@
 #pragma once
-#include "FrameBuffer.h"
 
-class Effect {
+#include "Framebuffer.h"
 
+class PostEffect
+{
 public:
-	virtual void Init(unsigned int width,unsigned int height);
+	//Initialize this effects (will be overriden in each derived class0
+	virtual void Init(unsigned width, unsigned height);
 
-	virtual void ApplyEffect(Effect* previousEffect);
-	virtual void Draw();
+	//Applies the effect
+	virtual void ApplyEffect(PostEffect* previousBuffer);
+	virtual void DrawToScreen();
 
-	virtual void ReshapeBuffer(unsigned int width, unsigned int height);
+	//Reshapes the buffer
+	virtual void Reshape(unsigned width, unsigned height);
 
+	//Clears the buffers
 	void Clear();
 
+	//Unloads all the buffers
 	void Unload();
 
+	//Bind buffers
 	void BindBuffer(int index);
 	void UnbindBuffer();
 
-	void BindColorTexture(int index, int colorBuffer, int textureSlot);
-	void BindDepthTexture(int index, int textureSlot);
+	//Bind textures
+	void BindColorAsTexture(int index, int colorBuffer, int textureSlot);
+	void BindDepthAsTexture(int index, int textureSlot);
 	void UnbindTexture(int textureSlot);
 
+	//Bind shaders
 	void BindShader(int index);
-	void UnBindShader();
+	void UnbindShader();
 
 protected:
+	//Holds all our buffers for the effects
+	std::vector<FrameBuffer*> _buffers;
 
-	std::vector<FrameBuffer*> m_buffers;
+	std::vector<Shader*> _shaders;
 
-	std::vector<Shader*> m_effect_shaders;
-	
 
 };

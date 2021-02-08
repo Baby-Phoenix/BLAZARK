@@ -10,7 +10,7 @@
 class StaticRenderer {
 public:
 	StaticRenderer() = default;
-	StaticRenderer(GameObject* camera, GameObject* entity, const Mesh& mesh,Texture* texture = nullptr);
+	StaticRenderer(entt::entity camera, entt::entity entity, const Mesh& mesh,Texture* texture = nullptr);
 	virtual ~StaticRenderer() = default;
 
 	StaticRenderer(StaticRenderer&&) = default;
@@ -23,8 +23,8 @@ public:
 private:
 	std::unique_ptr<VertexArray> m_vao;
 	static Shader* m_static_shader;
-	GameObject* m_camera;
-	GameObject* m_entity;
+	entt::entity m_camera;
+	entt::entity m_entity;
 
 	Texture* m_tex;
 };

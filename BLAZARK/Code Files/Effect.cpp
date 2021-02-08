@@ -1,101 +1,104 @@
 #include "Effect.h"
 
-void Effect::Init(unsigned int width, unsigned int height)
+void PostEffect::Init(unsigned width, unsigned height)
 {
-	int index = int(m_buffers.size());
-	m_buffers.push_back(new FrameBuffer());
-	m_buffers[index]->AddColor(GL_RGBA8);
-	m_buffers[index]->AddDepth();
-	m_buffers[index]->Init(width, height);
+	//Set up framebuffers
 
-	index = int(m_effect_shaders.size());
-	m_effect_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/passthrough_frag.glsl"));
+	if (!_shaders.size() > 0)
+	{
+		int index = int(_buffers.size());
+		_buffers.push_back(new FrameBuffer());
+		_buffers[index]->AddColor(GL_RGBA8);
+		_buffers[index]->AddDepth();
+		_buffers[index]->Init(width, height);
+	}
 
+	_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/passthrough_frag.glsl"));
 }
 
-void Effect::ApplyEffect(Effect* previousEffect)
+void PostEffect::ApplyEffect(PostEffect* previousBuffer)
 {
 	BindShader(0);
-	previousEffect->BindColorTexture(0, 0, 0);
-	
-	m_buffers[0]->RenderToFSQ();
+	previousBuffer->BindColorAsTexture(0, 0, 0);
 
-	previousEffect->UnbindTexture(0);
+	_buffers[0]->RenderToFSQ();
 
-	UnBindShader();
+	previousBuffer->UnbindTexture(0);
+
+	UnbindShader();
 }
 
-void Effect::Draw()
+void PostEffect::DrawToScreen()
 {
-	BindShader(0);
+	BindShader(_shaders.size() - 1);
 
-	BindColorTexture(0, 0, 0);
+	BindColorAsTexture(0, 0, 0);
 
-	m_buffers[0]->DrawFullscreenQuad();
+	_buffers[0]->DrawFullscreenQuad();
 
 	UnbindTexture(0);
 
-	UnBindShader();
+	UnbindShader();
 }
 
-void Effect::ReshapeBuffer(unsigned int width, unsigned int height)
+void PostEffect::Reshape(unsigned width, unsigned height)
 {
-	for (int i = 0; i < m_buffers.size(); i++) 
-		m_buffers[i]->ReshapeBuffer(width, height);
-	
+	for (unsigned int i = 0; i < _buffers.size(); i++)
+		_buffers[i]->ReshapeBuffer(width, height);
 }
 
-void Effect::Clear()
+void PostEffect::Clear()
 {
-	for (int i = 0; i < m_buffers.size(); i++)
-		m_buffers[i]->Clear();
+	for (unsigned int i = 0; i < _buffers.size(); i++)
+		_buffers[i]->Clear();
 }
 
-void Effect::Unload()
+void PostEffect::Unload()
 {
-	for (int i = 0; i < m_buffers.size(); i++)
+	for (unsigned int i = 0; i < _buffers.size(); i++)
 	{
-		if (m_buffers[i] != nullptr) {
-			m_buffers[i]->Unload();
-			delete m_buffers[i];
+		if (_buffers[i] != nullptr) {
+			_buffers[i]->Unload();
+			delete _buffers[i];
 		}
 	}
 
-	m_effect_shaders.clear();
+	_shaders.clear();
 }
 
-void Effect::BindBuffer(int index)
+void PostEffect::BindBuffer(int index)
 {
-	m_buffers[index]->Bind();
+	_buffers[index]->Bind();
 }
 
-void Effect::UnbindBuffer()
+void PostEffect::UnbindBuffer()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 }
 
-void Effect::BindColorTexture(int index, int colorBuffer, int textureSlot)
+void PostEffect::BindColorAsTexture(int index, int colorBuffer, int textureSlot)
 {
-	m_buffers[index]->BindColorTexture(colorBuffer, textureSlot);
+	_buffers[index]->BindColorTexture(colorBuffer, textureSlot);
 }
 
-void Effect::BindDepthTexture(int index, int textureSlot)
+void PostEffect::BindDepthAsTexture(int index, int textureSlot)
 {
-	m_buffers[index]->BindDepthTexture(textureSlot);
+	_buffers[index]->BindDepthTexture(textureSlot);
 }
 
-void Effect::UnbindTexture(int textureSlot)
+void PostEffect::UnbindTexture(int textureSlot)
 {
+	//Binds texture at slot to GL_NONE
 	glActiveTexture(GL_TEXTURE0 + textureSlot);
 	glBindTexture(GL_TEXTURE_2D, GL_NONE);
 }
 
-void Effect::BindShader(int index)
+void PostEffect::BindShader(int index)
 {
-	m_effect_shaders[index]->use();
+	_shaders[index]->use();
 }
 
-void Effect::UnBindShader()
+void PostEffect::UnbindShader()
 {
 	glUseProgram(GL_NONE);
 }

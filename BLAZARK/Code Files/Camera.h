@@ -4,7 +4,7 @@
 
 class Camera {
 public:
-	Camera(GameObject* entity);
+	Camera(entt::entity entity);
 	virtual ~Camera() = default;
 
 	void PerspectiveProj(float near, float far, float aspect, float FoVY);
@@ -25,5 +25,5 @@ private:
 	glm::mat4 m_proj;
 	glm::mat4 m_viewProj;
 
-	GameObject* m_entity;
+	entt::entity m_entity;
 };

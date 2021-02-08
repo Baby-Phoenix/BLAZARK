@@ -2,21 +2,27 @@
 
 #include "Effect.h"
 
-class GreyscaleEffect : public Effect
+class GreyscaleEffect : public PostEffect
 {
-public: 
-	//Initialize framebuffer
+public:
+	//Initializes framebuffer
+	//Ovverides post effect Init
 	void Init(unsigned width, unsigned height) override;
 
 	//Applies the effect to this buffer
-	void ApplyEffect(Effect* buffer) override;
+	//passes the previous framebuffer with the texture to apply as parameter
+	void ApplyEffect(PostEffect* buffer) override;
 
-	void Draw() override;
+	////Applies the effect to the screen
+	void DrawToScreen() override;
 
+	//Getters
 	float GetIntensity() const;
 
+	//Setters
 	void SetIntensity(float intensity);
 
 private:
-	float m_intensity = 1.0f;
+	float _intensity = 1.0f;
+
 };
