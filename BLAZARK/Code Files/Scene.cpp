@@ -1,6 +1,10 @@
 #include "Scene.h"
 
-enum class EntityType { PLLAYER = 0};
+enum class EntityType { PLAYER = 0 };
+
+enum class TextureType { TEMPPLANET, TEMPSHIP, START };
+
+enum class MeshType { PLAYERSHIP, HOMEPLANET };
 
 vector<Mesh*> Scene::m_meshes;
 vector<Texture*> Scene::m_textures;
@@ -11,12 +15,14 @@ Scene::Scene(string name)
 
 	if (m_textures.size() < 1) {
 		m_textures.push_back(new Texture("Resource Files/Textures/tempPlanetTex.png"));
-		m_textures.push_back(new Texture("Resource Files/Textures/venom.png"));
-
+		m_textures.push_back(new Texture("Resource Files/Textures/tempSpaceshipTex.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/Menu/TitleScreen.png"));
 	}
 	if (m_meshes.size() < 1) {
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/Home_Planet.obj", *m_meshes[0]);
+		loadOBJ("Resource Files/OBJFiles/Ships/PlayerShips/PlayerShipBat.obj", *m_meshes[int(MeshType::PLAYERSHIP)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Home_Planet.obj", *m_meshes[int(MeshType::HOMEPLANET)]);
 	}
 }
 
@@ -68,168 +74,48 @@ void Menu::InitScene()
 	GameObject::SetRegistry(m_sceneReg);
 
 	if (GameObject::IsEmpty()) {
-		//add entites in here if not initialised
 
-		if (m_name == "Start_Menu") {
-			auto cament = GameObject::Allocate();
-			cament->AttachComponent<Transform>();
-			cam = &cament->AttachComponent<Camera>(cament->GetID());
-			cament->GetComponent<Camera>().PerspectiveProj(1.0f, 100000.0f, Application::GetWindowWidth()/Application::GetWindowHeight(), 100.0f);
-			cament->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 100.0f));
+		auto cameraEntity = GameObject::Allocate();
+		cameraEntity->AttachComponent<Transform>();
+		camera = &cameraEntity->AttachComponent<Camera>(cameraEntity->GetID());
+		cameraEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 100.0f));
 
-
-			auto planetent = GameObject::Allocate();
-			planetent->AttachComponent<StaticRenderer>(cament->GetID(), planetent->GetID(), *m_meshes[0], m_textures[0]);
-			planetent->AttachComponent<Transform>().SetLocalScale(glm::vec3(1, 1, 1));
-			planetent->GetComponent<Transform>().SetLocalPos(glm::vec3(100, 0, 0));
-
-
-			auto spriteent = GameObject::Allocate();
-			spriteent->AttachComponent<Sprite2D>(m_textures[1], spriteent->GetID(), 100, 100);
-			spriteent->AttachComponent<Transform>();
-			//spriteent->GetComponent<Transform>().SetLocalScale(temp);
-
-
-			auto greyscale = GameObject::Allocate();
-			greyscale->AttachComponent<GreyscaleEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
+		if (m_name == "Start_Screen") {
+			auto titleScreen = GameObject::Allocate();
+			titleScreen->AttachComponent<Sprite2D>(m_textures[int(TextureType::START)], titleScreen->GetID(), 100, 100);
+			titleScreen->AttachComponent<Transform>();
+			//titleScreen->GetComponent<Transform>().SetLocalScale(temp);
+		}
+		else if (m_name == "Main_Menu") {
 
 		}
-
 		else if (m_name == "Pause_Menu") {
-		auto cament = GameObject::Allocate();
-			cament->AttachComponent<Transform>();
-			cam = &cament->AttachComponent<Camera>(cament->GetID());
-			cament->GetComponent<Camera>().PerspectiveProj(1.0f, 60.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 100.0f);
-			cament->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 100.0f));
+
 		}
 	}
-
-	Skybox::Init();
-
 }
 
 void Menu::Update(float deltaTime)
 {
-	//Camera Update
-
+	// Transform Update
 	m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal();});
 
+	// Key Input
 	KeyInput();
-	cam->Update();
-	
+
+	// Camera Update
+	camera->Update();
 }
 
 void Menu::KeyInput()
 {
 	if (glfwGetKey(this->m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(this->m_window, GLFW_TRUE);
-	
-	////player movement
-	{
-		auto view = m_sceneReg->view<Transform, StaticRenderer>();
 
-		for (auto entity : view) {
-			if (glfwGetKey(this->m_window, GLFW_KEY_W) == GLFW_PRESS)
-			{
-				glm::vec3 temp = glm::vec3(5.f, 0, 0);
-				m_sceneReg->get<Transform>(entity).RotateLocalFixed(temp);
-
-			}
-
-		}
+	if (glfwGetKey(this->m_window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+		*switchIt = true;
+		*SceneNo = int(ScenesNum::UNIVERSE_19);
 	}
-
-
-	//camera movement
-	{
-		auto view = m_sceneReg->view<Camera>();
-
-		for (auto entity : view) {
-			
-			auto& cament = GameObject::GetComponent<Camera>(entity);
-
-			if (glfwGetKey(this->m_window, GLFW_KEY_UP) == GLFW_PRESS)
-				{
-					glm::vec3 temp = glm::vec3(0, 0, -5);
-					cament.GetTransform().MoveLocalPos(temp);
-
-				}
-				if (glfwGetKey(this->m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
-				{
-
-					glm::vec3 temp = glm::vec3(0.f, 0, 5);
-					cament.GetTransform().MoveLocalPos(temp);
-
-				}
-				if (glfwGetKey(this->m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
-				{
-					glm::vec3 temp = glm::vec3(-0.5f, 0, 0);
-					cament.GetTransform().RotateLocal(temp);
-				}
-				if (glfwGetKey(this->m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-				{
-					glm::vec3 temp = glm::vec3(0.5f, 0, 0);
-					cament.GetTransform().RotateLocal(temp);
-				}
-
-		}
-	}
-
-
-	//if (glfwGetKey(this->m_window, GLFW_KEY_W) == GLFW_PRESS)
-	//{
-	//	glm::vec3 temp = glm::vec3(5.f, 0, 0);
-	//	planetent->GetComponent<Transform>().RotateLocalFixed(temp);
-	//	spriteent->GetComponent<Transform>().RotateLocalFixed(temp);
-	//}
-
-	//if (glfwGetKey(this->m_window, GLFW_KEY_A) == GLFW_PRESS)
-	//{
-	//	glm::vec3 temp = glm::vec3(0.f, -5, 0);
-	//	spriteent->GetComponent<Transform>().RotateLocalFixed(temp);
-	//}
-
-	//if (glfwGetKey(this->m_window, GLFW_KEY_S) == GLFW_PRESS)
-	//{
-	//	glm::vec3 temp = glm::vec3(-5.f, 0, 0);
-	//	spriteent->GetComponent<Transform>().RotateLocalFixed(temp);
-	//}
-
-	//if (glfwGetKey(this->m_window, GLFW_KEY_D) == GLFW_PRESS)
-	//{
-	//	glm::vec3 temp = glm::vec3(0.f, 5, 0);
-	//	spriteent->GetComponent<Transform>().RotateLocalFixed(temp);
-	//}
-
-
-	////camera movement
-	//if (glfwGetKey(this->m_window, GLFW_KEY_UP) == GLFW_PRESS)
-	//{
-	//	glm::vec3 temp = glm::vec3(0, 0, -5);
-	//	cament->GetComponent<Transform>().MoveLocalPos(temp);
-
-	//}
-	//if (glfwGetKey(this->m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
-	//{
-
-	//	glm::vec3 temp = glm::vec3(0.f, 0, 5);
-	//	cament->GetComponent<Transform>().MoveLocalPos(temp);
-
-	//}
-	//if (glfwGetKey(this->m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	//{
-	//	glm::vec3 temp = glm::vec3(-0.5f, 0, 0);
-	//	cament->GetComponent<Transform>().RotateLocal(temp);
-	//}
-	//if (glfwGetKey(this->m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-	//{
-	//	glm::vec3 temp = glm::vec3(0.5f, 0, 0);
-	//	cament->GetComponent<Transform>().RotateLocal(temp);
-	//}
-}
-
-void Menu::MouseInput()
-{
 }
 
 void Menu::GamepadInput()
@@ -306,58 +192,139 @@ void Menu::GamepadInput()
 
 void Menu::Render(float deltaTime)
 {
-
-	m_sceneReg->view<GreyscaleEffect>().each([=](GreyscaleEffect& effect) 
-		{
-			effect.Clear();
-			
-			effect.BindBuffer(0);
-
-			m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& render) {render.Draw(); });
-			m_sceneReg->view<Sprite2D>().each([=](Sprite2D& render) {render.Draw(cam); });
-			Skybox::Draw(cam->GetView(), cam->GetProj());
-
-			effect.DrawToScreen();
-			effect.UnbindBuffer();
-
-			
-
-		});
-
+	m_sceneReg->view<Sprite2D>().each([=](Sprite2D& render) { render.Draw(camera); });
 }
 
 Universe::Universe(string name, unsigned int* num, bool* change)
+	:Scene(name)
 {
+	SceneNo = num;
+	switchIt = change;
 }
 
 void Universe::InitScene()
 {
-}
+	//creating a new registry for the scene when initialised
+	if (m_sceneReg == nullptr)
+		m_sceneReg = new entt::registry();
 
-void Universe::InitSkyBox()
-{
-	
+	//Giving the ECS the same registry as the current scene
+	GameObject::SetRegistry(m_sceneReg);
+
+	if (GameObject::IsEmpty()) {
+
+		if (m_name == "Universe_19") {
+			auto cameraEntity = GameObject::Allocate();
+			cameraEntity->AttachComponent<Transform>();
+			camera = &cameraEntity->AttachComponent<Camera>(cameraEntity->GetID());
+			camera->PerspectiveProj(1.0f, 100000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 100.0f);
+			cameraEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 15.0f, 12.5f));
+
+			auto playerEntity = GameObject::Allocate();
+			MainPlayerID = playerEntity->GetID();
+			playerEntity->AttachComponent<Transform>();
+			playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(MeshType::PLAYERSHIP)], m_textures[int(TextureType::TEMPSHIP)]);
+			camera->Update(MainPlayerID);
+
+			auto homePlanetEntity = GameObject::Allocate();
+			homePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -200));
+			homePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), homePlanetEntity->GetID(), *m_meshes[int(MeshType::HOMEPLANET)], m_textures[int(TextureType::TEMPPLANET)]);
+		}
+		else if (m_name == "Universe_27") {
+
+		}
+		else if (m_name == "Universe_5") {
+
+		}
+
+		Skybox::Init();
+	}
 }
 
 void Universe::Update(float deltaTime)
 {
+	// Transform Update
+	m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal(); });
+
+	// Key Input
+	KeyInput();
+
+	// Camera Update
+	camera->Update(MainPlayerID);
 }
 
 void Universe::Render(float deltaTime)
 {
-}
+	m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& render) { render.Draw(); });
+	Skybox::Draw(camera->GetView(), camera->GetProj());
 
-void Universe::UpdateSkyBox()
-{
-	
+	/*m_sceneReg->view<GreyscaleEffect>().each([=](GreyscaleEffect& effect)
+	{
+		effect.Clear();
+
+		effect.BindBuffer(0);
+
+		m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& render) {render.Draw(); });
+		m_sceneReg->view<Sprite2D>().each([=](Sprite2D& render) {render.Draw(camera); });
+		Skybox::Draw(camera->GetView(), camera->GetProj());
+
+		effect.DrawToScreen();
+		effect.UnbindBuffer();
+	});*/
 }
 
 void Universe::KeyInput()
 {
-}
+	if (glfwGetKey(this->m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(this->m_window, GLFW_TRUE);
 
-void Universe::MouseInput()
-{
+	// Player Movement
+	{
+		auto view = m_sceneReg->view<Transform, StaticRenderer>();
+
+		for (auto entity : view) {
+			if (glfwGetKey(this->m_window, GLFW_KEY_W) == GLFW_PRESS)
+			{
+				glm::vec3 temp = glm::vec3(5.f, 0, 0);
+				m_sceneReg->get<Transform>(entity).RotateLocalFixed(temp);
+			}
+		}
+	}
+
+	// Camera Movement
+	{
+		auto view = m_sceneReg->view<Camera>();
+
+		for (auto entity : view) {
+
+			auto& cament = GameObject::GetComponent<Camera>(entity);
+
+			if (glfwGetKey(this->m_window, GLFW_KEY_UP) == GLFW_PRESS)
+			{
+				glm::vec3 temp = glm::vec3(0, 0, -5);
+				cament.GetTransform().MoveLocalPos(temp);
+
+			}
+			if (glfwGetKey(this->m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
+			{
+
+				glm::vec3 temp = glm::vec3(0.f, 0, 5);
+				cament.GetTransform().MoveLocalPos(temp);
+
+			}
+			if (glfwGetKey(this->m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
+			{
+				glm::vec3 temp = glm::vec3(-0.5f, 0, 0);
+				cament.GetTransform().RotateLocal(temp);
+			}
+			if (glfwGetKey(this->m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+			{
+				glm::vec3 temp = glm::vec3(0.5f, 0, 0);
+				cament.GetTransform().RotateLocal(temp);
+			}
+
+		}
+	}
 }
 
 void Universe::GamepadInput()

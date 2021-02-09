@@ -15,7 +15,7 @@
 using namespace std;
 
 
-enum class ScenesNum { TITLE_SCREEN, START_MENU, PAUSE_MENU, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
+enum class ScenesNum { START_SCREEN, MAIN_MENU, PAUSE_MENU, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
 
 class Scene {
 
@@ -40,8 +40,6 @@ public:
 
 	virtual void KeyInput() { }
 
-	virtual void MouseInput() { }
-
 	virtual void GamepadInput() { }
 
 
@@ -62,7 +60,7 @@ protected:
 
 	GamePad gamepad;
 
-	Camera* cam;
+	Camera* camera;
 
 	static vector<Texture*> m_textures;
 	static vector<Mesh*> m_meshes;
@@ -82,8 +80,6 @@ public:
 
 	void KeyInput() override;
 
-	void MouseInput() override;
-
 	void GamepadInput() override;
 
 	void Render(float deltaTime) override;
@@ -99,17 +95,11 @@ public:
 
 	void InitScene() override;
 
-	void InitSkyBox();
-
 	void Update(float deltaTime) override;
 
 	void Render(float deltaTime) override;
 
-	void UpdateSkyBox();
-
 	void KeyInput() override;
-
-	void MouseInput() override;
 
 	void GamepadInput() override;
 
@@ -117,6 +107,5 @@ private:
 
 	float deltaTime;
 
-	
-
+	entt::entity MainPlayerID;
 };

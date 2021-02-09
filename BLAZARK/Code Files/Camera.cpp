@@ -24,6 +24,11 @@ void Camera::Update() {
 	m_viewProj = m_proj * m_view;
 }
 
+void Camera::Update(entt::entity mainPlayer) {
+	m_view = glm::lookAt(GetTransform().GetLocalPos(), GameObject::GetComponent<Transform>(mainPlayer).GetLocalPos() + glm::vec3(0, 0, -10), glm::vec3(0, 1, 0));
+	m_viewProj = m_proj * m_view;
+}
+
 const glm::mat4& Camera::GetViewProj()
 {
 	return m_viewProj;
@@ -39,4 +44,17 @@ const glm::mat4& Camera::GetProj()
 	return m_proj;
 }
 
+void Camera::SetViewProj(glm::mat4 viewProj)
+{
+	m_viewProj = viewProj;
+}
 
+void Camera::SetView(glm::mat4 view)
+{
+	m_view = view;
+}
+
+void Camera::SetProj(glm::mat4 proj)
+{
+	m_proj = proj;
+}
