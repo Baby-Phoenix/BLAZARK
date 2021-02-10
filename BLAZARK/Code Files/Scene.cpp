@@ -17,6 +17,11 @@ Scene::Scene(string name)
 		m_textures.push_back(new Texture("Resource Files/Textures/tempPlanetTex.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/tempSpaceshipTex.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/Menu/TitleScreen.png"));
+
+		//HUD
+		m_textures.push_back(new Texture("Resource Files/Textures/HUD/Health_4-4.png")); //3
+		m_textures.push_back(new Texture("Resource Files/Textures/HUD/Abilities_Unavailable_Temp.png")); //4
+		m_textures.push_back(new Texture("Resource Files/Textures/HUD/PowerUP_Unavailable_Temp.png")); //5
 	}
 	if (m_meshes.size() < 1) {
 		m_meshes.push_back(new Mesh());
@@ -239,8 +244,25 @@ void Universe::InitScene()
 			homePlanetEntity2->AttachComponent<StaticRenderer>(cameraEntity->GetID(), homePlanetEntity2->GetID(), *m_meshes[int(MeshType::HOMEPLANET)], m_textures[int(TextureType::TEMPPLANET)]);
 			homePlanetEntity2->GetComponent<Transform>().SetLocalScale(glm::vec3(0.1));
 
+			//HUD
+			auto health = GameObject::Allocate();
+			health->AttachComponent<Sprite2D>(m_textures[3], health->GetID(), 15, 15);
+			health->AttachComponent<Transform>().SetLocalPos(glm::vec3(-80, -80, -10));
+			auto abilities = GameObject::Allocate();
+			abilities->AttachComponent<Sprite2D>(m_textures[4], abilities->GetID(), 15, 15);
+			abilities->AttachComponent<Transform>().SetLocalPos(glm::vec3(80, -80, -10));
+			auto powerUp = GameObject::Allocate();
+			powerUp->AttachComponent<Sprite2D>(m_textures[5], powerUp->GetID(), 6, 45);
+			powerUp->AttachComponent<Transform>().SetLocalPos(glm::vec3(-90, 10, -10));
+			
+
+			
+
 			//Setting Parent/childe 
 			playerEntity->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
+			health->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
+			abilities->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
+			powerUp->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 
 		}
 		else if (m_name == "Universe_27") {
@@ -270,7 +292,11 @@ void Universe::Update(float deltaTime)
 void Universe::Render(float deltaTime)
 {
 	m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& render) { render.Draw(); });
+
+	
+
 	Skybox::Draw(camera->GetView(), camera->GetProj());
+	m_sceneReg->view<Sprite2D>().each([=](Sprite2D& render) {render.Draw(camera); });
 
 	/*m_sceneReg->view<GreyscaleEffect>().each([=](GreyscaleEffect& effect)
 	{
