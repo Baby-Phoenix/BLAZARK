@@ -1,5 +1,6 @@
 #include "AudioEngine.h"
 
+
 ////////////////////////////////////
 //			 AudioObject		  //
 ////////////////////////////////////
@@ -37,6 +38,8 @@ float AudioObject::VolumeTodb(float volume)
 int AudioObject::ErrorCheck(FMOD_RESULT result)
 {
 
+#ifdef _DEBUG
+
 	// Outputs FMOD error message
 	if (result != FMOD_OK)
 	{
@@ -46,6 +49,8 @@ int AudioObject::ErrorCheck(FMOD_RESULT result)
 
 		return 1;
 	}
+
+#endif // DEBUG
 
 	// All good
 	return 0;
@@ -230,52 +235,39 @@ AudioEvent::~AudioEvent()
 void AudioEvent::Play()
 {
 
-	// Check if already playing
-	FMOD_STUDIO_PLAYBACK_STATE* state = NULL;
-
-	if (m_EventInstance->getPlaybackState(state) == FMOD_STUDIO_PLAYBACK_PLAYING)
+	if (isPlaying())
 	{
 		return;
 	}
 
 	// Start the event
-	m_EventInstance->start();
+	ErrorCheck(m_EventInstance->start());
 }
 
 
 void AudioEvent::Restart()
 {
 	// Start the event
-	m_EventInstance->start();
+	ErrorCheck(m_EventInstance->start());
 }
 
 void AudioEvent::Stop()
 {
-	// Check if already playing
-	FMOD_STUDIO_PLAYBACK_STATE* state = NULL;
-	if (m_EventInstance->getPlaybackState(state) == FMOD_STUDIO_PLAYBACK_PLAYING)
-	{
-		// Stop the event
-		m_EventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT);
-	}
+	ErrorCheck(m_EventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
 }
 
 void AudioEvent::StopImmediately()
 {
-	// Check if already playing
-	FMOD_STUDIO_PLAYBACK_STATE* state = NULL;
-	if (m_EventInstance->getPlaybackState(state) == FMOD_STUDIO_PLAYBACK_PLAYING)
-	{
-		// Stop the event
-		m_EventInstance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
-	}
+	ErrorCheck(m_EventInstance->stop(FMOD_STUDIO_STOP_IMMEDIATE));
 }
 
 bool AudioEvent::isPlaying()
 {
 	// Check if already playing
-	FMOD_STUDIO_PLAYBACK_STATE* state = NULL;
-	if (m_EventInstance->getPlaybackState(state) == FMOD_STUDIO_PLAYBACK_PLAYING)
+	FMOD_STUDIO_PLAYBACK_STATE state;
+	ErrorCheck(m_EventInstance->getPlaybackState(&state));
+
+	if (state == FMOD_STUDIO_PLAYBACK_PLAYING)
 	{
 		return true;
 	}
