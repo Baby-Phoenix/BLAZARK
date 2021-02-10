@@ -1,62 +1,83 @@
 #pragma once
-
 #include "Texture.h"
 #include "Shader.h"
 
-struct Depth
+struct DepthTarget
 {
-	~Depth();
-	void UnloadDepth();
-	Texture m_texture;
+	//Deconstructor for Depth Target
+	//*Unloads texture
+	~DepthTarget();
+	//Deletes the texture of the depth target
+	void Unload();
+	//Holds the depth texture
+	Texture _texture;
 };
 
-struct Color
+struct ColorTarget
 {
-	~Color();
-
-	void UnloadColor();
-	std::vector<Texture> m_texture;
-	std::vector<GLenum> m_formats;
-	std::vector<GLenum> m_buffers;
-	unsigned int m_numAttachments = 0;
+	//Deconstructor for Color Target
+	//*Unloads all the color targets
+	~ColorTarget();
+	//Deletes the texture of the color targets
+	void Unload();
+	//Holds the color textures
+	std::vector<Texture> _textures;
+	std::vector<GLenum> _formats;
+	std::vector<GLenum> _buffers;
+	//Stores the number of color attachments this target has
+	unsigned int _numAttachments = 0;
 };
 
-
-class FrameBuffer 
+class FrameBuffer
 {
 public:
-	FrameBuffer() = default;
+	FrameBuffer();
 	~FrameBuffer();
 
+	//Unloads the framebuffer
 	void Unload();
 
+	//Initialize framebuffer with size
 	virtual void Init(unsigned width, unsigned height);
 
+	//Initializes framebuffer
 	void Init();
 
-	void AddDepth();
+	//Adds depth target
+	//**ONLY EVER ONE**//
+	void AddDepthTarget();
 
-	void AddColor(GLenum format);
+	//Adds a color target
+	//**You can have as many as you want**//
+	void AddColorTarget(GLenum format);
 
-	
-	void BindDepthTexture(int textureSlot) const;
-	void BindColorTexture(unsigned colorBuffer, int textureSlot) const;
+	//Binds our depth buffer as a texture to specified slot
+	void BindDepthAsTexture(int textureSlot) const;
+	//Binds our color buffer as a texture to specified slot
+	void BindColorAsTexture(unsigned colorBuffer, int textureSlot) const;
+	//Unbinds texture from a specific texture slot
 	void UnbindTexture(int textureSlot) const;
 
-	void ReshapeBuffer(unsigned int width, unsigned int height);
-	
+	//Reshapes the framebuffer
+	void Reshape(unsigned width, unsigned height);
+	//Sets the size of the framebuffer
 	void SetSize(unsigned width, unsigned height);
 
+	//Sets the viewport to fullscreen (using the size of framebuffer)
 	void SetViewport() const;
 
+	//Binds the framebuffer
 	void Bind() const;
+	//Unbind the framebuffer
 	void Unbind() const;
 
 	//Renders the framebuffer to our FullScreenQuad
 	void RenderToFSQ() const;
 
+	//Draws the contents of the framebuffer to the back buffer
 	void DrawToBackbuffer();
 
+	//Clears the framebuffer using our clear flag
 	void Clear();
 	//Checks to make sure the framebuffer is... OK
 	bool CheckFBO();
@@ -69,36 +90,36 @@ public:
 	static void DrawFullscreenQuad();
 
 	//Initial width and height is zero
-	unsigned int m_width = 0;
-	unsigned int m_height = 0;
+	unsigned int _width = 0;
+	unsigned int _height = 0;
 protected:
 	//OpenGL framebuffer handle
-	GLuint m_FBO;
+	GLuint _FBO;
 	//Depth attachment (either one or none)
-	Depth m_depth;
+	DepthTarget _depth;
 	//Color attachments (can be either 1 or above
-	Color m_color;
+	ColorTarget _color;
 
 	//Default filter is GL_NEAREST
-	GLenum m_filter = GL_NEAREST;
+	GLenum _filter = GL_NEAREST;
 	//Default filter is GL_CLAMP_TO_EDGE
-	GLenum m_wrap = GL_CLAMP_TO_EDGE;
+	GLenum _wrap = GL_CLAMP_TO_EDGE;
 
 	//Clearflag is nothing by default
-	GLbitfield m_clearFlag = 0;
+	GLbitfield _clearFlag = 0;
 
 	//Is the framebuffer initialized
-	bool m_isInit = false;
+	bool _isInit = false;
 	//Depth attachment?
-	bool m_depthActive = false;
+	bool _depthActive = false;
 
 	//Full screen quad VBO handle
-	static GLuint m_fullscreenQuadVBO;
+	static GLuint _fullscreenQuadVBO;
 	//Full screen quad VAO handle
-	static GLuint m_fullscreenQuadVAO;
+	static GLuint _fullscreenQuadVAO;
 
 	//The maximum amount of color attachments
-	static int m_maxColorAttachments;
+	static int _maxColorAttachments;
 	//Is the fullscreen quad initialized
-	static bool m_isInitFSQ;
+	static bool _isInitFSQ;
 };

@@ -8,8 +8,8 @@ void PostEffect::Init(unsigned width, unsigned height)
 	{
 		int index = int(_buffers.size());
 		_buffers.push_back(new FrameBuffer());
-		_buffers[index]->AddColor(GL_RGBA8);
-		_buffers[index]->AddDepth();
+		_buffers[index]->AddColorTarget(GL_RGBA8);
+		_buffers[index]->AddDepthTarget();
 		_buffers[index]->Init(width, height);
 	}
 
@@ -18,7 +18,7 @@ void PostEffect::Init(unsigned width, unsigned height)
 
 void PostEffect::ApplyEffect(PostEffect* previousBuffer)
 {
-	BindShader(0);
+	BindShader(_shaders.size() - 1);
 	previousBuffer->BindColorAsTexture(0, 0, 0);
 
 	_buffers[0]->RenderToFSQ();
@@ -44,7 +44,7 @@ void PostEffect::DrawToScreen()
 void PostEffect::Reshape(unsigned width, unsigned height)
 {
 	for (unsigned int i = 0; i < _buffers.size(); i++)
-		_buffers[i]->ReshapeBuffer(width, height);
+		_buffers[i]->Reshape(width, height);
 }
 
 void PostEffect::Clear()
@@ -60,6 +60,7 @@ void PostEffect::Unload()
 		if (_buffers[i] != nullptr) {
 			_buffers[i]->Unload();
 			delete _buffers[i];
+			_buffers[i] = nullptr;
 		}
 	}
 
@@ -78,12 +79,12 @@ void PostEffect::UnbindBuffer()
 
 void PostEffect::BindColorAsTexture(int index, int colorBuffer, int textureSlot)
 {
-	_buffers[index]->BindColorTexture(colorBuffer, textureSlot);
+	_buffers[index]->BindColorAsTexture(colorBuffer, textureSlot);
 }
 
 void PostEffect::BindDepthAsTexture(int index, int textureSlot)
 {
-	_buffers[index]->BindDepthTexture(textureSlot);
+	_buffers[index]->BindDepthAsTexture(textureSlot);
 }
 
 void PostEffect::UnbindTexture(int textureSlot)

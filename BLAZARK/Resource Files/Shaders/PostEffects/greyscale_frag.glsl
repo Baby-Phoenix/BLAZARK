@@ -6,6 +6,8 @@ out vec4 frag_color;
 
 layout (binding = 0) uniform sampler2D s_screenTex;
 
+//Affects how greyscale
+//Lower the number, closer we are to regular
 uniform float u_Intensity = 1.0;
 
 void main() 

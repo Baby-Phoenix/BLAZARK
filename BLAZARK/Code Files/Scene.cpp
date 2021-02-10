@@ -6,6 +6,8 @@ enum class TextureType { TEMPPLANET, TEMPSHIP, START };
 
 enum class MeshType { PLAYERSHIP, HOMEPLANET };
 
+std::unique_ptr<GameObject> effect;
+
 vector<Mesh*> Scene::m_meshes;
 vector<Texture*> Scene::m_textures;
 
@@ -255,7 +257,10 @@ void Universe::InitScene()
 			powerUp->AttachComponent<Sprite2D>(m_textures[5], powerUp->GetID(), 6, 45);
 			powerUp->AttachComponent<Transform>().SetLocalPos(glm::vec3(-90, 10, -10));
 			
-
+			//effects
+			effect = GameObject::Allocate();
+			effect->AttachComponent<PostEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
+			effect->AttachComponent<GreyscaleEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 			
 
 			//Setting Parent/childe 
@@ -291,45 +296,31 @@ void Universe::Update(float deltaTime)
 
 void Universe::Render(float deltaTime)
 {
-	m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& render) { render.Draw(); });
-
 	
+	//effect->GetComponent<PostEffect>().Clear();
+	//effect->GetComponent<GreyscaleEffect>().Clear();
 
+	//glClearColor(0.0f, 0.f, 0.f, 1.0f);
+	//glEnable(GL_DEPTH_TEST);
+	//glClearDepth(1.0f);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//effect->GetComponent<PostEffect>().BindBuffer(0);
+
+	m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& render) { render.Draw(); });
 	Skybox::Draw(camera->GetView(), camera->GetProj());
 	m_sceneReg->view<Sprite2D>().each([=](Sprite2D& render) {render.Draw(camera); });
 
-	/*m_sceneReg->view<GreyscaleEffect>().each([=](GreyscaleEffect& effect)
-	{
-		effect.Clear();
+	/*effect->GetComponent<PostEffect>().UnbindBuffer();
+	effect->GetComponent<GreyscaleEffect>().ApplyEffect(&effect->GetComponent<PostEffect>());
+	effect->GetComponent<GreyscaleEffect>().DrawToScreen();*/
 
-		effect.BindBuffer(0);
-
-		m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& render) {render.Draw(); });
-		m_sceneReg->view<Sprite2D>().each([=](Sprite2D& render) {render.Draw(camera); });
-		Skybox::Draw(camera->GetView(), camera->GetProj());
-
-		effect.DrawToScreen();
-		effect.UnbindBuffer();
-	});*/
 }
 
 void Universe::KeyInput()
 {
 	if (glfwGetKey(this->m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(this->m_window, GLFW_TRUE);
-
-	// Player Movement
-	/*{
-		auto view = m_sceneReg->view<Transform, StaticRenderer>();
-
-		for (auto entity : view) {
-			if (glfwGetKey(this->m_window, GLFW_KEY_W) == GLFW_PRESS)
-			{
-				glm::vec3 temp = glm::vec3(5.f, 0, 0);
-				m_sceneReg->get<Transform>(entity).RotateLocalFixed(temp);
-			}
-		}
-	}*/
 
 	// Player Movement
 	auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
