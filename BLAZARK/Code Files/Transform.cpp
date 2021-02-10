@@ -142,6 +142,11 @@ Transform* Transform::SetLocalRot(glm::vec3 eulerDegrees)
 	return this;
 }
 
+void Transform::SetLocalMatrix(glm::mat4 matrix)
+{
+	m_local = matrix;
+}
+
 void Transform::AddChild(Transform* child)
 {
 	m_children.push_back(child);

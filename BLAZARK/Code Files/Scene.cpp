@@ -214,21 +214,34 @@ void Universe::InitScene()
 	if (GameObject::IsEmpty()) {
 
 		if (m_name == "Universe_19") {
+			//Camera
 			auto cameraEntity = GameObject::Allocate();
 			cameraEntity->AttachComponent<Transform>();
 			camera = &cameraEntity->AttachComponent<Camera>(cameraEntity->GetID());
 			camera->PerspectiveProj(1.0f, 100000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 100.0f);
 			cameraEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 15.0f, 12.5f));
 
+			//Player
 			auto playerEntity = GameObject::Allocate();
 			MainPlayerID = playerEntity->GetID();
 			playerEntity->AttachComponent<Transform>();
 			playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(MeshType::PLAYERSHIP)], m_textures[int(TextureType::TEMPSHIP)]);
-			camera->Update(MainPlayerID);
+			playerEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0, -10, -20));
 
+			//Planet
 			auto homePlanetEntity = GameObject::Allocate();
 			homePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -200));
 			homePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), homePlanetEntity->GetID(), *m_meshes[int(MeshType::HOMEPLANET)], m_textures[int(TextureType::TEMPPLANET)]);
+
+			//Planet2
+			auto homePlanetEntity2 = GameObject::Allocate();
+			homePlanetEntity2->AttachComponent<Transform>().SetLocalPos(glm::vec3(-100, 0, -100));
+			homePlanetEntity2->AttachComponent<StaticRenderer>(cameraEntity->GetID(), homePlanetEntity2->GetID(), *m_meshes[int(MeshType::HOMEPLANET)], m_textures[int(TextureType::TEMPPLANET)]);
+			homePlanetEntity2->GetComponent<Transform>().SetLocalScale(glm::vec3(0.1));
+
+			//Setting Parent/childe 
+			playerEntity->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
+
 		}
 		else if (m_name == "Universe_27") {
 
@@ -243,14 +256,15 @@ void Universe::InitScene()
 
 void Universe::Update(float deltaTime)
 {
-	// Transform Update
-	m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal(); });
-
 	// Key Input
 	KeyInput();
 
-	// Camera Update
-	camera->Update(MainPlayerID);
+	// Camera Update 
+	camera->Update();
+
+	// Transform Update
+	m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal(); });
+
 }
 
 void Universe::Render(float deltaTime)
@@ -279,7 +293,7 @@ void Universe::KeyInput()
 		glfwSetWindowShouldClose(this->m_window, GLFW_TRUE);
 
 	// Player Movement
-	{
+	/*{
 		auto view = m_sceneReg->view<Transform, StaticRenderer>();
 
 		for (auto entity : view) {
@@ -289,41 +303,35 @@ void Universe::KeyInput()
 				m_sceneReg->get<Transform>(entity).RotateLocalFixed(temp);
 			}
 		}
-	}
+	}*/
 
-	// Camera Movement
+	// Player Movement
+	auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
+
+	if (glfwGetKey(this->m_window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		auto view = m_sceneReg->view<Camera>();
+		glm::vec3 temp = glm::vec3(0, 0, -5);
+		//playerEnt.MoveLocalPos(temp);
+		camera->GetTransform().MoveLocalPos(temp);
 
-		for (auto entity : view) {
+	}
+	if (glfwGetKey(this->m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
 
-			auto& cament = GameObject::GetComponent<Camera>(entity);
+		glm::vec3 temp = glm::vec3(0.f, 0, 5);
+		//playerEnt.MoveLocalPos(temp);
+		camera->GetTransform().MoveLocalPos(temp);
 
-			if (glfwGetKey(this->m_window, GLFW_KEY_UP) == GLFW_PRESS)
-			{
-				glm::vec3 temp = glm::vec3(0, 0, -5);
-				cament.GetTransform().MoveLocalPos(temp);
-
-			}
-			if (glfwGetKey(this->m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
-			{
-
-				glm::vec3 temp = glm::vec3(0.f, 0, 5);
-				cament.GetTransform().MoveLocalPos(temp);
-
-			}
-			if (glfwGetKey(this->m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
-			{
-				glm::vec3 temp = glm::vec3(-0.5f, 0, 0);
-				cament.GetTransform().RotateLocal(temp);
-			}
-			if (glfwGetKey(this->m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-			{
-				glm::vec3 temp = glm::vec3(0.5f, 0, 0);
-				cament.GetTransform().RotateLocal(temp);
-			}
-
-		}
+	}
+	if (glfwGetKey(this->m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(0, 0.5f, 0);
+		camera->GetTransform().RotateLocal(temp);
+	}
+	if (glfwGetKey(this->m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(0, -0.5f, 0);
+		camera->GetTransform().RotateLocal(temp);
 	}
 }
 

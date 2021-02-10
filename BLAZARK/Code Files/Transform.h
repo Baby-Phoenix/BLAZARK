@@ -37,6 +37,8 @@ public:
 	Transform* SetLocalPos(glm::vec3 value);
 	Transform* SetLocalRot(glm::vec3 eulerDegrees);
 
+	void SetLocalMatrix(glm::mat4 matrix);
+
 private:
 	void AddChild(Transform* child);
 	void RemoveChild(Transform* child);
