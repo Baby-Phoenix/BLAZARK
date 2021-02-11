@@ -35,6 +35,7 @@
     <ClCompile Include="Code Files\Mesh.cpp" />
     <ClCompile Include="Code Files\Random.cpp" />
     <ClCompile Include="Code Files\Scene.cpp" />
+    <ClCompile Include="Code Files\SepiaEffect.cpp" />
     <ClCompile Include="Code Files\Shader.cpp" />
     <ClCompile Include="Code Files\Skybox.cpp" />
     <ClCompile Include="Code Files\Sprite2D.cpp" />
@@ -63,6 +64,7 @@
     <ClInclude Include="Code Files\OBJLoader.h" />
     <ClInclude Include="Code Files\Random.h" />
     <ClInclude Include="Code Files\Scene.h" />
+    <ClInclude Include="Code Files\SepiaEffect.h" />
     <ClInclude Include="Code Files\Shader.h" />
     <ClInclude Include="Code Files\Skybox.h" />
     <ClInclude Include="Code Files\Sprite2D.h" />

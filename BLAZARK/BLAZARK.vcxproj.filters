@@ -81,6 +81,9 @@
     <ClCompile Include="Code Files\GreyscaleEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Code Files\SepiaEffect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code Files\Game.h">
@@ -162,6 +165,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Code Files\GreyscaleEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code Files\SepiaEffect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

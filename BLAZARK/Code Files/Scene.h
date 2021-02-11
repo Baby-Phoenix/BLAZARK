@@ -11,6 +11,7 @@
 #include "GamepadInput.h"
 
 #include "GreyscaleEffect.h"
+#include "SepiaEffect.h"
 
 using namespace std;
 
