@@ -1,6 +1,6 @@
-#include "GreyscaleEffect.h"
+#include "SepiaEffect.h"
 
-void GreyscaleEffect::Init(unsigned width, unsigned height)
+void SepiaEffect::Init(unsigned width, unsigned height)
 {
 	int index = int(_buffers.size());
 	_buffers.push_back(new FrameBuffer());
@@ -8,18 +8,15 @@ void GreyscaleEffect::Init(unsigned width, unsigned height)
 	_buffers[index]->AddDepthTarget();
 	_buffers[index]->Init(width, height);
 
-	_intensity = 1.0;
+	//Set up shaders
+	_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/PostEffects/sepia_frag.glsl"));
 
-	index = int(_shaders.size());
-	_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/PostEffects/greyscale_frag.glsl"));
-
-
+	PostEffect::Init(width, height);
 }
 
-void GreyscaleEffect::ApplyEffect(PostEffect* buffer)
+void SepiaEffect::ApplyEffect(PostEffect* buffer)
 {
 	BindShader(0);
-
 	_shaders[0]->set1f(_intensity, "u_Intensity");
 
 	buffer->BindColorAsTexture(0, 0, 0);
@@ -31,12 +28,12 @@ void GreyscaleEffect::ApplyEffect(PostEffect* buffer)
 	UnbindShader();
 }
 
-float GreyscaleEffect::GetIntensity() const
+float SepiaEffect::GetIntensity() const
 {
 	return _intensity;
 }
 
-void GreyscaleEffect::SetIntensity(float intensity)
+void SepiaEffect::SetIntensity(float intensity)
 {
 	_intensity = intensity;
 }

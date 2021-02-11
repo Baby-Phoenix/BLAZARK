@@ -2,15 +2,13 @@
 
 #include "Effect.h"
 
-class GreyscaleEffect : public PostEffect
+class SepiaEffect : public PostEffect
 {
 public:
 	//Initializes framebuffer
-	//Ovverides post effect Init
 	void Init(unsigned width, unsigned height) override;
 
-	//Applies the effect to this buffer
-	//passes the previous framebuffer with the texture to apply as parameter
+	//Applies effect to this buffer
 	void ApplyEffect(PostEffect* buffer) override;
 
 	//Getters
@@ -20,6 +18,5 @@ public:
 	void SetIntensity(float intensity);
 
 private:
-	float _intensity = 1.0f;
-
+	float _intensity = 0.7f;
 };

@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "Input.h"
+#include "FrameBuffer.h"
 
 GLFWwindow* Application::m_window = nullptr;
 float Application::m_prevTime = 0.0f;
@@ -58,6 +59,7 @@ void Application::Init(const std::string& name, bool isFullscreen)
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+	FrameBuffer::InitFullscreenQuad();
 	//Disable cursor
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }

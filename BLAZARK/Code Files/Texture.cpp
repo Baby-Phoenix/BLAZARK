@@ -65,10 +65,8 @@ Texture::~Texture()
 
 void Texture::bind(const GLint texture_unit) const
 {
-	//glActiveTexture(GL_TEXTURE0 + texture_unit); //Dynamically choose which texture unit to use
-	//glBindTexture(GL_TEXTURE_2D, id);
-	if(id!=0)
-		glBindTextureUnit(texture_unit, id);
+	glActiveTexture(GL_TEXTURE0 + texture_unit); //Dynamically choose which texture unit to use
+	glBindTexture(GL_TEXTURE_2D, id);
 }
 
 void Texture::unbind()
