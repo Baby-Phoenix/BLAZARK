@@ -1,15 +1,15 @@
-# Blender MTL File: 'LavaPlanet.blend'
+# Blender MTL File: 'Universe 1 Models.blend'
 # Material Count: 2
 
 newmtl Lava
-Ns 323.999994
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
+Kd 0.334323 0.002384 0.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
-Ni 1.000000
+Ni 1.450000
 d 1.000000
-illum 2
+illum 3
 
 newmtl Obsidian
 Ns 225.000000

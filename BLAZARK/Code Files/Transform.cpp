@@ -127,9 +127,23 @@ Transform* Transform::SetLocalScale(glm::vec3 scale)
 	return this;
 }
 
+Transform* Transform::SetLocalScale(float scaleX, float scaleY, float scaleZ)
+{
+	m_scale = glm::vec3(scaleX, scaleY, scaleZ);
+	m_isLocalChanged = true;
+	return this;
+}
+
 Transform* Transform::SetLocalPos(glm::vec3 pos)
 {
 	m_pos = pos;
+	m_isLocalChanged = true;
+	return this;
+}
+
+Transform* Transform::SetLocalPos(float posX, float posY, float posZ)
+{
+	m_pos = glm::vec3(posX, posY, posZ);
 	m_isLocalChanged = true;
 	return this;
 }
@@ -138,6 +152,14 @@ Transform* Transform::SetLocalRot(glm::vec3 eulerDegrees)
 {
 	m_rotationEulerDeg = eulerDegrees;
 	m_rotation = glm::quat(glm::radians(eulerDegrees));
+	m_isLocalChanged = true;
+	return this;
+}
+
+Transform* Transform::SetLocalRot(float eulerDegreesX, float eulerDegreesY, float eulerDegreesZ)
+{
+	m_rotationEulerDeg = glm::vec3(eulerDegreesX, eulerDegreesY, eulerDegreesZ);
+	m_rotation = glm::quat(glm::radians(m_rotationEulerDeg));
 	m_isLocalChanged = true;
 	return this;
 }

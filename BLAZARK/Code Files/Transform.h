@@ -34,8 +34,11 @@ public:
 	Transform* RotateLocalFixed(glm::vec3& rotationDeg);
 
 	Transform* SetLocalScale(glm::vec3 value);
+	Transform* SetLocalScale(float scaleX, float scaleY, float scaleZ);
 	Transform* SetLocalPos(glm::vec3 value);
+	Transform* SetLocalPos(float posX, float posY, float posZ);
 	Transform* SetLocalRot(glm::vec3 eulerDegrees);
+	Transform* SetLocalRot(float eulerDegreesX, float eulerDegreesY, float eulerDegreesZ);
 
 	void SetLocalMatrix(glm::mat4 matrix);
 

@@ -1,10 +1,12 @@
 #include "Scene.h"
 
-enum class EntityType { PLAYER = 0 };
+enum class EntityType { PLAYER, ENEMY };
 
-enum class TextureType { TEMPPLANET, TEMPSHIP, START };
+enum class TextureType { START = 3, TEMPSHIP, TEMPSUN, TEMPLAVA, TEMPSAND, TEMPPLANET, TEMPMOON, TEMPROCK, TEMPICE };
 
-enum class MeshType { PLAYERSHIP, HOMEPLANET };
+enum class PlayerMesh { PLAYERSHIPPENCIL, PLAYERSHIPBAT };
+
+enum class PlanetMesh { SOLARI = 2, VERASTEN, YECHIN, KERANTIA, LUNARI, GUERISTIS, KEMINTH };
 
 std::unique_ptr<GameObject> effect;
 
@@ -16,20 +18,40 @@ Scene::Scene(string name)
 {
 
 	if (m_textures.size() < 1) {
-		m_textures.push_back(new Texture("Resource Files/Textures/tempPlanetTex.png"));
-		m_textures.push_back(new Texture("Resource Files/Textures/tempSpaceshipTex.png"));
+		// HUD //
+		m_textures.push_back(new Texture("Resource Files/Textures/HUD/Health_4-4.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/HUD/Abilities_Unavailable_Temp.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/HUD/PowerUP_Unavailable_Temp.png"));
+		/////////
 		m_textures.push_back(new Texture("Resource Files/Textures/Menu/TitleScreen.png"));
-
-		//HUD
-		m_textures.push_back(new Texture("Resource Files/Textures/HUD/Health_4-4.png")); //3
-		m_textures.push_back(new Texture("Resource Files/Textures/HUD/Abilities_Unavailable_Temp.png")); //4
-		m_textures.push_back(new Texture("Resource Files/Textures/HUD/PowerUP_Unavailable_Temp.png")); //5
+		m_textures.push_back(new Texture("Resource Files/Textures/tempSpaceship.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/tempSun.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/tempLava.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/tempSand.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/tempPlanet.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/tempMoon.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/tempRock.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/tempIce.png"));
 	}
 	if (m_meshes.size() < 1) {
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/Ships/PlayerShips/PlayerShipBat.obj", *m_meshes[int(MeshType::PLAYERSHIP)]);
+		loadOBJ("Resource Files/OBJFiles/Ships/PlayerShips/PlayerShipPencil.obj", *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]);
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Home_Planet.obj", *m_meshes[int(MeshType::HOMEPLANET)]);
+		loadOBJ("Resource Files/OBJFiles/Ships/PlayerShips/PlayerShipBat.obj", *m_meshes[int(PlayerMesh::PLAYERSHIPBAT)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Solari.obj", *m_meshes[int(PlanetMesh::SOLARI)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Verasten.obj", *m_meshes[int(PlanetMesh::VERASTEN)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Yechin.obj", *m_meshes[int(PlanetMesh::YECHIN)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Kerantia.obj", *m_meshes[int(PlanetMesh::KERANTIA)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Lunari.obj", *m_meshes[int(PlanetMesh::LUNARI)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Gueristis.obj", *m_meshes[int(PlanetMesh::GUERISTIS)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Keminth.obj", *m_meshes[int(PlanetMesh::KEMINTH)]);
 	}
 }
 
@@ -221,50 +243,76 @@ void Universe::InitScene()
 	if (GameObject::IsEmpty()) {
 
 		if (m_name == "Universe_19") {
-			//Camera
+			// Camera
 			auto cameraEntity = GameObject::Allocate();
-			cameraEntity->AttachComponent<Transform>();
+			cameraEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(520, 15, 0));
 			camera = &cameraEntity->AttachComponent<Camera>(cameraEntity->GetID());
-			camera->PerspectiveProj(1.0f, 100000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 100.0f);
-			cameraEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 15.0f, 12.5f));
+			camera->PerspectiveProj(1.0f, 100000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 1.0f);
+			cameraEntity->GetComponent<Transform>().SetLocalRot(0, 90, 0);
 
-			//Player
+			// Player
 			auto playerEntity = GameObject::Allocate();
 			MainPlayerID = playerEntity->GetID();
-			playerEntity->AttachComponent<Transform>();
-			playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(MeshType::PLAYERSHIP)], m_textures[int(TextureType::TEMPSHIP)]);
-			playerEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0, -10, -20));
+			playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(500, 0, 0));
+			playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], m_textures[int(TextureType::TEMPSHIP)]);
+			playerEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(0.75));
+			playerEntity->GetComponent<Transform>().SetLocalRot(0, 90, 0);
 
-			//Planet
+			// Solari
+			auto sunEntity = GameObject::Allocate();
+			sunEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+			sunEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), sunEntity->GetID(), *m_meshes[int(PlanetMesh::SOLARI)], m_textures[int(TextureType::TEMPSUN)]);
+			sunEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
+
+			// Verasten
+			auto lavaPlanetEntity = GameObject::Allocate();
+			lavaPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 750));
+			lavaPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), lavaPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::VERASTEN)], m_textures[int(TextureType::TEMPLAVA)]);
+
+			// Yechin
+			auto desertPlanetEntity = GameObject::Allocate();
+			desertPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 1500));
+			desertPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), desertPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::YECHIN)], m_textures[int(TextureType::TEMPSAND)]);
+
+			// Kerantia
 			auto homePlanetEntity = GameObject::Allocate();
-			homePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -200));
-			homePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), homePlanetEntity->GetID(), *m_meshes[int(MeshType::HOMEPLANET)], m_textures[int(TextureType::TEMPPLANET)]);
+			homePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 2250));
+			homePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), homePlanetEntity->GetID(), *m_meshes[int(PlanetMesh::KERANTIA)], m_textures[int(TextureType::TEMPPLANET)]);
 
-			//Planet2
-			auto homePlanetEntity2 = GameObject::Allocate();
-			homePlanetEntity2->AttachComponent<Transform>().SetLocalPos(glm::vec3(-100, 0, -100));
-			homePlanetEntity2->AttachComponent<StaticRenderer>(cameraEntity->GetID(), homePlanetEntity2->GetID(), *m_meshes[int(MeshType::HOMEPLANET)], m_textures[int(TextureType::TEMPPLANET)]);
-			homePlanetEntity2->GetComponent<Transform>().SetLocalScale(glm::vec3(0.1));
+			// Lunari
+			auto moonEntity = GameObject::Allocate();
+			moonEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 2100));
+			moonEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), moonEntity->GetID(), *m_meshes[int(PlanetMesh::LUNARI)], m_textures[int(TextureType::TEMPMOON)]);
+
+			// Gueristis
+			auto rockPlanetEntity = GameObject::Allocate();
+			rockPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 2875));
+			rockPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), rockPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::GUERISTIS)], m_textures[int(TextureType::TEMPROCK)]);
+
+			// Keminth
+			auto icePlanetEntity = GameObject::Allocate();
+			icePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 3500));
+			icePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), icePlanetEntity->GetID(), *m_meshes[int(PlanetMesh::KEMINTH)], m_textures[int(TextureType::TEMPICE)]);
 
 			//HUD
 			auto health = GameObject::Allocate();
-			health->AttachComponent<Sprite2D>(m_textures[3], health->GetID(), 15, 15);
+			health->AttachComponent<Sprite2D>(m_textures[0], health->GetID(), 15, 15);
 			health->AttachComponent<Transform>().SetLocalPos(glm::vec3(-80, -80, -10));
 			auto abilities = GameObject::Allocate();
-			abilities->AttachComponent<Sprite2D>(m_textures[4], abilities->GetID(), 15, 15);
+			abilities->AttachComponent<Sprite2D>(m_textures[1], abilities->GetID(), 15, 15);
 			abilities->AttachComponent<Transform>().SetLocalPos(glm::vec3(80, -80, -10));
 			auto powerUp = GameObject::Allocate();
-			powerUp->AttachComponent<Sprite2D>(m_textures[5], powerUp->GetID(), 6, 45);
+			powerUp->AttachComponent<Sprite2D>(m_textures[2], powerUp->GetID(), 6, 45);
 			powerUp->AttachComponent<Transform>().SetLocalPos(glm::vec3(-90, 10, -10));
 
 			//effects
-			effect = GameObject::Allocate();
+			/*effect = GameObject::Allocate();
 			effect->AttachComponent<PostEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 			effect->AttachComponent<GreyscaleEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
-			effect->AttachComponent<SepiaEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
+			effect->AttachComponent<SepiaEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());*/
 
-			//Setting Parent/childe 
-			playerEntity->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
+			//Setting Parent/childe
+			//playerEntity->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 			health->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 			abilities->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 			powerUp->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
@@ -297,19 +345,21 @@ void Universe::Update(float deltaTime)
 void Universe::Render(float deltaTime)
 {
 	
-	effect->GetComponent<PostEffect>().Clear();
+	/*effect->GetComponent<PostEffect>().Clear();
 	effect->GetComponent<GreyscaleEffect>().Clear();
 
 
-	effect->GetComponent<PostEffect>().BindBuffer(0);
+	effect->GetComponent<PostEffect>().BindBuffer(0);*/
 
 	m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& render) { render.Draw(); });
+
 	Skybox::Draw(camera->GetView(), camera->GetProj());
+
 	m_sceneReg->view<Sprite2D>().each([=](Sprite2D& render) {render.Draw(camera); });
 
-	effect->GetComponent<PostEffect>().UnbindBuffer();
+	/*effect->GetComponent<PostEffect>().UnbindBuffer();
 	effect->GetComponent<GreyscaleEffect>().ApplyEffect(&effect->GetComponent<PostEffect>());
-	effect->GetComponent<GreyscaleEffect>().DrawToScreen();
+	effect->GetComponent<GreyscaleEffect>().DrawToScreen();*/
 	
 }
 
