@@ -39,6 +39,7 @@ public:
 	LUT3D& GetLUT();
 	unsigned& GetCurSlot();
 
+	void AddLUT(std::string filename);
 	void Unload();
 private:
 

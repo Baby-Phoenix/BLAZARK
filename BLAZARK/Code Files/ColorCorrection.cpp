@@ -14,7 +14,7 @@ void ColorCorrectionEffect::Init(unsigned width, unsigned height)
 	_buffers[index]->Init(width, height);
 
 	_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/PostEffects/color_correction_frag.glsl"));
-
+	PostEffect::Init(width, height);
 
 }
 
@@ -39,6 +39,11 @@ LUT3D& ColorCorrectionEffect::GetLUT()
 unsigned& ColorCorrectionEffect::GetCurSlot()
 {
 	return _cur_Slot;
+}
+
+void ColorCorrectionEffect::AddLUT(std::string filename)
+{
+	_LUT.push_back(new LUT3D(filename));
 }
 
 void ColorCorrectionEffect::Unload()
@@ -69,9 +74,11 @@ void LUT3D::LoadFromFile(std::string filname)
 			continue;
 
 		glm::vec3 lineData;
-		if (sscanf(_line.c_str(), "%f %f %f", &lineData.x, &lineData.y, &lineData.z) == 3)
+		if (sscanf_s(_line.c_str(), "%f %f %f", &lineData.x, &lineData.y, &lineData.z) == 3)
 			m_RGB.push_back(lineData);
 	}
+	
+	std::cout << filname << " loaded successfully\n";
 
 	glEnable(GL_TEXTURE_3D);
 

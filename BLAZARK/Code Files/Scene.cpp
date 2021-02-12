@@ -305,10 +305,12 @@ void Universe::InitScene()
 			powerUp->AttachComponent<Transform>().SetLocalPos(glm::vec3(-90, 10, -10));
 
 			//effects
-			/*effect = GameObject::Allocate();
+			effect = GameObject::Allocate();
 			effect->AttachComponent<PostEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 			effect->AttachComponent<GreyscaleEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
-			effect->AttachComponent<SepiaEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());*/
+			effect->AttachComponent<SepiaEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
+			effect->AttachComponent<ColorCorrectionEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
+			effect->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/CoolLUT.cube");
 
 			//Setting Parent/childe
 			cameraEntity->GetComponent<Transform>().SetParent(&playerEntity->GetComponent<Transform>());
@@ -344,21 +346,19 @@ void Universe::Update(float deltaTime)
 void Universe::Render(float deltaTime)
 {
 	
-	/*effect->GetComponent<PostEffect>().Clear();
-	effect->GetComponent<GreyscaleEffect>().Clear();
+	effect->GetComponent<PostEffect>().Clear();
+	effect->GetComponent<ColorCorrectionEffect>().Clear();
 
 
-	effect->GetComponent<PostEffect>().BindBuffer(0);*/
+	effect->GetComponent<PostEffect>().BindBuffer(0);
 
 	m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& render) { render.Draw(); });
-
 	Skybox::Draw(camera->GetView(), camera->GetProj());
-
 	m_sceneReg->view<Sprite2D>().each([=](Sprite2D& render) {render.Draw(camera); });
 
-	/*effect->GetComponent<PostEffect>().UnbindBuffer();
-	effect->GetComponent<GreyscaleEffect>().ApplyEffect(&effect->GetComponent<PostEffect>());
-	effect->GetComponent<GreyscaleEffect>().DrawToScreen();*/
+	effect->GetComponent<PostEffect>().UnbindBuffer();
+	effect->GetComponent<ColorCorrectionEffect>().ApplyEffect(&effect->GetComponent<PostEffect>());
+	effect->GetComponent<ColorCorrectionEffect>().DrawToScreen();
 	
 }
 

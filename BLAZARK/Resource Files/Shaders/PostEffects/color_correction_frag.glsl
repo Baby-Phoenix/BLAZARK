@@ -15,3 +15,4 @@ void main() {
 
 	frag_color.rgb = texture(u_TexColorGrade, scale * textureColor.rgb + offset).rgb;
 	frag_color.a = textureColor.a;
+	}
