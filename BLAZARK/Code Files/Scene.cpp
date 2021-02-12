@@ -245,18 +245,17 @@ void Universe::InitScene()
 		if (m_name == "Universe_19") {
 			// Camera
 			auto cameraEntity = GameObject::Allocate();
-			cameraEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(520, 15, 0));
+			cameraEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 13, 25));
 			camera = &cameraEntity->AttachComponent<Camera>(cameraEntity->GetID());
 			camera->PerspectiveProj(1.0f, 100000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 1.0f);
-			cameraEntity->GetComponent<Transform>().SetLocalRot(0, 90, 0);
 
 			// Player
 			auto playerEntity = GameObject::Allocate();
 			MainPlayerID = playerEntity->GetID();
-			playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(500, 0, 0));
+			playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
 			playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], m_textures[int(TextureType::TEMPSHIP)]);
 			playerEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(0.75));
-			playerEntity->GetComponent<Transform>().SetLocalRot(0, 90, 0);
+
 
 			// Solari
 			auto sunEntity = GameObject::Allocate();
@@ -312,7 +311,7 @@ void Universe::InitScene()
 			effect->AttachComponent<SepiaEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());*/
 
 			//Setting Parent/childe
-			//playerEntity->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
+			cameraEntity->GetComponent<Transform>().SetParent(&playerEntity->GetComponent<Transform>());
 			health->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 			abilities->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 			powerUp->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
@@ -374,27 +373,27 @@ void Universe::KeyInput()
 	if (glfwGetKey(this->m_window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
 		glm::vec3 temp = glm::vec3(0, 0, -5);
-		//playerEnt.MoveLocalPos(temp);
-		camera->GetTransform().MoveLocalPos(temp);
+		playerEnt.MoveLocalPos(temp);
+		//camera->GetTransform().MoveLocalPos(temp);
 
 	}
 	if (glfwGetKey(this->m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
 
 		glm::vec3 temp = glm::vec3(0.f, 0, 5);
-		//playerEnt.MoveLocalPos(temp);
-		camera->GetTransform().MoveLocalPos(temp);
+		playerEnt.MoveLocalPos(temp);
+		//camera->GetTransform().MoveLocalPos(temp);
 
 	}
 	if (glfwGetKey(this->m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
 	{
 		glm::vec3 temp = glm::vec3(0, 0.5f, 0);
-		camera->GetTransform().RotateLocal(temp);
+		playerEnt.RotateLocal(temp);
 	}
 	if (glfwGetKey(this->m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
 		glm::vec3 temp = glm::vec3(0, -0.5f, 0);
-		camera->GetTransform().RotateLocal(temp);
+		playerEnt.RotateLocal(temp);
 	}
 }
 

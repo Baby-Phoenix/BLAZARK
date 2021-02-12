@@ -22,6 +22,7 @@
     <ClCompile Include="Code Files\AudioEngine.cpp" />
     <ClCompile Include="Code Files\Camera.cpp" />
     <ClCompile Include="Code Files\Application.cpp" />
+    <ClCompile Include="Code Files\ColorCorrection.cpp" />
     <ClCompile Include="Code Files\Dependencies\tinygltf\tiny_gltf_impl.cpp" />
     <ClCompile Include="Code Files\ECS.cpp" />
     <ClCompile Include="Code Files\Effect.cpp" />
@@ -47,6 +48,7 @@
     <ClInclude Include="Code Files\Application.h" />
     <ClInclude Include="Code Files\AudioEngine.h" />
     <ClInclude Include="Code Files\Camera.h" />
+    <ClInclude Include="Code Files\ColorCorrection.h" />
     <ClInclude Include="Code Files\Cube.h" />
     <ClInclude Include="Code Files\Dependencies\tinygltf\stb_image.h" />
     <ClInclude Include="Code Files\Dependencies\tinygltf\stb_image_write.h" />
