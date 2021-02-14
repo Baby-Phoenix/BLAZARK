@@ -1,5 +1,6 @@
 #include "Scene.h"
 
+
 enum class EntityType { PLAYER, ENEMY };
 
 enum class TextureType { START = 3, TEMPSHIP, TEMPSUN, TEMPLAVA, TEMPSAND, TEMPPLANET, TEMPMOON, TEMPROCK, TEMPICE };
@@ -12,6 +13,8 @@ std::unique_ptr<GameObject> effect;
 
 vector<Mesh*> Scene::m_meshes;
 vector<Texture*> Scene::m_textures;
+
+bool texTglPressed = false;
 
 Scene::Scene(string name)
 	:m_name(name)
@@ -72,14 +75,12 @@ void Scene::InitScene()
 	if (GameObject::IsEmpty()) {
 		//add entites in here if not initialised
 	}
-
 }
 
 void Scene::SetWindow(GLFWwindow* window)
 {
 	m_window = window;
 }
-
 
 entt::registry* Scene::GetScene()
 {
@@ -138,10 +139,10 @@ void Menu::Update(float deltaTime)
 
 void Menu::KeyInput()
 {
-	if (glfwGetKey(this->m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(this->m_window, GLFW_TRUE);
+	if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(m_window, GLFW_TRUE);
 
-	if (glfwGetKey(this->m_window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+	if (glfwGetKey(m_window, GLFW_KEY_ENTER) == GLFW_PRESS) {
 		*switchIt = true;
 		*SceneNo = int(ScenesNum::UNIVERSE_19);
 	}
@@ -149,7 +150,6 @@ void Menu::KeyInput()
 
 void Menu::GamepadInput()
 {
-
 	if (gamepad.getGamepadInput()) {
 		//button input
 		if (gamepad.buttons.A) {
@@ -255,7 +255,7 @@ void Universe::InitScene()
 			playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
 			playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], m_textures[int(TextureType::TEMPSHIP)]);
 			playerEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(0.75));
-
+			playerEntity->GetComponent<Transform>().SetLocalRot(0, 180, 0);
 
 			// Solari
 			auto sunEntity = GameObject::Allocate();
@@ -305,19 +305,18 @@ void Universe::InitScene()
 			powerUp->AttachComponent<Transform>().SetLocalPos(glm::vec3(-90, 10, -10));
 
 			//effects
-			effect = GameObject::Allocate();
+			/*effect = GameObject::Allocate();
 			effect->AttachComponent<PostEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 			effect->AttachComponent<GreyscaleEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 			effect->AttachComponent<SepiaEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 			effect->AttachComponent<ColorCorrectionEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
-			effect->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/CoolLUT.cube");
+			effect->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/NeutralLUT.cube");*/
 
 			//Setting Parent/childe
 			cameraEntity->GetComponent<Transform>().SetParent(&playerEntity->GetComponent<Transform>());
 			health->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 			abilities->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 			powerUp->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
-
 		}
 		else if (m_name == "Universe_27") {
 
@@ -340,66 +339,65 @@ void Universe::Update(float deltaTime)
 
 	// Transform Update
 	m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal(); });
-
 }
 
 void Universe::Render(float deltaTime)
 {
-	
-	effect->GetComponent<PostEffect>().Clear();
+	/*effect->GetComponent<PostEffect>().Clear();
 	effect->GetComponent<ColorCorrectionEffect>().Clear();
 
+	effect->GetComponent<PostEffect>().BindBuffer(0);*/
 
-	effect->GetComponent<PostEffect>().BindBuffer(0);
-
-	m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& render) { render.Draw(); });
+	m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) { renderer.Draw(); });
 	Skybox::Draw(camera->GetView(), camera->GetProj());
-	m_sceneReg->view<Sprite2D>().each([=](Sprite2D& render) {render.Draw(camera); });
+	m_sceneReg->view<Sprite2D>().each([=](Sprite2D& renderer) {renderer.Draw(camera); });
 
-	effect->GetComponent<PostEffect>().UnbindBuffer();
+	/*effect->GetComponent<PostEffect>().UnbindBuffer();
 	effect->GetComponent<ColorCorrectionEffect>().ApplyEffect(&effect->GetComponent<PostEffect>());
-	effect->GetComponent<ColorCorrectionEffect>().DrawToScreen();
-	
+	effect->GetComponent<ColorCorrectionEffect>().DrawToScreen();*/
 }
 
 void Universe::KeyInput()
 {
-	if (glfwGetKey(this->m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(this->m_window, GLFW_TRUE);
+	if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(m_window, GLFW_TRUE);
 
-	// Player Movement
+	// Player Movement //
 	auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
 
-	if (glfwGetKey(this->m_window, GLFW_KEY_UP) == GLFW_PRESS)
+	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
 		glm::vec3 temp = glm::vec3(0, 0, -5);
 		playerEnt.MoveLocalPos(temp);
-		//camera->GetTransform().MoveLocalPos(temp);
-
 	}
-	if (glfwGetKey(this->m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-
-		glm::vec3 temp = glm::vec3(0.f, 0, 5);
+		glm::vec3 temp = glm::vec3(0, 0, 5);
 		playerEnt.MoveLocalPos(temp);
-		//camera->GetTransform().MoveLocalPos(temp);
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(0.0f, 0.5f, 0.0f);
+		playerEnt.RotateLocal(temp);
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(0.0f, -0.5f, 0.0f);
+		playerEnt.RotateLocal(temp);
+	}
 
+	// Toggle Textures //
+	if (glfwGetKey(m_window, GLFW_KEY_T) == GLFW_PRESS && !texTglPressed) {
+		m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) { renderer.toggleTexture(); });
+		texTglPressed = true;
 	}
-	if (glfwGetKey(this->m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	{
-		glm::vec3 temp = glm::vec3(0, 0.5f, 0);
-		playerEnt.RotateLocal(temp);
-	}
-	if (glfwGetKey(this->m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-	{
-		glm::vec3 temp = glm::vec3(0, -0.5f, 0);
-		playerEnt.RotateLocal(temp);
+	if (glfwGetKey(m_window, GLFW_KEY_T) == GLFW_RELEASE) {
+		texTglPressed = false;
 	}
 }
 
 void Universe::GamepadInput()
 {
-
 	if (gamepad.getGamepadInput()) {
 		//button input
 		if (gamepad.buttons.A) {

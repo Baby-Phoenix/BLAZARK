@@ -1,6 +1,6 @@
 #include "StaticRenderer.h"
 
-Shader* StaticRenderer::m_static_shader = nullptr;
+std::vector<Shader*> StaticRenderer::m_shader;
 
 StaticRenderer::StaticRenderer(entt::entity camera, entt::entity entity, const Mesh& mesh, Texture* texture) {
 	m_tex = texture;
@@ -8,8 +8,10 @@ StaticRenderer::StaticRenderer(entt::entity camera, entt::entity entity, const M
 	m_entity = entity;
 	m_vao = std::make_unique<VertexArray>();
 	
-	if (m_static_shader == nullptr)
-		m_static_shader = new Shader("Resource Files/Shaders/static_shader_vert.glsl", "Resource Files/Shaders/static_shader_frag.glsl");
+	if (!m_shader.size()) {
+			m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_untextured.frag"));
+			m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_textured.frag"));
+	}
 
 	SetVAO(mesh);
 }
@@ -27,22 +29,32 @@ void StaticRenderer::SetVAO(const Mesh& mesh) {
 		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::TEXCOORD);
 }
 
+void StaticRenderer::toggleTexture() {
+	textureToggle = !textureToggle;
+}
+
 void StaticRenderer::Draw() {
 	auto& transform = GameObject::GetComponent<Transform>(m_entity);
 
 	//TODO: Material/Texture and Shader implementation
-	m_static_shader->use();
+	if (m_tex == nullptr || !textureToggle)
+		currShader = 0;
+	else if (textureToggle && m_tex != nullptr)
+		currShader = 1;
 
-	m_static_shader->set1i(0, "albedo");
-	m_tex->bind(0);
-	m_static_shader->setVec3f(GameObject::GetComponent<Transform>(m_camera).GetLocalPos(), "camPos");
-	m_static_shader->setMat4fv(GameObject::GetComponent<Camera>(m_camera).GetViewProj(), "ViewProjection");
-	m_static_shader->setMat4fv(transform.GetGlobal(), "ModelMatrix");
-	m_static_shader->setMat3fv(transform.GetNormal(), "NormalMatrix");
+	m_shader[currShader]->use();
 
+	if (m_tex != nullptr) {
+		m_shader[currShader]->set1i(0, "albedo");
+		m_tex->bind(0);
+	}
+
+	m_shader[currShader]->setVec3f(GameObject::GetComponent<Transform>(m_camera).GetLocalPos(), "camPos");
+	m_shader[currShader]->setMat4fv(GameObject::GetComponent<Camera>(m_camera).GetViewProj(), "ViewProjection");
+	m_shader[currShader]->setMat4fv(transform.GetGlobal(), "ModelMatrix");
+	m_shader[currShader]->setMat3fv(transform.GetNormal(), "NormalMatrix");
 	
 	m_vao->DrawArray();
-	//shader->unuse();
-	//glBindVertexArray(GL_NONE);
-
+	m_shader[currShader]->unuse();
+	glBindVertexArray(GL_NONE);
 }

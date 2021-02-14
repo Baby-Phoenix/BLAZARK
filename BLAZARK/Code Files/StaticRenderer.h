@@ -18,13 +18,16 @@ public:
 
 	void SetVAO(const Mesh& mesh);
 
+	void toggleTexture();
+
 	virtual void Draw();
 
 private:
 	std::unique_ptr<VertexArray> m_vao;
-	static Shader* m_static_shader;
+	static std::vector<Shader*> m_shader;
+	int currShader;
 	entt::entity m_camera;
 	entt::entity m_entity;
-
 	Texture* m_tex;
+	bool textureToggle = true;
 };
