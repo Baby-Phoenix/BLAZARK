@@ -260,7 +260,7 @@ void Universe::InitScene()
 			// Solari
 			auto sunEntity = GameObject::Allocate();
 			sunEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
-			sunEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), sunEntity->GetID(), *m_meshes[int(PlanetMesh::SOLARI)], m_textures[int(TextureType::TEMPSUN)]);
+			sunEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), sunEntity->GetID(), *m_meshes[int(PlanetMesh::SOLARI)], m_textures[int(TextureType::TEMPSUN)], true);
 			sunEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
 
 			// Verasten

@@ -2,15 +2,18 @@
 
 std::vector<Shader*> StaticRenderer::m_shader;
 
-StaticRenderer::StaticRenderer(entt::entity camera, entt::entity entity, const Mesh& mesh, Texture* texture) {
+StaticRenderer::StaticRenderer(entt::entity camera, entt::entity entity, const Mesh& mesh, Texture* texture, bool lightSource) {
+	m_lightSource = lightSource;
 	m_tex = texture;
 	m_camera = camera;
 	m_entity = entity;
 	m_vao = std::make_unique<VertexArray>();
 	
 	if (!m_shader.size()) {
-			m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_untextured.frag"));
-			m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_textured.frag"));
+			m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_untex_unlit.frag"));
+			m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_untex_lit.frag"));
+			m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_tex_unlit.frag"));
+			m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_tex_lit.frag"));
 	}
 
 	SetVAO(mesh);
@@ -30,17 +33,25 @@ void StaticRenderer::SetVAO(const Mesh& mesh) {
 }
 
 void StaticRenderer::toggleTexture() {
-	textureToggle = !textureToggle;
+	m_textureToggle = !m_textureToggle;
 }
 
 void StaticRenderer::Draw() {
 	auto& transform = GameObject::GetComponent<Transform>(m_entity);
 
 	//TODO: Material/Texture and Shader implementation
-	if (m_tex == nullptr || !textureToggle)
-		currShader = 0;
-	else if (textureToggle && m_tex != nullptr)
-		currShader = 1;
+	if (m_tex == nullptr || !m_textureToggle) {
+		if (!m_lightSource)
+			currShader = 0;
+		else
+			currShader = 1;
+	}
+	else if (m_textureToggle && m_tex != nullptr) {
+		if (!m_lightSource)
+			currShader = 2;
+		else
+			currShader = 3;
+	}
 
 	m_shader[currShader]->use();
 
