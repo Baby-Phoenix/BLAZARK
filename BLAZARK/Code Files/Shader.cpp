@@ -9,8 +9,8 @@ Shader::Shader(const char* vertexShader, const char* fragmentShader) {
 
 	linkProgram(vert, frag);
 
-	//glDeleteShader(vert);
-	//glDeleteShader(frag);
+	glDeleteShader(vert);
+	glDeleteShader(frag);
 }
 
 Shader::~Shader() {
@@ -64,7 +64,7 @@ std::string Shader::loadShaderSource(const char* fileName) {
 	in_file.open(fileName);
 
 	if (in_file.is_open()) {
-		std::cout << "The file could open " << fileName << "\n";
+		std::cout << "The shader file " << fileName << " could open." << "\n";
 		while (std::getline(in_file, temp)) {
 			src += temp + "\n";
 		}
@@ -96,10 +96,9 @@ GLuint Shader::loadShader(GLenum type, const char* fileName) {
 		std::cout << "ERROR::SHADER::COULD_NOT_COMPILE_SHADER: " << fileName << "\n";
 		std::cout << infoLog << "\n";
 	}
-
 	else
 	{
-		std::cout << "Shader loaded"<<"\n";
+		std::cout << "Shader loaded!"<<"\n";
 	}
 	return shader;
 }

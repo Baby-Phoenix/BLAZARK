@@ -24,3 +24,24 @@ void Mesh::SetTexCoords(const std::vector<glm::vec2>& texCoords)
 {
 	SetVBO(VertexAttrib::TEXCOORD, texCoords, 2);
 }
+
+void Mesh::SetMaterials(const std::vector<Material>& materials)
+{
+	std::vector<float> specularShininess;
+	std::vector<glm::vec3> ambientColour;
+	std::vector<glm::vec3> diffuseColour;
+	std::vector<glm::vec3> specularColour;
+	std::vector<float> dissolve;
+	for (int i = 0; i < materials.size(); i++) {
+		specularShininess.push_back(materials[i].specularShininess);
+		ambientColour.push_back(materials[i].ambientColour);
+		diffuseColour.push_back(materials[i].diffuseColour);
+		specularColour.push_back(materials[i].specularColour);
+		dissolve.push_back(materials[i].dissolve);
+	}
+	SetVBO(VertexAttrib::SPECULARSHININESS, specularShininess, 1);
+	SetVBO(VertexAttrib::AMBIENTCOLOUR, ambientColour, 3);
+	SetVBO(VertexAttrib::DIFFUSECOLOUR, diffuseColour, 3);
+	SetVBO(VertexAttrib::SPECULARCOLOUR, specularColour, 3);
+	SetVBO(VertexAttrib::DISSOLVE, dissolve, 1);
+}

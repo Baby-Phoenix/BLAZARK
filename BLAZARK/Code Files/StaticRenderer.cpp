@@ -30,6 +30,21 @@ void StaticRenderer::SetVAO(const Mesh& mesh) {
 
 	if ((vbo = mesh.GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
 		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::TEXCOORD);
+
+	if ((vbo = mesh.GetVBO(Mesh::VertexAttrib::SPECULARSHININESS)) != nullptr)
+		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::SPECULARSHININESS);
+
+	if ((vbo = mesh.GetVBO(Mesh::VertexAttrib::AMBIENTCOLOUR)) != nullptr)
+		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::AMBIENTCOLOUR);
+
+	if ((vbo = mesh.GetVBO(Mesh::VertexAttrib::DIFFUSECOLOUR)) != nullptr)
+		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::DIFFUSECOLOUR);
+
+	if ((vbo = mesh.GetVBO(Mesh::VertexAttrib::SPECULARCOLOUR)) != nullptr)
+		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::SPECULARCOLOUR);
+
+	if ((vbo = mesh.GetVBO(Mesh::VertexAttrib::DISSOLVE)) != nullptr)
+		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::DISSOLVE);
 }
 
 void StaticRenderer::toggleTexture() {

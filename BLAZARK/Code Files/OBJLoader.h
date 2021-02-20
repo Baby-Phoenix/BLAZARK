@@ -6,9 +6,10 @@
 #include<fstream>
 #include<sstream>
 
-static void loadOBJ(const char* file_name, Mesh& mesh) {
+static void loadOBJ(const char* filename, Mesh& mesh) {
 	// Opens file
-	std::ifstream obj_file(file_name);
+	std::ifstream obj_file(filename);
+	std::ifstream mtl_file;
 
 	// Throws error if file not open
 	if (!obj_file.is_open()) {
@@ -19,19 +20,31 @@ static void loadOBJ(const char* file_name, Mesh& mesh) {
 	std::string obj_line = "";
 	std::string prefix = "";
 
+	std::string mtl_filename;
+	std::string mtl_line = "";
+
 	// Vertex Data
 	std::vector<glm::fvec3> raw_vertex_positions;
 	std::vector<glm::fvec3> raw_vertex_normals;
 	std::vector<glm::fvec2> raw_vertex_texcoords;
+	std::vector<Material> raw_vertex_materials;
 	std::vector<GLint> vertex_position_indicies;
 	std::vector<GLint> vertex_normal_indicies;
 	std::vector<GLint> vertex_texcoord_indicies;
 	std::vector<glm::vec3> vertex_positions;
 	std::vector<glm::vec3> vertex_normals;
 	std::vector<glm::vec2> vertex_texcoords;
+	std::vector<Material> vertex_materials;
+
+	std::map<std::string, int> materialDict;
+	std::string mat_name = "";
+	int mat_id = -1;
 
 	glm::vec3 temp_vec3;
 	glm::vec2 temp_vec2;
+	Material temp_mat;
+	std::string temp_matName = "";
+	GLint matCounter = 0;
 	GLint index = 0;
 
 	// Iterates through each line of the .obj file
@@ -42,7 +55,46 @@ static void loadOBJ(const char* file_name, Mesh& mesh) {
 		ss >> prefix;
 
 		if (prefix == "mtllib") {
+			ss >> mtl_filename;
+			std::string mtl_filepath = filename;
+			mtl_filepath.erase(mtl_filepath.end() - mtl_filename.size(), mtl_filepath.end());
+			mtl_filepath += mtl_filename;
+			
+			mtl_file.open(mtl_filepath.c_str());
 
+			// Throws error if file not open
+			if (!obj_file.is_open()) {
+				throw "ERROR::OBJLOADER::Could not open file.";
+			}
+
+			while (std::getline(mtl_file, mtl_line)) {
+				ss.clear();
+				ss.str(mtl_line);
+				ss >> prefix;
+
+				if (prefix == "newmtl") {
+					ss >> mat_name;
+					mat_id++;
+					materialDict.insert(std::pair<std::string, int>(mat_name, mat_id));
+					temp_mat.mat_id = mat_id;
+				}
+				else if (prefix == "Ns") {
+					ss >> temp_mat.specularShininess;
+				}
+				else if (prefix == "Ka") {
+					ss >> temp_mat.ambientColour.x >> temp_mat.ambientColour.y >> temp_mat.ambientColour.z;
+				}
+				else if (prefix == "Kd") {
+					ss >> temp_mat.diffuseColour.x >> temp_mat.diffuseColour.y >> temp_mat.diffuseColour.z;
+				}
+				else if (prefix == "Ks") {
+					ss >> temp_mat.specularColour.x >> temp_mat.specularColour.y >> temp_mat.specularColour.z;
+				}
+				else if (prefix == "d") {
+					ss >> temp_mat.dissolve;
+					raw_vertex_materials.push_back(temp_mat);
+				}
+			}
 		}
 		else if (prefix == "v") {
 			ss >> temp_vec3.x >> temp_vec3.y >> temp_vec3.z;
@@ -56,11 +108,26 @@ static void loadOBJ(const char* file_name, Mesh& mesh) {
 			ss >> temp_vec3.x >> temp_vec3.y >> temp_vec3.z;
 			raw_vertex_normals.push_back(temp_vec3);
 		}
-		else if (prefix == "use_mtl") {
-
+		else if (prefix == "usemtl" || prefix == "end") {
+			if (matCounter != 0) {
+				for (int i = 0; i < raw_vertex_materials.size(); i++) {
+					auto it = materialDict.find(temp_matName);
+					if (it != materialDict.end()) {
+						if (it->second == raw_vertex_materials[i].mat_id) {
+							matCounter *= 3;
+							while (matCounter > 0) {
+								vertex_materials.push_back(raw_vertex_materials[i]);
+								matCounter--;
+							}
+						}
+					}
+				}
+			}
+			ss >> temp_matName;
 		}
 		else if (prefix == "f") {
 			int counter = 0;
+			matCounter++;
 
 			while (ss >> index) {
 				// Pushes the indices into the correct arrays
@@ -100,10 +167,11 @@ static void loadOBJ(const char* file_name, Mesh& mesh) {
 	mesh.SetPositions(vertex_positions);
 	mesh.SetNormals(vertex_normals);
 	mesh.SetTexCoords(vertex_texcoords);
+	mesh.SetMaterials(vertex_materials);
 
 	//DEBUG
 	std::cout << "Nr of vertices: " << vertex_positions.size() << "\n";
 
 	//Loaded success
-	std::cout << "OBJ file loaded!" << "\n";
+	std::cout << filename << " file loaded!" << "\n";
 }
