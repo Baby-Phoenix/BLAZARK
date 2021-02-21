@@ -10,7 +10,7 @@
 class StaticRenderer {
 public:
 	StaticRenderer() = default;
-	StaticRenderer(entt::entity camera, entt::entity entity, const Mesh& mesh,Texture* texture = nullptr);
+	StaticRenderer(entt::entity camera, entt::entity entity, const Mesh& mesh,Texture* texture = nullptr, bool lightSource = false);
 	virtual ~StaticRenderer() = default;
 
 	StaticRenderer(StaticRenderer&&) = default;
@@ -29,5 +29,6 @@ private:
 	entt::entity m_camera;
 	entt::entity m_entity;
 	Texture* m_tex;
-	bool textureToggle = true;
+	bool m_textureToggle = true;
+	bool m_lightSource;
 };
