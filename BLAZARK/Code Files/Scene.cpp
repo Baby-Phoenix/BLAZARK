@@ -239,7 +239,7 @@ void Universe::InitScene()
 			auto cameraEntity = GameObject::Allocate();
 			cameraEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 13, 25));
 			camera = &cameraEntity->AttachComponent<Camera>(cameraEntity->GetID());
-			camera->PerspectiveProj(1.0f, 100000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 1.0f);
+			camera->PerspectiveProj(0.1f, 1000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 1.0f);
 
 			// Player
 			auto playerEntity = GameObject::Allocate();

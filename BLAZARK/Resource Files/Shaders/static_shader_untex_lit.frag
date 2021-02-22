@@ -16,8 +16,8 @@ uniform vec3 lightColor = vec3(1.0f, 1.0f, 1.0f);
 
 void main()
 {
-    vec3 result = lightColor * diffuseCol;
-    fs_colour = vec4(result, 1.0);
+    vec3 result = (specularCol + lightColor) * diffuseCol;
+    fs_colour = vec4(result, alpha);
 
     float brightness = dot(fs_colour.rgb, vec3(0.2126, 0.7152, 0.0722));
     if (brightness > 1.0)
