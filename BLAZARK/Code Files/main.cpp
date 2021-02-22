@@ -2,7 +2,7 @@
 
 
 int main() {
-	Application::Init("Blazark", false); //DONT SET FULLSCREEN
+	Application::Init("Blazark", false); // DONT SET FULLSCREEN
 
 	Game game(Application::GetWindow());
 
@@ -11,10 +11,10 @@ int main() {
 		Application::FrameStart();
 		Application::DeltaTime();
 
-		game.update(Application::GetDeltaTime());	
+		game.update(Application::GetDeltaTime());
 
 		Application::SwapBuffers();
 	}
-		
+	
 	return 0;
 }

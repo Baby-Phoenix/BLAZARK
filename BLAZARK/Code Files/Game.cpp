@@ -53,8 +53,6 @@ void Game::render()
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-
-
 void Game::UpdateScene()
 {
 	if (m_isSceneSwitch)

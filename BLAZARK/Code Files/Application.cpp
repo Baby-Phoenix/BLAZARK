@@ -27,13 +27,15 @@ void Application::Init(const std::string& name, bool isFullscreen)
 	glfwWindowHint(GLFW_RESIZABLE, false);
 
 	//Create window
-	if(isFullscreen)
+	if(isFullscreen) {
 		m_window = glfwCreateWindow(800, 800, name.c_str(), glfwGetPrimaryMonitor(), NULL);
+		glfwSetWindowSize(m_window, 1920, 1080);
+	}
 	else
 	{
 		m_width  = 1440;
 		m_height = 900;
-		m_window = glfwCreateWindow(m_width, m_height, name.c_str(), nullptr, nullptr);
+		m_window = glfwCreateWindow(m_width, m_height, name.c_str(), NULL, NULL);
 	}
 	glfwMakeContextCurrent(m_window);
 
@@ -45,6 +47,9 @@ void Application::Init(const std::string& name, bool isFullscreen)
 		std::cout << "ERROR::GLAD_INIT_FAILED" << std::endl;
 		glfwTerminate();
 	}
+
+	printf("OpenGL Renderer: %s\n", glGetString(GL_RENDERER));
+	printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
 
 	glViewport(0, 0, m_width, m_height);
 
@@ -66,10 +71,9 @@ void Application::Init(const std::string& name, bool isFullscreen)
 
 void Application::DeltaTime()
 {
-	float t = static_cast<float>(glfwGetTime());
-
-	m_deltaTime = t - m_prevTime;
-	m_prevTime = t;
+	float time = (float)glfwGetTime();
+	m_deltaTime = time - m_prevTime;
+	m_prevTime = time;
 }
 
 void Application::FrameStart()
@@ -113,12 +117,12 @@ void Application::SetClearColor(const glm::vec4& clearColor)
 	glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 }
 
-int Application::GetWindowWidth()
+float Application::GetWindowWidth()
 {
-	return m_width;
+	return (float)m_width;
 }
 
-int Application::GetWindowHeight()
+float Application::GetWindowHeight()
 {
-	return m_height;
+	return (float)m_height;
 }
