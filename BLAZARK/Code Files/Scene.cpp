@@ -27,6 +27,7 @@ Scene::Scene(string name)
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/PowerUP_Unavailable_Temp.png"));
 		/////////
 		m_textures.push_back(new Texture("Resource Files/Textures/Menu/TitleScreen.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/HUD/health_spritesheet.png"));
 	}
 	if (m_meshes.size() < 1) {
 		m_meshes.push_back(new Mesh());
@@ -284,11 +285,29 @@ void Universe::InitScene()
 			auto icePlanetEntity = GameObject::Allocate();
 			icePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 3500));
 			icePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), icePlanetEntity->GetID(), *m_meshes[int(PlanetMesh::KEMINTH)], nullptr);
-
+			 
 			//HUD
 			auto health = GameObject::Allocate();
-			health->AttachComponent<Sprite2D>(m_textures[0], health->GetID(), 15, 15);
+
+			auto* tempAnim = &health->AttachComponent<AnimationHandler>();
+			auto& anim = health->GetComponent<AnimationHandler>();
+			anim.InitUVS(m_textures[4]);
+			Animation2D Oneclip;
+			Oneclip.AddFrame(UVS(glm::vec2(1, 233), glm::vec2(235, 1)));
+			Oneclip.AddFrame(UVS(glm::vec2(236, 233), glm::vec2(470, 1)));
+			Oneclip.AddFrame(UVS(glm::vec2(471, 233), glm::vec2(705, 1)));
+			Oneclip.AddFrame(UVS(glm::vec2(706, 233), glm::vec2(939, 1)));
+			Oneclip.SetIsRepeating(true);
+			Oneclip.SetSecPerFrame(0.1);
+
+			anim.AddAnimation(Oneclip);
+			anim.SetActiveAnim(0);
+
+			health->AttachComponent<Sprite2D>(m_textures[4], health->GetID(), 15, 15, true, tempAnim);
 			health->AttachComponent<Transform>().SetLocalPos(glm::vec3(-80, -80, -10));
+			
+
+
 			auto abilities = GameObject::Allocate();
 			abilities->AttachComponent<Sprite2D>(m_textures[1], abilities->GetID(), 15, 15);
 			abilities->AttachComponent<Transform>().SetLocalPos(glm::vec3(80, -80, -10));
@@ -298,8 +317,8 @@ void Universe::InitScene()
 
 			//effects
 			/*effect = GameObject::Allocate();
-			effect->AttachComponent<PostEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
-			effect->AttachComponent<GreyscaleEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
+			effect->AttachComponent<PostEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());*/
+			/*effect->AttachComponent<GreyscaleEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 			effect->AttachComponent<SepiaEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 			effect->AttachComponent<ColorCorrectionEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 			effect->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/NeutralLUT.cube");*/
@@ -329,24 +348,28 @@ void Universe::Update(float deltaTime)
 	// Camera Update 
 	camera->Update();
 
+	m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) {	anim.Update(deltaTime); });
 	// Transform Update
 	m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal(); });
 }
 
 void Universe::Render(float deltaTime)
 {
-	/*effect->GetComponent<PostEffect>().Clear();
-	effect->GetComponent<ColorCorrectionEffect>().Clear();
-
-	effect->GetComponent<PostEffect>().BindBuffer(0);*/
+//	effect->GetComponent<PostEffect>().Clear();
+//	/*effect->GetComponent<ColorCorrectionEffect>().Clear();
+//	*/
+//	effect->GetComponent<PostEffect>().BindBuffer(0);
 
 	m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) { renderer.Draw(); });
 	Skybox::Draw(camera->GetView(), camera->GetProj());
 	m_sceneReg->view<Sprite2D>().each([=](Sprite2D& renderer) {renderer.Draw(camera); });
+	
+	//effect->GetComponent<PostEffect>().UnbindBuffer();
+	///*
+	//effect->GetComponent<ColorCorrectionEffect>().ApplyEffect(&effect->GetComponent<PostEffect>());
+	//effect->GetComponent<ColorCorrectionEffect>().DrawToScreen();*/
+	//effect->GetComponent<PostEffect>().DrawToScreen();
 
-	/*effect->GetComponent<PostEffect>().UnbindBuffer();
-	effect->GetComponent<ColorCorrectionEffect>().ApplyEffect(&effect->GetComponent<PostEffect>());
-	effect->GetComponent<ColorCorrectionEffect>().DrawToScreen();*/
 }
 
 void Universe::KeyInput()

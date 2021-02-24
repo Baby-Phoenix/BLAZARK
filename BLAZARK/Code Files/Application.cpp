@@ -78,23 +78,24 @@ void Application::DeltaTime()
 
 void Application::FrameStart()
 {
-	//Calculate delta time
-	DeltaTime();
 
 	//Input
-	glfwPollEvents();
+	glfwPollEvents();//Clearwindow.
 
-	//Clearwindow.
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//Calculate delta time
+	DeltaTime();
 	
 }
 
 void Application::SwapBuffers()
 {
 	glfwSwapBuffers(m_window);
+	glFlush();
 }
 
 float Application::GetDeltaTime()

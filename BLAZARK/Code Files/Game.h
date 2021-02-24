@@ -15,7 +15,7 @@ public:
 
 	//Functions	
 	void update(float deltaTime);
-	void render();
+	void Render();
 
 private:
 

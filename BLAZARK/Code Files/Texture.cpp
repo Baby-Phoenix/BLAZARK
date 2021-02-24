@@ -69,6 +69,11 @@ void Texture::bind(const GLint texture_unit) const
 	glBindTexture(GL_TEXTURE_2D, id);
 }
 
+glm::vec2 Texture::GetWidthAndHeight()
+{
+	return glm::vec2(width, height);
+}
+
 void Texture::unbind()
 {
 	glActiveTexture(0);

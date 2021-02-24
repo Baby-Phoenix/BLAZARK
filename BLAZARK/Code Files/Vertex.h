@@ -8,6 +8,14 @@
 
 class VertexBuffer {
 public:
+	VertexBuffer() {
+		glGenBuffers(1, &m_bufferID);
+
+		m_bufferLen = 0;
+		m_typeLen = 0;
+		m_typeSize = 0;
+	}
+
 	template<typename dataType>
 	VertexBuffer(const std::vector<dataType>& data, GLint typeLen) {
 		glGenBuffers(1, &m_bufferID);
@@ -77,6 +85,10 @@ public:
 		glEnableVertexAttribArray(bufferAttrib);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo.GetID());
 		glVertexAttribPointer(bufferAttrib, vbo.GetTypeLen(), GL_FLOAT, GL_FALSE, 0, (const void*)0);
+	}
+
+	GLuint GetID() {
+		return m_arrayID;
 	}
 
 	void DrawArray() {

@@ -4,7 +4,7 @@
 #include <string>
 #include <glad/glad.h>
 #include <glfw3.h>
-
+#include "glm.hpp"
 #include <vector>
 
 class Texture
@@ -22,6 +22,7 @@ public:
 
 	void bind(const GLint texture_unit) const;
 
+	glm::vec2 GetWidthAndHeight();
 
 	void unbind();
 

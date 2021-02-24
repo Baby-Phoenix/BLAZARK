@@ -1,25 +1,32 @@
-#version 420
+#version 440
 
-layout(binding = 0) uniform sampler2D uTex; //Source image
-uniform vec2 uPixelSize; //1.0 / Window_Width
+layout (binding = 0) uniform sampler2D image;
 
 out vec4 FragColor;
-
 in vec2 TexCoords;
 
-void main() 
-{
-	//Sample pixels in a horizontal row
-	//Weight should add up to 1
-	FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+uniform bool horizontal;
+uniform float weight[5] = float[] (0.2270270270, 0.1945945946, 0.1216216216, 0.0540540541, 0.0162162162);
 
-	FragColor += texture(uTex, vec2(TexCoords.x - 4.0 * uPixelSize.x, TexCoords.y - 4.0 * uPixelSize.y)) * 0.06;
-	FragColor += texture(uTex, vec2(TexCoords.x - 3.0 * uPixelSize.x, TexCoords.y - 3.0 * uPixelSize.y)) * 0.09;
-	FragColor += texture(uTex, vec2(TexCoords.x - 2.0 * uPixelSize.x, TexCoords.y - 2.0 * uPixelSize.y)) * 0.12;
-	FragColor += texture(uTex, vec2(TexCoords.x - 		uPixelSize.x, TexCoords.y - 	  uPixelSize.y)) * 0.15;
-	FragColor += texture(uTex, vec2(TexCoords.x                     , TexCoords.y                     )) * 0.16;
-	FragColor += texture(uTex, vec2(TexCoords.x + 		uPixelSize.x, TexCoords.y + 	  uPixelSize.y)) * 0.15;
-	FragColor += texture(uTex, vec2(TexCoords.x + 2.0 * uPixelSize.x, TexCoords.y + 2.0 * uPixelSize.y)) * 0.12;
-	FragColor += texture(uTex, vec2(TexCoords.x + 3.0 * uPixelSize.x, TexCoords.y + 3.0 * uPixelSize.y)) * 0.09;
-	FragColor += texture(uTex, vec2(TexCoords.x + 4.0 * uPixelSize.x, TexCoords.y + 4.0 * uPixelSize.y)) * 0.06;
+void main()
+{             
+     vec2 tex_offset = 1.0 / textureSize(image, 0); // gets size of single texel
+     vec3 result = texture(image, TexCoords).rgb * weight[0];
+     if(horizontal)
+     {
+         for(int i = 1; i < 5; ++i)
+         {
+            result += texture(image, TexCoords + vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+            result += texture(image, TexCoords - vec2(tex_offset.x * i, 0.0)).rgb * weight[i];
+         }
+     }
+     else
+     {
+         for(int i = 1; i < 5; ++i)
+         {
+             result += texture(image, TexCoords + vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+             result += texture(image, TexCoords - vec2(0.0, tex_offset.y * i)).rgb * weight[i];
+         }
+     }
+     FragColor = vec4(result, 1.0);
 }

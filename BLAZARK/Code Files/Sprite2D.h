@@ -1,32 +1,34 @@
 #pragma once
-
-#include "GLTFLoader.h"
-#include "Texture.h"
 #include "Shader.h"
 #include "Camera.h"
 #include "Application.h"
+#include "Sprite2DAnimation.h"
 
 class Sprite2D
 {
 
 public:
 	
-	Sprite2D(Texture* tex, entt::entity entity,float width = 1, float height = 1, float transparency = 1);
+	Sprite2D(Texture* tex, entt::entity entity, float width = 1, float height = 1, bool isAnim = false, AnimationHandler* anim = nullptr, float transparency = 1);
 	virtual	~Sprite2D() = default;
+
+	void SetAnimationHandler(AnimationHandler* anim);
 
 	void Draw(Camera* cam);
 
 private:
-
-	glm::vec2 m_textureSize = glm::vec2();
 
 	float m_width;
 	float m_height;
 	float m_transparency;
 
 	static Mesh* m_planeMesh;
-	static VertexArray* VAO;
-	static Shader* m_Sprite2D_shader;
+	VertexArray* VAO = nullptr;
+	static Shader* m_Sprite2D_shader[2];
+
+	bool m_isAnimated = false;
+
+	AnimationHandler* Animation = nullptr;
 
 	Texture* m_texture;
 	entt::entity m_entity;

@@ -9,7 +9,6 @@ int main() {
 	while (!Application::IsExitProgram())
 	{
 		Application::FrameStart();
-		Application::DeltaTime();
 
 		game.update(Application::GetDeltaTime());
 

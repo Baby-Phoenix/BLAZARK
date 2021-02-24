@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code Files\AudioEngine.cpp" />
+    <ClCompile Include="Code Files\BloomEffect.cpp" />
     <ClCompile Include="Code Files\Camera.cpp" />
     <ClCompile Include="Code Files\Application.cpp" />
     <ClCompile Include="Code Files\ColorCorrection.cpp" />
@@ -40,6 +41,7 @@
     <ClCompile Include="Code Files\Shader.cpp" />
     <ClCompile Include="Code Files\Skybox.cpp" />
     <ClCompile Include="Code Files\Sprite2D.cpp" />
+    <ClCompile Include="Code Files\Sprite2DAnimation.cpp" />
     <ClCompile Include="Code Files\StaticRenderer.cpp" />
     <ClCompile Include="Code Files\Texture.cpp" />
     <ClCompile Include="Code Files\Transform.cpp" />
@@ -47,6 +49,7 @@
   <ItemGroup>
     <ClInclude Include="Code Files\Application.h" />
     <ClInclude Include="Code Files\AudioEngine.h" />
+    <ClInclude Include="Code Files\BloomEffect.h" />
     <ClInclude Include="Code Files\Camera.h" />
     <ClInclude Include="Code Files\ColorCorrection.h" />
     <ClInclude Include="Code Files\Dependencies\tinygltf\stb_image.h" />
@@ -54,6 +57,7 @@
     <ClInclude Include="Code Files\Dependencies\tinygltf\tiny_gltf.h" />
     <ClInclude Include="Code Files\ECS.h" />
     <ClInclude Include="Code Files\Effect.h" />
+    <ClInclude Include="Code Files\EnemyAI.h" />
     <ClInclude Include="Code Files\FrameBuffer.h" />
     <ClInclude Include="Code Files\Game.h" />
     <ClInclude Include="Code Files\GamepadInput.h" />
@@ -70,6 +74,7 @@
     <ClInclude Include="Code Files\Shader.h" />
     <ClInclude Include="Code Files\Skybox.h" />
     <ClInclude Include="Code Files\Sprite2D.h" />
+    <ClInclude Include="Code Files\Sprite2DAnimation.h" />
     <ClInclude Include="Code Files\StaticRenderer.h" />
     <ClInclude Include="Code Files\Texture.h" />
     <ClInclude Include="Code Files\Transform.h" />
