@@ -34,8 +34,11 @@ public:
 	void SetTexCoords(const std::vector<glm::vec2>& texCoords);
 	void SetMaterials(const std::vector<Material>& materials);
 
+	float width, height, depth;
+
 private:
 	std::map<VertexAttrib, std::unique_ptr<VertexBuffer>> m_vboDict;
+	
 };
 
 template<typename dataType>

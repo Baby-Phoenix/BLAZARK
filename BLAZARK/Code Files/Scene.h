@@ -12,6 +12,7 @@
 #include "ColorCorrection.h"
 #include "GreyscaleEffect.h"
 #include "SepiaEffect.h"
+#include "EnemyAI.h"
 
 using namespace std;
 

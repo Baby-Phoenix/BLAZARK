@@ -164,9 +164,19 @@ Transform* Transform::SetLocalRot(float eulerDegreesX, float eulerDegreesY, floa
 	return this;
 }
 
+float Transform::GetRadius()
+{
+	return m_radius;
+}
+
 void Transform::SetLocalMatrix(glm::mat4 matrix)
 {
 	m_local = matrix;
+}
+
+void Transform::SetRadius(float radius)
+{
+	m_radius = radius;
 }
 
 void Transform::AddChild(Transform* child)

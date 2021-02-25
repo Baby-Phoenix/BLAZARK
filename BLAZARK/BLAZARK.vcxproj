@@ -27,6 +27,7 @@
     <ClCompile Include="Code Files\Dependencies\tinygltf\tiny_gltf_impl.cpp" />
     <ClCompile Include="Code Files\ECS.cpp" />
     <ClCompile Include="Code Files\Effect.cpp" />
+    <ClCompile Include="Code Files\EnemyAI.cpp" />
     <ClCompile Include="Code Files\FrameBuffer.cpp" />
     <ClCompile Include="Code Files\Game.cpp" />
     <ClCompile Include="Code Files\GamepadInput.cpp" />

@@ -39,8 +39,10 @@ public:
 	Transform* SetLocalPos(float posX, float posY, float posZ);
 	Transform* SetLocalRot(glm::vec3 eulerDegrees);
 	Transform* SetLocalRot(float eulerDegreesX, float eulerDegreesY, float eulerDegreesZ);
+	float GetRadius();
 
 	void SetLocalMatrix(glm::mat4 matrix);
+	void SetRadius(float radius);
 
 private:
 	void AddChild(Transform* child);
@@ -57,6 +59,8 @@ private:
 	glm::mat4 m_local;
 	glm::mat4 m_global;
 	glm::mat3 m_normalMatrix;
+
+	float m_radius = 0.f;
 
 	Transform* m_parent;
 	std::vector<Transform*> m_children;

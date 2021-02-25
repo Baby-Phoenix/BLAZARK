@@ -16,6 +16,8 @@ vector<Texture*> Scene::m_textures;
 
 bool texTglPressed = false;
 
+StaticRenderer tempEnemy;
+
 Scene::Scene(string name)
 	:m_name(name)
 {
@@ -248,13 +250,23 @@ void Universe::InitScene()
 			playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
 			playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], nullptr);
 			playerEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(0.75));
+			
 			playerEntity->GetComponent<Transform>().SetLocalRot(0, 180, 0);
 
 			// Solari
 			auto sunEntity = GameObject::Allocate();
 			sunEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
 			sunEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), sunEntity->GetID(), *m_meshes[int(PlanetMesh::SOLARI)], nullptr, true);
+			sunEntity->GetComponent<Transform>().SetRadius(3 * (m_meshes[int(PlanetMesh::SOLARI)]->width / 2));
 			sunEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
+
+			//testing for ai
+			auto enemy = GameObject::Allocate();
+			Transform tempTrans;
+			enemy->AttachComponent<Transform>();
+			BasicAI* testEnemy = new BasicAI(&tempTrans, &sunEntity->GetComponent<Transform>());
+			enemy->GetComponent<Transform>().SetLocalPos(tempTrans.GetLocalPos());
+			enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], nullptr);
 
 			// Verasten
 			auto lavaPlanetEntity = GameObject::Allocate();
@@ -286,8 +298,9 @@ void Universe::InitScene()
 			icePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 3500));
 			icePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), icePlanetEntity->GetID(), *m_meshes[int(PlanetMesh::KEMINTH)], nullptr);
 			 
+			
 			//HUD
-			auto health = GameObject::Allocate();
+		/*	auto health = GameObject::Allocate();
 
 			auto* tempAnim = &health->AttachComponent<AnimationHandler>();
 			auto& anim = health->GetComponent<AnimationHandler>();
@@ -305,7 +318,7 @@ void Universe::InitScene()
 
 			health->AttachComponent<Sprite2D>(m_textures[4], health->GetID(), 15, 15, true, tempAnim);
 			health->AttachComponent<Transform>().SetLocalPos(glm::vec3(-80, -80, -10));
-			
+			*/
 
 
 			auto abilities = GameObject::Allocate();
@@ -325,7 +338,7 @@ void Universe::InitScene()
 
 			//Setting Parent/childe
 			cameraEntity->GetComponent<Transform>().SetParent(&playerEntity->GetComponent<Transform>());
-			health->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
+		/*	health->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());*/
 			abilities->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 			powerUp->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 		}

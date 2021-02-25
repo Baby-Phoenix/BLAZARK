@@ -46,6 +46,8 @@ static void loadOBJ(const char* filename, Mesh& mesh) {
 	std::string temp_matName = "";
 	GLint matCounter = 0;
 	GLint index = 0;
+	float minX = 0, maxX = 0, minZ = 0, maxZ = 0, minY = 0, maxY = 0;
+	bool firstTime = false;
 
 	// Iterates through each line of the .obj file
 	while (std::getline(obj_file, obj_line)) {
@@ -98,6 +100,39 @@ static void loadOBJ(const char* filename, Mesh& mesh) {
 		}
 		else if (prefix == "v") {
 			ss >> temp_vec3.x >> temp_vec3.y >> temp_vec3.z;
+
+			if (firstTime) {
+				minX = temp_vec3.x;
+				maxX = temp_vec3.x;
+
+				minY = temp_vec3.y;
+				maxY = temp_vec3.y;
+				
+				minZ = temp_vec3.z;
+				maxZ = temp_vec3.z;
+
+				firstTime = false;
+			}
+			else {
+				if (temp_vec3.x > maxX)
+					maxX = temp_vec3.x;
+
+				else if (temp_vec3.x < minX)
+					minX = temp_vec3.x;
+
+				if (temp_vec3.z > maxZ)
+					maxZ = temp_vec3.z;
+
+				else if (temp_vec3.z < minZ)
+					minZ = temp_vec3.z;
+
+				if (temp_vec3.y > maxY)
+					maxY = temp_vec3.y;
+
+				else if (temp_vec3.y < minY)
+					minY = temp_vec3.y;
+			}
+
 			raw_vertex_positions.push_back(temp_vec3);
 		}
 		else if (prefix == "vt") {
@@ -164,6 +199,8 @@ static void loadOBJ(const char* filename, Mesh& mesh) {
 
 	}
 	
+	mesh.width = maxX - minX;
+	mesh.height = maxZ - minZ;
 	mesh.SetPositions(vertex_positions);
 	mesh.SetNormals(vertex_normals);
 	mesh.SetTexCoords(vertex_texcoords);
