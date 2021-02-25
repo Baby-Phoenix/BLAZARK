@@ -266,11 +266,15 @@ void Universe::InitScene()
 
 		// Player
 		auto playerEntity = GameObject::Allocate();
+		entt::entity MainPlayerID;
 		MainPlayerID = playerEntity->GetID();
+		m_entities.push_back(MainPlayerID);
 		playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(1000, 0, 3750));
 		playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], nullptr);
 		//playerEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(0.75));
 		playerEntity->GetComponent<Transform>().SetLocalRot(0, 180, 0);
+		
+		playerEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetWidth(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetHeight(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetDepth()));
 
 		//HUD
 		auto health = GameObject::Allocate();
@@ -310,28 +314,34 @@ void Universe::InitScene()
 		if (m_name == "Universe_19") {
 
 			// Player
-			auto playerEntity = GameObject::Allocate();
+			/*auto playerEntity = GameObject::Allocate();
 			MainPlayerID = playerEntity->GetID();
 			playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
 			playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], nullptr);
 			playerEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(0.75));
 			
-			playerEntity->GetComponent<Transform>().SetLocalRot(0, 180, 0);
+			playerEntity->GetComponent<Transform>().SetLocalRot(0, 180, 0);*/
 
 			// Solari
 			auto sunEntity = GameObject::Allocate();
 			sunEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
 			sunEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), sunEntity->GetID(), *m_meshes[int(PlanetMesh::SOLARI)], nullptr, true);
-			sunEntity->GetComponent<Transform>().SetRadius(3 * (m_meshes[int(PlanetMesh::SOLARI)]->width / 2));
+			sunEntity->GetComponent<Transform>().SetRadius(3 * (m_meshes[int(PlanetMesh::SOLARI)]->GetWidth() / 2));
 			sunEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
 
 			//testing for ai
 			auto enemy = GameObject::Allocate();
+			entt::entity enemyID;
+			enemyID = enemy->GetID();
+			m_entities.push_back(enemyID);
 			Transform tempTrans;
 			enemy->AttachComponent<Transform>();
 			BasicAI* testEnemy = new BasicAI(&tempTrans, &sunEntity->GetComponent<Transform>());
-			enemy->GetComponent<Transform>().SetLocalPos(tempTrans.GetLocalPos());
+			//enemy->GetComponent<Transform>().SetLocalPos(tempTrans.GetLocalPos());
+			enemy->GetComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
 			enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], nullptr);
+
+			enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetWidth(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetHeight(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetDepth()));
 
 			// Verasten
 			auto lavaPlanetEntity = GameObject::Allocate();
@@ -485,6 +495,9 @@ void Universe::Update(float deltaTime)
 	m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) {	anim.Update(deltaTime); });
 	// Transform Update
 	m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal(); });
+
+	if (isCollide(GameObject::GetComponent<Transform>(m_entities[0]), GameObject::GetComponent<Transform>(m_entities[1])))
+		std::cout << "ISCOLLIDE" << std::endl;
 }
 
 void Universe::Render(float deltaTime)
@@ -512,16 +525,16 @@ void Universe::KeyInput()
 		glfwSetWindowShouldClose(m_window, GLFW_TRUE);
 
 	// Player Movement //
-	auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
+	auto& playerEnt = GameObject::GetComponent<Transform>(m_entities[0]);
 
 	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0, 0, -200);
+		glm::vec3 temp = glm::vec3(0, 0, -2);
 		playerEnt.MoveLocalPos(temp);
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0, 0, 200);
+		glm::vec3 temp = glm::vec3(0, 0, 2);
 		playerEnt.MoveLocalPos(temp);
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
@@ -612,4 +625,21 @@ void Universe::GamepadInput()
 	else
 		std::cout << "No controller connected" << std::endl;
 
+}
+
+bool Universe::isCollide(Transform Obj1, Transform Obj2)
+{
+	//X axis collision
+	bool collisionX = Obj1.GetLocalPos().x + Obj1.GetWHD().x >= Obj2.GetLocalPos().x &&
+		Obj2.GetLocalPos().x + Obj2.GetWHD().x >= Obj1.GetLocalPos().x;
+
+	//Y axis collision
+	bool collisionY = Obj1.GetLocalPos().y + Obj1.GetWHD().y >= Obj2.GetLocalPos().y &&
+		Obj2.GetLocalPos().y + Obj2.GetWHD().y >= Obj1.GetLocalPos().y;
+	//Z axis collision
+	bool collisionZ = Obj1.GetLocalPos().z + Obj1.GetWHD().z >= Obj2.GetLocalPos().z &&
+		Obj2.GetLocalPos().z + Obj2.GetWHD().z >= Obj1.GetLocalPos().z;
+
+	// collision only if on all axis
+	return collisionX && collisionY && collisionZ;
 }

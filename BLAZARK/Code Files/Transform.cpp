@@ -169,6 +169,11 @@ float Transform::GetRadius()
 	return m_radius;
 }
 
+glm::vec3 Transform::GetWHD()
+{
+	return glm::vec3(m_width, m_height, m_depth);
+}
+
 void Transform::SetLocalMatrix(glm::mat4 matrix)
 {
 	m_local = matrix;
@@ -177,6 +182,13 @@ void Transform::SetLocalMatrix(glm::mat4 matrix)
 void Transform::SetRadius(float radius)
 {
 	m_radius = radius;
+}
+
+void Transform::SetWHD(glm::vec3 whd)
+{
+	m_width = whd.x;
+	m_height = whd.y;
+	m_depth = whd.z;
 }
 
 void Transform::AddChild(Transform* child)

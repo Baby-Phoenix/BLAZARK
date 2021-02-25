@@ -199,8 +199,9 @@ static void loadOBJ(const char* filename, Mesh& mesh) {
 
 	}
 	
-	mesh.width = maxX - minX;
-	mesh.height = maxZ - minZ;
+	mesh.SetWidth(maxX - minX);
+	mesh.SetHeight(maxY - minY);
+	mesh.SetDepth(maxZ - minZ);
 	mesh.SetPositions(vertex_positions);
 	mesh.SetNormals(vertex_normals);
 	mesh.SetTexCoords(vertex_texcoords);

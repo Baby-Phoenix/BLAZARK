@@ -46,6 +46,7 @@
     <ClCompile Include="Code Files\StaticRenderer.cpp" />
     <ClCompile Include="Code Files\Texture.cpp" />
     <ClCompile Include="Code Files\Transform.cpp" />
+    <ClCompile Include="Projectile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code Files\Application.h" />
@@ -80,6 +81,7 @@
     <ClInclude Include="Code Files\Texture.h" />
     <ClInclude Include="Code Files\Transform.h" />
     <ClInclude Include="Code Files\Vertex.h" />
+    <ClInclude Include="Projectile.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Code Files\Dependencies\tinygltf\LICENSE" />

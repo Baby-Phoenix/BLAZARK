@@ -105,9 +105,13 @@ public:
 
 	void GamepadInput() override;
 
+	bool isCollide(Transform Obj1, Transform Obj2);
+
 private:
 
 	float deltaTime;
 
-	entt::entity MainPlayerID;
+	vector<entt::entity> m_entities;
+
+	//entt::entity MainPlayerID;
 };

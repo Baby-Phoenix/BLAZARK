@@ -45,3 +45,33 @@ void Mesh::SetMaterials(const std::vector<Material>& materials)
 	SetVBO(VertexAttrib::SPECULARCOLOUR, specularColour, 3);
 	SetVBO(VertexAttrib::DISSOLVE, dissolve, 1);
 }
+
+void Mesh::SetWidth(float width)
+{
+	m_width = width;
+}
+
+void Mesh::SetHeight(float height)
+{
+	m_height = height;
+}
+
+void Mesh::SetDepth(float depth)
+{
+	m_depth = depth;
+}
+
+float Mesh::GetWidth()
+{
+	return m_width;
+}
+
+float Mesh::GetHeight()
+{
+	return m_height;
+}
+
+float Mesh::GetDepth()
+{
+	return m_depth;
+}

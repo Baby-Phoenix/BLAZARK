@@ -34,10 +34,18 @@ public:
 	void SetTexCoords(const std::vector<glm::vec2>& texCoords);
 	void SetMaterials(const std::vector<Material>& materials);
 
-	float width, height, depth;
+	void SetWidth(float width);
+	void SetHeight(float height);
+	void SetDepth(float depth);
+
+	float GetWidth();
+	float GetHeight();
+	float GetDepth();
 
 private:
 	std::map<VertexAttrib, std::unique_ptr<VertexBuffer>> m_vboDict;
+
+	float m_width, m_height, m_depth;
 	
 };
 
