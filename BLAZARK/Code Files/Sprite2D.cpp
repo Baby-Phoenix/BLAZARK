@@ -117,7 +117,7 @@ void Sprite2D::Draw(Camera* cam)
 	m_texture->unbind();
 	glUseProgram(GL_NONE);
 
-	cam->PerspectiveProj(1.0f, 100000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 100.0f);
+	cam->PerspectiveProj(1.0f, 10000000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 100.0f);
 	
 
 }
