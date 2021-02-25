@@ -68,6 +68,9 @@ private:
 	float m_radius = 0.f;
 	float m_width, m_height, m_depth;
 
+	//width x, height y, depth z
+	glm::vec3 m_whd = glm::vec3(0, 0, 0);
+
 	Transform* m_parent;
 	std::vector<Transform*> m_children;
 };

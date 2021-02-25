@@ -268,9 +268,9 @@ void Universe::InitScene()
 		auto playerEntity = GameObject::Allocate();
 		entt::entity MainPlayerID;
 		MainPlayerID = playerEntity->GetID();
-		m_entities.push_back(MainPlayerID);
-		playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(1000, 0, 3750));
+		playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
 		playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], nullptr);
+		m_entities.push_back(MainPlayerID);
 		//playerEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(0.75));
 		playerEntity->GetComponent<Transform>().SetLocalRot(0, 180, 0);
 		
@@ -296,6 +296,7 @@ void Universe::InitScene()
 		health->AttachComponent<Sprite2D>(m_textures[4], health->GetID(), 15, 15, true, tempAnim);
 		health->AttachComponent<Transform>().SetLocalPos(glm::vec3(-80, -80, -10));
 
+
 		auto abilities = GameObject::Allocate();
 		abilities->AttachComponent<Sprite2D>(m_textures[1], abilities->GetID(), 15, 15);
 		abilities->AttachComponent<Transform>().SetLocalPos(glm::vec3(80, -80, -10));
@@ -311,16 +312,12 @@ void Universe::InitScene()
 		effect->AttachComponent<ColorCorrectionEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 		effect->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/NeutralLUT.cube");*/
 
+		//Setting Parent/childe
+		
+
 		if (m_name == "Universe_19") {
 
-			// Player
-			/*auto playerEntity = GameObject::Allocate();
-			MainPlayerID = playerEntity->GetID();
-			playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
-			playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], nullptr);
-			playerEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(0.75));
-			
-			playerEntity->GetComponent<Transform>().SetLocalRot(0, 180, 0);*/
+		
 
 			// Solari
 			auto sunEntity = GameObject::Allocate();
@@ -337,45 +334,44 @@ void Universe::InitScene()
 			Transform tempTrans;
 			enemy->AttachComponent<Transform>();
 			BasicAI* testEnemy = new BasicAI(&tempTrans, &sunEntity->GetComponent<Transform>());
-			//enemy->GetComponent<Transform>().SetLocalPos(tempTrans.GetLocalPos());
-			enemy->GetComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+			enemy->GetComponent<Transform>().SetLocalPos(tempTrans.GetLocalPos());
+			//enemy->GetComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
 			enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], nullptr);
 
 			enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetWidth(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetHeight(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetDepth()));
 
 			// Verasten
 			auto lavaPlanetEntity = GameObject::Allocate();
-			lavaPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 315500));
+			lavaPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 750));
 			lavaPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), lavaPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::VERASTEN)], nullptr);
-			lavaPlanetEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(250.0));
+			
 
 			// Yechin
 			auto desertPlanetEntity = GameObject::Allocate();
-			desertPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 515500));
+			desertPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 1500));
 			desertPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), desertPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::YECHIN)], nullptr);
-			desertPlanetEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(550.0));
 
 			// Kerantia
 			auto homePlanetEntity = GameObject::Allocate();
-			homePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 915500));
+			homePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 2250));
 			homePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), homePlanetEntity->GetID(), *m_meshes[int(PlanetMesh::KERANTIA)], nullptr);
-			homePlanetEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(400.0));
+			
 
 			// Lunari
 			auto moonEntity = GameObject::Allocate();
-			moonEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 945500));
+			moonEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 2100));
 			moonEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), moonEntity->GetID(), *m_meshes[int(PlanetMesh::LUNARI)], nullptr);
-			moonEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(250.0));
+		
 
 			// Gueristis
 			auto rockPlanetEntity = GameObject::Allocate();
-			rockPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 1315500));
+			rockPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 2875));
 			rockPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), rockPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::GUERISTIS)], nullptr);
-			rockPlanetEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(400.0));
+			
 
 			// Keminth
 			auto icePlanetEntity = GameObject::Allocate();
-			icePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 1515500));
+			icePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 3500));
 			icePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), icePlanetEntity->GetID(), *m_meshes[int(PlanetMesh::KEMINTH)], nullptr);
 			 
 			
@@ -401,24 +397,8 @@ void Universe::InitScene()
 			*/
 
 
-			auto abilities = GameObject::Allocate();
-			abilities->AttachComponent<Sprite2D>(m_textures[1], abilities->GetID(), 15, 15);
-			abilities->AttachComponent<Transform>().SetLocalPos(glm::vec3(80, -80, -10));
-			auto powerUp = GameObject::Allocate();
-			powerUp->AttachComponent<Sprite2D>(m_textures[2], powerUp->GetID(), 6, 45);
-			powerUp->AttachComponent<Transform>().SetLocalPos(glm::vec3(-90, 10, -10));
-
-			//effects
-			/*effect = GameObject::Allocate();
-			effect->AttachComponent<PostEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());*/
-			/*effect->AttachComponent<GreyscaleEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
-			effect->AttachComponent<SepiaEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
-			effect->AttachComponent<ColorCorrectionEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
-			effect->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/NeutralLUT.cube");*/
-
-			//Setting Parent/childe
 			cameraEntity->GetComponent<Transform>().SetParent(&playerEntity->GetComponent<Transform>());
-		/*	health->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());*/
+			health->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 			abilities->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 			powerUp->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 
