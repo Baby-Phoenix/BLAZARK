@@ -24,36 +24,34 @@ Scene::Scene(string name)
 
 	if (m_textures.size() < 1) {
 		// HUD //
-		m_textures.push_back(new Texture("Resource Files/Textures/HUD/Health_4-4.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/HUD/health_spritesheet.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/Abilities_Unavailable_Temp.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/PowerUP_Unavailable_Temp.png"));
 		/////////
 		m_textures.push_back(new Texture("Resource Files/Textures/Menu/TitleScreen.png"));
-		m_textures.push_back(new Texture("Resource Files/Textures/HUD/health_spritesheet.png"));
 	}
 	if (m_meshes.size() < 1) {
-
-		//Universe-19
+		// Universe-19
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Ships/PlayerShips/PlayerShipPencil.obj", *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]);
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Ships/PlayerShips/PlayerShipBat.obj", *m_meshes[int(PlayerMesh::PLAYERSHIPBAT)]);
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Solari.obj", *m_meshes[int(PlanetMesh::SOLARI)]);
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Solari.obj", *m_meshes[int(PlanetMesh::SOLARI)]);
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Verasten.obj", *m_meshes[int(PlanetMesh::VERASTEN)]);
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Verasten.obj", *m_meshes[int(PlanetMesh::VERASTEN)]);
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Yechin.obj", *m_meshes[int(PlanetMesh::YECHIN)]);
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Yechin.obj", *m_meshes[int(PlanetMesh::YECHIN)]);
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Kerantia.obj", *m_meshes[int(PlanetMesh::KERANTIA)]);
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Kerantia.obj", *m_meshes[int(PlanetMesh::KERANTIA)]);
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Lunari.obj", *m_meshes[int(PlanetMesh::LUNARI)]);
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Lunari.obj", *m_meshes[int(PlanetMesh::LUNARI)]);
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Gueristis.obj", *m_meshes[int(PlanetMesh::GUERISTIS)]);
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Gueristis.obj", *m_meshes[int(PlanetMesh::GUERISTIS)]);
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/UniverseOne/Planets/Keminth.obj", *m_meshes[int(PlanetMesh::KEMINTH)]);
+		loadOBJ("Resource Files/OBJFiles/UniverseOne/Keminth.obj", *m_meshes[int(PlanetMesh::KEMINTH)]);
 		
-		//Universe-27
+		// Universe-27
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Universe27/Sun.obj", *m_meshes[int(PlanetMesh::SUN2)]);
 		m_meshes.push_back(new Mesh());
@@ -70,7 +68,6 @@ Scene::Scene(string name)
 		loadOBJ("Resource Files/OBJFiles/Universe27/Mushroom Planet.obj", *m_meshes[int(PlanetMesh::MP)]);
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Universe27/Citadel.obj", *m_meshes[int(PlanetMesh::CITADEL)]);
-	
 	}
 }
 
@@ -130,7 +127,6 @@ void Menu::InitScene()
 			auto titleScreen = GameObject::Allocate();
 			titleScreen->AttachComponent<Sprite2D>(m_textures[int(TextureType::START)], titleScreen->GetID(), 100, 100);
 			titleScreen->AttachComponent<Transform>();
-			//titleScreen->GetComponent<Transform>().SetLocalScale(temp);
 		}
 		else if (m_name == "Main_Menu") {
 
@@ -158,6 +154,7 @@ void Menu::KeyInput()
 	if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(m_window, GLFW_TRUE);
 
+	// Scene Switching //
 	if (glfwGetKey(m_window, GLFW_KEY_ENTER) == GLFW_PRESS) {
 		*switchIt = true;
 		*SceneNo = int(ScenesNum::UNIVERSE_19);
@@ -257,7 +254,6 @@ void Universe::InitScene()
 	GameObject::SetRegistry(m_sceneReg);
 
 	if (GameObject::IsEmpty()) {
-
 		// Camera
 		auto cameraEntity = GameObject::Allocate();
 		cameraEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 13, 25));
@@ -281,7 +277,7 @@ void Universe::InitScene()
 
 		auto* tempAnim = &health->AttachComponent<AnimationHandler>();
 		auto& anim = health->GetComponent<AnimationHandler>();
-		anim.InitUVS(m_textures[4]);
+		anim.InitUVS(m_textures[0]);
 		Animation2D Oneclip;
 		Oneclip.AddFrame(UVS(glm::vec2(1, 233), glm::vec2(235, 1)));
 		Oneclip.AddFrame(UVS(glm::vec2(236, 233), glm::vec2(470, 1)));
@@ -293,7 +289,7 @@ void Universe::InitScene()
 		anim.AddAnimation(Oneclip);
 		anim.SetActiveAnim(0);
 
-		health->AttachComponent<Sprite2D>(m_textures[4], health->GetID(), 15, 15, true, tempAnim);
+		health->AttachComponent<Sprite2D>(m_textures[0], health->GetID(), 15, 15, true, tempAnim);
 		health->AttachComponent<Transform>().SetLocalPos(glm::vec3(-80, -80, -10));
 
 
@@ -311,16 +307,12 @@ void Universe::InitScene()
 		effect->AttachComponent<SepiaEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 		effect->AttachComponent<ColorCorrectionEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 		effect->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/NeutralLUT.cube");*/
-
-		//Setting Parent/childe
 		
 
 		if (m_name == "Universe_19") {
-
-		
-
 			// Solari
 			auto sunEntity = GameObject::Allocate();
+			m_entities.push_back(sunEntity->GetID());
 			sunEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
 			sunEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), sunEntity->GetID(), *m_meshes[int(PlanetMesh::SOLARI)], nullptr, true);
 			sunEntity->GetComponent<Transform>().SetRadius(3 * (m_meshes[int(PlanetMesh::SOLARI)]->GetWidth() / 2));
@@ -344,66 +336,43 @@ void Universe::InitScene()
 			auto lavaPlanetEntity = GameObject::Allocate();
 			lavaPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 750));
 			lavaPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), lavaPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::VERASTEN)], nullptr);
-			
 
 			// Yechin
 			auto desertPlanetEntity = GameObject::Allocate();
-			desertPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 1500));
+			desertPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(1500, 0, 0));
 			desertPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), desertPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::YECHIN)], nullptr);
 
 			// Kerantia
 			auto homePlanetEntity = GameObject::Allocate();
-			homePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 2250));
+			homePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -2250));
 			homePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), homePlanetEntity->GetID(), *m_meshes[int(PlanetMesh::KERANTIA)], nullptr);
-			
 
 			// Lunari
 			auto moonEntity = GameObject::Allocate();
-			moonEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 2100));
+			moonEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -2100));
 			moonEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), moonEntity->GetID(), *m_meshes[int(PlanetMesh::LUNARI)], nullptr);
-		
 
 			// Gueristis
 			auto rockPlanetEntity = GameObject::Allocate();
-			rockPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 2875));
+			rockPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(-2875, 0, 0));
 			rockPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), rockPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::GUERISTIS)], nullptr);
-			
 
 			// Keminth
 			auto icePlanetEntity = GameObject::Allocate();
 			icePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 3500));
 			icePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), icePlanetEntity->GetID(), *m_meshes[int(PlanetMesh::KEMINTH)], nullptr);
-			 
-			
-			//HUD
-		/*	auto health = GameObject::Allocate();
 
-			auto* tempAnim = &health->AttachComponent<AnimationHandler>();
-			auto& anim = health->GetComponent<AnimationHandler>();
-			anim.InitUVS(m_textures[4]);
-			Animation2D Oneclip;
-			Oneclip.AddFrame(UVS(glm::vec2(1, 233), glm::vec2(235, 1)));
-			Oneclip.AddFrame(UVS(glm::vec2(236, 233), glm::vec2(470, 1)));
-			Oneclip.AddFrame(UVS(glm::vec2(471, 233), glm::vec2(705, 1)));
-			Oneclip.AddFrame(UVS(glm::vec2(706, 233), glm::vec2(939, 1)));
-			Oneclip.SetIsRepeating(true);
-			Oneclip.SetSecPerFrame(0.1);
-
-			anim.AddAnimation(Oneclip);
-			anim.SetActiveAnim(0);
-
-			health->AttachComponent<Sprite2D>(m_textures[4], health->GetID(), 15, 15, true, tempAnim);
-			health->AttachComponent<Transform>().SetLocalPos(glm::vec3(-80, -80, -10));
-			*/
-
-
+			//Setting Parent/childe
 			cameraEntity->GetComponent<Transform>().SetParent(&playerEntity->GetComponent<Transform>());
 			health->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 			abilities->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
 			powerUp->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
-
-
-
+			lavaPlanetEntity->GetComponent<Transform>().SetParent(&sunEntity->GetComponent<Transform>());
+			desertPlanetEntity->GetComponent<Transform>().SetParent(&sunEntity->GetComponent<Transform>());
+			homePlanetEntity->GetComponent<Transform>().SetParent(&sunEntity->GetComponent<Transform>());
+			moonEntity->GetComponent<Transform>().SetParent(&sunEntity->GetComponent<Transform>());
+			rockPlanetEntity->GetComponent<Transform>().SetParent(&sunEntity->GetComponent<Transform>());
+			icePlanetEntity->GetComponent<Transform>().SetParent(&sunEntity->GetComponent<Transform>());
 		}
 		else if (m_name == "Universe_27") {
 			
@@ -473,6 +442,12 @@ void Universe::Update(float deltaTime)
 	camera->Update();
 
 	m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) {	anim.Update(deltaTime); });
+	
+	auto& SunEnt = GameObject::GetComponent<Transform>(m_entities[1]);
+	
+	glm::vec3 temp = glm::vec3(0, 0.075, 0);
+	SunEnt.RotateLocal(temp);
+
 	// Transform Update
 	m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal(); });
 
@@ -503,6 +478,9 @@ void Universe::KeyInput()
 {
 	if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(m_window, GLFW_TRUE);
+
+	// Scene Switching //
+
 
 	// Player Movement //
 	auto& playerEnt = GameObject::GetComponent<Transform>(m_entities[0]);
