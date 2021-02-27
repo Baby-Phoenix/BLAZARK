@@ -39,6 +39,8 @@ public:
 	Transform* SetLocalPos(float posX, float posY, float posZ);
 	Transform* SetLocalRot(glm::vec3 eulerDegrees);
 	Transform* SetLocalRot(float eulerDegreesX, float eulerDegreesY, float eulerDegreesZ);
+	Transform* SetLocalRot(glm::quat rotation);
+
 	float GetRadius();
 	//width x, height y, depth z
 	glm::vec3 GetWHD();

@@ -9,7 +9,7 @@ class BasicAI
 {
 public:
 	BasicAI() = default;
-	BasicAI(Transform* enemy, Transform* avoid, Transform* player = nullptr, float dist = 45);
+	BasicAI(Transform* enemy, Transform* avoid, Transform* player = nullptr, float dist = 15);
 
 	~BasicAI() = default;
 
@@ -23,10 +23,12 @@ protected:
 	virtual void CheckForMainPlayer();
 
 	std::vector<glm::vec3> m_points;
+	unsigned int m_nextPoint = 1;
 	Transform* m_enemy = nullptr;
 	Transform* m_player = nullptr;
 	glm::vec3 m_direction;
-	float distance;
+	float m_distance = 150;
+	bool m_isPlayerinRange = false;
 	static bool initRandom;
 };
 

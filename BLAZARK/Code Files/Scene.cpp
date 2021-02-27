@@ -14,6 +14,8 @@ std::unique_ptr<GameObject> effect;
 vector<Mesh*> Scene::m_meshes;
 vector<Texture*> Scene::m_textures;
 
+AnimationHandler* HealthAnim;
+
 bool texTglPressed = false;
 
 StaticRenderer tempEnemy;
@@ -276,16 +278,16 @@ void Universe::InitScene()
 		auto health = GameObject::Allocate();
 
 		auto* tempAnim = &health->AttachComponent<AnimationHandler>();
+		HealthAnim = &health->GetComponent<AnimationHandler>();
 		auto& anim = health->GetComponent<AnimationHandler>();
 		anim.InitUVS(m_textures[0]);
 		Animation2D Oneclip;
-		Oneclip.AddFrame(UVS(glm::vec2(1, 233), glm::vec2(235, 1)));
-		Oneclip.AddFrame(UVS(glm::vec2(236, 233), glm::vec2(470, 1)));
-		Oneclip.AddFrame(UVS(glm::vec2(471, 233), glm::vec2(705, 1)));
 		Oneclip.AddFrame(UVS(glm::vec2(706, 233), glm::vec2(939, 1)));
+		Oneclip.AddFrame(UVS(glm::vec2(471, 233), glm::vec2(705, 1)));
+		Oneclip.AddFrame(UVS(glm::vec2(236, 233), glm::vec2(470, 1)));
+		Oneclip.AddFrame(UVS(glm::vec2(1, 233), glm::vec2(235, 1)));
 		Oneclip.SetIsRepeating(true);
-		Oneclip.SetSecPerFrame(0.1);
-
+		Oneclip.SetSecPerFrame(1.0);
 		anim.AddAnimation(Oneclip);
 		anim.SetActiveAnim(0);
 
@@ -320,16 +322,11 @@ void Universe::InitScene()
 
 			//testing for ai
 			auto enemy = GameObject::Allocate();
-			entt::entity enemyID;
-			enemyID = enemy->GetID();
+			entt::entity enemyID = enemy->GetID();
 			m_entities.push_back(enemyID);
-			Transform tempTrans;
 			enemy->AttachComponent<Transform>();
-			BasicAI* testEnemy = new BasicAI(&tempTrans, &sunEntity->GetComponent<Transform>());
-			enemy->GetComponent<Transform>().SetLocalPos(tempTrans.GetLocalPos());
-			//enemy->GetComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+			enemy->AttachComponent<BasicAI>(&enemy->GetComponent<Transform>(), &sunEntity->GetComponent<Transform>(), &playerEntity->GetComponent<Transform>());
 			enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], nullptr);
-
 			enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetWidth(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetHeight(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetDepth()));
 
 			// Verasten
@@ -440,6 +437,9 @@ void Universe::Update(float deltaTime)
 
 	// Camera Update 
 	camera->Update();
+	
+	m_sceneReg->view<BasicAI>().each([=](BasicAI& ai) {	
+		ai.Update(); });
 
 	m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) {	anim.Update(deltaTime); });
 	
@@ -490,7 +490,7 @@ void Universe::KeyInput()
 		glm::vec3 temp = glm::vec3(0, 0, -2);
 		playerEnt.MoveLocalPos(temp);
 	}
-	if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	else if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
 		glm::vec3 temp = glm::vec3(0, 0, 2);
 		playerEnt.MoveLocalPos(temp);
@@ -500,11 +500,12 @@ void Universe::KeyInput()
 		glm::vec3 temp = glm::vec3(0.0f, 1.0f, 0.0f);
 		playerEnt.RotateLocal(temp);
 	}
-	if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	else if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
 		glm::vec3 temp = glm::vec3(0.0f, -1.0f, 0.0f);
 		playerEnt.RotateLocal(temp);
 	}
+
 
 	// Toggle Textures //
 	if (glfwGetKey(m_window, GLFW_KEY_T) == GLFW_PRESS && !texTglPressed) {
