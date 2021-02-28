@@ -25,6 +25,7 @@ public:
 	//Adding the frames
 	void AddFrame(UVS frame);
 	void AddFrame(glm::vec2 bottomLeft, glm::vec2 topRight);
+	void RemoveFrame();
 
 
 	void Update(float deltaTime);
@@ -59,8 +60,8 @@ class AnimationHandler
 public:
 	AnimationHandler() = default;
 	~AnimationHandler() {
-		delete vbo_one;
-		delete vbo_two;
+		delete First_frame;
+		delete Second_frame;
 	}
 	void InitUVS(Texture* tex);
 
@@ -74,8 +75,6 @@ public:
 	std::vector<Animation2D> GetAnimation();;
 	int GetActiveAnimation();
 	float GetT();
-	VertexBuffer* GetUVVBO_one();
-	VertexBuffer* GetUVVBO_two();
 
 	//Setter
 	void SetTextureSize(glm::vec2 size);
@@ -89,9 +88,8 @@ private:
 
 	glm::vec2 m_texturesize;
 
-	VertexBuffer* vbo_one = nullptr;
-	VertexBuffer* vbo_two = nullptr;
-
+	Mesh* First_frame = nullptr;
+	Mesh* Second_frame = nullptr;
 
 	VertexArray* m_sprite_VAO = nullptr;
 

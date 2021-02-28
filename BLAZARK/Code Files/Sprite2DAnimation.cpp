@@ -28,6 +28,11 @@ void Animation2D::AddFrame(glm::vec2 bottomLeft, glm::vec2 topRight)
 	m_frames.push_back(UVS(bottomLeft, topRight));
 }
 
+void Animation2D::RemoveFrame()
+{
+	m_frames.pop_back();
+}
+
 void Animation2D::Update(float deltaTime)
 {
 	//Subtract delta time from
@@ -67,6 +72,7 @@ void Animation2D::Update(float deltaTime)
 void Animation2D::Reset()
 {
 	m_timePerFrame = m_secPerFrame;
+	m_timePerFrameOriginal = m_timePerFrame;
 	m_currentFrame = 0;
 }
 
@@ -120,15 +126,14 @@ void Animation2D::SetSecPerFrame(float sec)
 void AnimationHandler::InitUVS(Texture* tex)
 {
 	m_texturesize = tex->GetWidthAndHeight();
-	vbo_one = new VertexBuffer();
-	vbo_two = new VertexBuffer();
+	First_frame = new Mesh();
+	Second_frame = new Mesh();
 }
 
 void AnimationHandler::Update(float deltaTime)
 {
 	m_animations[m_activeAnimation].Update(deltaTime);
-	T = 0;
-	/*T = m_animations[m_activeAnimation].GetT();*/
+	T = m_animations[m_activeAnimation].GetT();
 
 	UpdateAnimation();
 }
@@ -136,10 +141,12 @@ void AnimationHandler::Update(float deltaTime)
 void AnimationHandler::UpdateAnimation()
 {
 
-	std::vector<glm::vec4> tempFrame;
+	const VertexBuffer* vbo;
+	std::vector<glm::vec2> tempFrame;
 
 	tempFrame.resize(6);
 	
+#pragma region FirstFrame
 	//UVS for the current frame
 	auto uv = m_animations[m_activeAnimation].GetCurrFrame();
 
@@ -148,57 +155,47 @@ void AnimationHandler::UpdateAnimation()
 	glm::vec2 topL = glm::vec2(uv.m_topLeft.x / m_texturesize.x, uv.m_topLeft.y / m_texturesize.y);
 	glm::vec2 topR = glm::vec2(uv.m_topRight.x / m_texturesize.x, uv.m_topRight.y / m_texturesize.y);
 
+	//push all the frames into a vector
+	tempFrame[0] = topR;
+	tempFrame[1] = botL;
+	tempFrame[2] = topL;
 
-	tempFrame[0] = glm::vec4(topR,botL);
-	tempFrame[1] = glm::vec4(botL,topL);
-	tempFrame[2] = glm::vec4(topL, topR);
+	tempFrame[3] = topR;
+	tempFrame[4] = botR;
+	tempFrame[5] = botL;
 
-	tempFrame[3] = glm::vec4(topR, botR);
-	tempFrame[4] = glm::vec4(botR, botL);
-	tempFrame[5] = glm::vec4(botL, topR);
+	First_frame->SetTexCoords(tempFrame);
 
-	/*
-	tempFrame[0] = 
+#pragma endregion
 
-	*/
+#pragma region SecondFrame
+	//give the new texcords to the vao
+	if ((vbo = First_frame->GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
+		m_sprite_VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::NORMAL);
 
+	//Gettting UVS for the second frame
+	uv = m_animations[m_activeAnimation].GetNextFrame();
 
-	vbo_one->UpdateBufferData(tempFrame);
+	botL = glm::vec2(uv.m_bottomLeft.x / m_texturesize.x, uv.m_bottomLeft.y / m_texturesize.y);
+	botR = glm::vec2(uv.m_bottomRight.x / m_texturesize.x, uv.m_bottomRight.y / m_texturesize.y);
+	topL = glm::vec2(uv.m_topLeft.x / m_texturesize.x, uv.m_topLeft.y / m_texturesize.y);
+	topR = glm::vec2(uv.m_topRight.x / m_texturesize.x, uv.m_topRight.y / m_texturesize.y);
 
-	//UVS for Frame 1
-	m_sprite_VAO->BindBuffer(*vbo_one, (GLint)2);
+	//push all the frames into a vector
+	tempFrame[0] = topR;
+	tempFrame[1] = botL;
+	tempFrame[2] = topL;
 
-	//	//UVS for the next frame
-	//uv = m_animations[m_activeAnimation].GetNextFrame();
+	tempFrame[3] = topR;
+	tempFrame[4] = botR;
+	tempFrame[5] = botL;
 
-	//	
-	//	 botL = glm::vec2(uv.m_bottomLeft.x / m_texturesize.x, uv.m_bottomLeft.y / m_texturesize.y);
-	//	 botR = glm::vec2(uv.m_bottomRight.x / m_texturesize.x, uv.m_bottomRight.y / m_texturesize.y);
-	//	 topL = glm::vec2(uv.m_topLeft.x / m_texturesize.x, uv.m_topLeft.y / m_texturesize.y);
-	//	 topR = glm::vec2(uv.m_topRight.x / m_texturesize.x, uv.m_topRight.y / m_texturesize.y);
+	Second_frame->SetTexCoords(tempFrame);
 
-
-	// tempFrame[0] = glm::vec4(botL, botR);
-	// tempFrame[1] = glm::vec4(botR, topR);
-	// tempFrame[2] = glm::vec4(topR, botL);
-
-	// tempFrame[3] = glm::vec4(botL, topR);
-	// tempFrame[4] = glm::vec4(topR, topL);
-	// tempFrame[5] = glm::vec4(topL, botL);
-
-	//	/* tempFrame[6] = botL;
-	//	 tempFrame[7] = botR;
-	//	 tempFrame[8] = topR;
-
-	//	 tempFrame[9] = botL;
-	//	 tempFrame[10] = topR;
-	//	 tempFrame[11] = topL;*/
-
-
-	//	 vbo_two->UpdateBufferData(tempFrame);
-	//	
-	//	//UVS for Frame 2
-	//	m_sprite_VAO->BindBuffer(*vbo_two, (GLint)Mesh::VertexAttrib::TEXCOORD);
+	//give the new texcords to the vao
+	if ((vbo = Second_frame->GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
+		m_sprite_VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::TEXCOORD);
+#pragma endregion
 
 }
 
@@ -228,15 +225,6 @@ float AnimationHandler::GetT()
 	return T;
 }
 
-VertexBuffer* AnimationHandler::GetUVVBO_two()
-{
-	return vbo_two;
-}
-
-VertexBuffer* AnimationHandler::GetUVVBO_one()
-{
-	return vbo_one;
-}
 
 void AnimationHandler::SetTextureSize(glm::vec2 size)
 {

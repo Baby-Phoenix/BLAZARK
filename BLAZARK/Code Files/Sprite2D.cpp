@@ -44,14 +44,11 @@ Sprite2D::Sprite2D(Texture* tex, entt::entity entity, float width, float height,
 			if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::POSITION)) != nullptr)
 				VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::POSITION);
 
-			if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::NORMAL)) != nullptr) 
+		/*	if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::NORMAL)) != nullptr) 
 				VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::NORMAL);
 
 			if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
-				VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::TEXCOORD);
-
-			/*if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
-				VAO->BindBuffer(*vbo, (GLint)3);*/
+				VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::TEXCOORD);*/
 		}
 	}
 }
@@ -74,6 +71,7 @@ void Sprite2D::Draw(Camera* cam)
 	transform.UpdateGlobal();
 	//shader stuff
 	
+	if (!m_isAnimated) {
 		m_Sprite2D_shader[0]->use();
 
 		m_Sprite2D_shader[0]->set1i(0, "uTex");
@@ -84,24 +82,23 @@ void Sprite2D::Draw(Camera* cam)
 		m_Sprite2D_shader[0]->setMat4fv(cam->GetProj(), "Projection");
 		m_Sprite2D_shader[0]->setMat4fv(cam->GetView(), "View");
 		//binds and draws
-		VAO->DrawArray();
+	}
 
+	else {
+		m_Sprite2D_shader[1]->use();
 
-	//else {
-	//	m_Sprite2D_shader[1]->use();
+		m_Sprite2D_shader[1]->set1i(0, "spritesheet");
+		m_texture->bind(0);
+		m_Sprite2D_shader[1]->set1f(m_transparency, "uTransparency");
+		m_Sprite2D_shader[1]->set1f(Animation->GetT(), "t");
+		m_Sprite2D_shader[1]->setMat4fv(cam->GetViewProj(), "ViewProjection");
+		m_Sprite2D_shader[1]->setMat4fv(transform.GetGlobal(), "ModelMatrix");
+		m_Sprite2D_shader[1]->setMat4fv(cam->GetProj(), "Projection");
+		m_Sprite2D_shader[1]->setMat4fv(cam->GetView(), "View");
+		//binds and draws
+	}
 
-	//	m_Sprite2D_shader[1]->set1i(0, "spritesheet");
-	//	m_texture->bind(0);
-	//	m_Sprite2D_shader[1]->set1f(m_transparency, "uTransparency");
-	//	m_Sprite2D_shader[1]->set1f(Animation->GetT(), "t");
-	//	m_Sprite2D_shader[1]->setMat4fv(cam->GetViewProj(), "ViewProjection");
-	//	m_Sprite2D_shader[1]->setMat4fv(transform.GetGlobal(), "ModelMatrix");
-	//	m_Sprite2D_shader[1]->setMat4fv(cam->GetProj(), "Projection");
-	//	m_Sprite2D_shader[1]->setMat4fv(cam->GetView(), "View");
-	//	//binds and draws
-	//	VAO->DrawArray();
-	//}
-	
+	VAO->DrawArray();
 	
 	//unbinds the vao
 	glBindVertexArray(GL_NONE);

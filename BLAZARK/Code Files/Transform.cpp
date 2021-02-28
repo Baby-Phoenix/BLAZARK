@@ -164,6 +164,12 @@ Transform* Transform::SetLocalRot(float eulerDegreesX, float eulerDegreesY, floa
 	return this;
 }
 
+Transform* Transform::SetLocalRot(glm::quat rotation)
+{
+	m_rotation = rotation;
+	return this;
+}
+
 float Transform::GetRadius()
 {
 	return m_radius;
