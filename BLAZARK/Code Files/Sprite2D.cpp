@@ -5,14 +5,12 @@ Shader* Sprite2D::m_Sprite2D_shader[] = { nullptr };
 
 Sprite2D::Sprite2D(Texture* tex, entt::entity entity, float width, float height, bool isAnim, AnimationHandler* anim, float transparency)
 {
-
 	m_texture = tex;
 	m_width = width;
 	m_height = height;
 	m_transparency = transparency;
 	m_entity = entity;
 	m_isAnimated = isAnim;
-
 
 	if (m_Sprite2D_shader[0] == nullptr) {
 		m_Sprite2D_shader[0] = new Shader("Resource Files/Shaders/Sprite2D_vert.glsl", "Resource Files/Shaders/Sprite2D_frag.glsl");
@@ -27,9 +25,7 @@ Sprite2D::Sprite2D(Texture* tex, entt::entity entity, float width, float height,
 
 	if (VAO == nullptr) {
 		VAO = new VertexArray();
-
 		const VertexBuffer* vbo;
-		
 
 		if (!m_isAnimated) {
 			if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::POSITION)) != nullptr)
@@ -40,13 +36,10 @@ Sprite2D::Sprite2D(Texture* tex, entt::entity entity, float width, float height,
 
 			if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
 				VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::TEXCOORD);
-
 		}
 
 		else {
 			SetAnimationHandler(anim);
-
-
 
 			if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::POSITION)) != nullptr)
 				VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::POSITION);
@@ -57,12 +50,10 @@ Sprite2D::Sprite2D(Texture* tex, entt::entity entity, float width, float height,
 			if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
 				VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::TEXCOORD);
 
-
-		/*	if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
+			/*if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
 				VAO->BindBuffer(*vbo, (GLint)3);*/
 		}
 	}
-
 }
 
 

@@ -74,12 +74,13 @@ void Skybox::Init()
 
 	//Load images
 	std::vector<const GLchar*> faces;
-	faces.push_back("Resource Files/Textures/UniverseOne/SkyBox/1.png");
-	faces.push_back("Resource Files/Textures/UniverseOne/SkyBox/2.png");
-	faces.push_back("Resource Files/Textures/UniverseOne/SkyBox/3.png");
-	faces.push_back("Resource Files/Textures/UniverseOne/SkyBox/4.png");
-	faces.push_back("Resource Files/Textures/UniverseOne/SkyBox/5.png");
-	faces.push_back("Resource Files/Textures/UniverseOne/SkyBox/6.png");
+	faces.push_back("Resource Files/Textures/Universe-19/SkyBox/1.png");
+	faces.push_back("Resource Files/Textures/Universe-19/SkyBox/2.png");
+	faces.push_back("Resource Files/Textures/Universe-19/SkyBox/3.png");
+	faces.push_back("Resource Files/Textures/Universe-19/SkyBox/4.png");
+	faces.push_back("Resource Files/Textures/Universe-19/SkyBox/5.png");
+	faces.push_back("Resource Files/Textures/Universe-19/SkyBox/6.png");
+
 	m_cubemapTexture = LoadCubemap(faces);
 }
 

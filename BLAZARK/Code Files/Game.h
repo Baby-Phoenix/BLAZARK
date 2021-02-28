@@ -19,7 +19,7 @@ public:
 
 private:
 
-	vector<Scene*> m_scenes;
+	std::vector<Scene*> m_scenes;
 	Scene* m_curScene;
 
 	GLFWwindow* m_window;

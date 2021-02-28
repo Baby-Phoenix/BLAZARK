@@ -14,18 +14,15 @@
 #include "SepiaEffect.h"
 #include "EnemyAI.h"
 
-using namespace std;
-
-
 enum class ScenesNum { START_SCREEN, MAIN_MENU, PAUSE_MENU, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
 
 class Scene {
 
 public:
-	Scene(string name);
+	Scene(std::string name);
 
 	Scene() { }
-	string GetName();
+	std::string GetName();
 
 
 	virtual void Render(float deltaTime) {	}
@@ -53,7 +50,7 @@ protected:
 
 	bool initialised = false;
 
-	string m_name = "None";
+	std::string m_name = "None";
 
 	GLFWwindow* m_window = nullptr;
 
@@ -64,8 +61,8 @@ protected:
 
 	Camera* camera;
 
-	static vector<Texture*> m_textures;
-	static vector<Mesh*> m_meshes;
+	static std::vector<Texture*> m_textures;
+	static std::vector<Mesh*> m_meshes;
 };
 
 class Menu : public Scene
@@ -73,7 +70,7 @@ class Menu : public Scene
 
 public:
 
-	Menu(string name, unsigned int* num = nullptr, bool* change = nullptr);
+	Menu(std::string name, unsigned int* num = nullptr, bool* change = nullptr);
 
 	void InitScene() override;
 
@@ -92,7 +89,7 @@ class Universe : public Scene
 {
 public:
 
-	Universe(string name, unsigned int* num = nullptr, bool* change = nullptr);
+	Universe(std::string name, unsigned int* num = nullptr, bool* change = nullptr);
 
 
 	void InitScene() override;
@@ -111,7 +108,7 @@ private:
 
 	float deltaTime;
 
-	vector<entt::entity> m_entities;
+	std::vector<entt::entity> m_entities;
 
 	//entt::entity MainPlayerID;
 };
