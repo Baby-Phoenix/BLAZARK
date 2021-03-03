@@ -17,12 +17,16 @@ public:
 	StaticRenderer& operator=(StaticRenderer&&) = default;
 
 	void SetVAO(const Mesh& mesh);
+	void SetisDraw(bool isDrawing);
+	
 
 	void toggleTexture();
 
 	virtual void Draw();
 
 private:
+	bool GetisDraw();
+
 	std::unique_ptr<VertexArray> m_vao;
 	static std::vector<Shader*> m_shader;
 	int currShader;
@@ -31,4 +35,5 @@ private:
 	Texture* m_tex;
 	bool m_textureToggle = true;
 	bool m_lightSource;
+	bool m_isDraw;
 };

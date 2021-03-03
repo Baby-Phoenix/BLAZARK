@@ -5,11 +5,11 @@ enum class EntityType { PLAYER, ENEMY };
 
 enum class TextureType { START = 3 };
 
-enum class PlayerMesh { PLAYERSHIPPENCIL, PLAYERSHIPBAT };
+enum class PlayerMesh { PLAYERSHIPPENCIL, PLAYERSHIPBAT, PLAYERBULLET };
 
-enum class EnemyMesh { NEROTISTU1 = 2 };
+enum class EnemyMesh { NEROTISTU1 = 3};
 
-enum class PlanetMesh { SOLARI = 3, VERASTEN, YECHIN, KERANTIA, LUNARI, GUERISTIS, KEMINTH, 
+enum class PlanetMesh { SOLARI = 4, VERASTEN, YECHIN, KERANTIA, LUNARI, GUERISTIS, KEMINTH, 
 						LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MAGAANTU };
 
 std::unique_ptr<GameObject> effect;
@@ -41,6 +41,8 @@ Scene::Scene(std::string name)
 		loadOBJ("Resource Files/OBJFiles/PlayerShips/PlayerShipPencil.obj", *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]);
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/PlayerShips/PlayerShipBat.obj", *m_meshes[int(PlayerMesh::PLAYERSHIPBAT)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/laserBullet.obj", *m_meshes[int(PlayerMesh::PLAYERBULLET)]);
 		// Universe-19 //
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Universe-19/EnemyShips/Nerotist.obj", *m_meshes[int(EnemyMesh::NEROTISTU1)]);
@@ -271,9 +273,12 @@ void Universe::InitScene()
 	if (GameObject::IsEmpty()) {
 		// Camera
 		auto cameraEntity = GameObject::Allocate();
+		entt::entity CameraID;
+		CameraID = cameraEntity->GetID();
 		cameraEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 13, 25));
 		camera = &cameraEntity->AttachComponent<Camera>(cameraEntity->GetID());
 		camera->PerspectiveProj(0.1f, 1000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 1.0f);
+		m_entities.push_back(CameraID);
 
 		// Player
 		auto playerEntity = GameObject::Allocate();
@@ -281,11 +286,10 @@ void Universe::InitScene()
 		MainPlayerID = playerEntity->GetID();
 		playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
 		playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], nullptr);
-		m_entities.push_back(MainPlayerID);
 		//playerEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(0.75));
 		playerEntity->GetComponent<Transform>().SetLocalRot(0, 180, 0);
-		
 		playerEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetWidth(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetHeight(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetDepth()));
+		m_entities.push_back(MainPlayerID);
 
 		//HUD
 		auto health = GameObject::Allocate();
@@ -344,6 +348,8 @@ void Universe::InitScene()
 
 			// Verasten
 			auto lavaPlanetEntity = GameObject::Allocate();
+			entt::entity lavaID = lavaPlanetEntity->GetID();
+			m_entities.push_back(lavaID);
 			lavaPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 750));
 			lavaPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), lavaPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::VERASTEN)], nullptr);
 
@@ -373,10 +379,10 @@ void Universe::InitScene()
 			icePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), icePlanetEntity->GetID(), *m_meshes[int(PlanetMesh::KEMINTH)], nullptr);
 
 			//Setting Parent/Childe
-			cameraEntity->GetComponent<Transform>().SetParent(&playerEntity->GetComponent<Transform>());
-			health->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
-			abilities->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
-			powerUp->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
+			cameraEntity->GetComponent<Transform>().SetParent(&m_entities[1]);
+			health->GetComponent<Transform>().SetParent(&m_entities[0]);
+			abilities->GetComponent<Transform>().SetParent(&m_entities[0]);
+			powerUp->GetComponent<Transform>().SetParent(&m_entities[0]);
 		}
 		else if (m_name == "Universe_27") {
 			// Lutero
@@ -423,10 +429,10 @@ void Universe::InitScene()
 			gasPlanetTwoEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), gasPlanetTwoEntity->GetID(), *m_meshes[int(PlanetMesh::MAGAANTU)], nullptr);
 
 			//Setting Parent/Childe
-			cameraEntity->GetComponent<Transform>().SetParent(&playerEntity->GetComponent<Transform>());
-			health->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
-			abilities->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
-			powerUp->GetComponent<Transform>().SetParent(&cameraEntity->GetComponent<Transform>());
+			cameraEntity->GetComponent<Transform>().SetParent(&m_entities[1]);
+			health->GetComponent<Transform>().SetParent(&m_entities[0]);
+			abilities->GetComponent<Transform>().SetParent(&m_entities[0]);
+			powerUp->GetComponent<Transform>().SetParent(&m_entities[0]);
 		}
 		else if (m_name == "Universe_5") {
 
@@ -455,7 +461,22 @@ void Universe::Update(float deltaTime)
 	// Transform Update
 	m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal(); });
 
-	if (isCollide(GameObject::GetComponent<Transform>(m_entities[0]), GameObject::GetComponent<Transform>(m_entities[1])))
+	//Bullet Update
+	for (int i = 0; i < m_bullets.size(); i++)
+	{
+		if (m_bullets[i]->GetDestroyed())
+			m_bullets.erase(m_bullets.begin() + i);
+		else
+		{
+			m_bullets[i]->Update(deltaTime);
+
+
+			if (isCollide(GameObject::GetComponent<Transform>(m_entities[1]), GameObject::GetComponent<Transform>(m_entities[2])))
+				std::cout << "ISCOLLIDE" << std::endl;
+		}
+	}
+
+	if (isCollide(GameObject::GetComponent<Transform>(m_entities[1]), GameObject::GetComponent<Transform>(m_entities[2])))
 		std::cout << "ISCOLLIDE" << std::endl;
 }
 
@@ -498,7 +519,7 @@ void Universe::KeyInput()
 	}
 
 	// Player Movement //
-	auto& playerEnt = GameObject::GetComponent<Transform>(m_entities[0]);
+	auto& playerEnt = GameObject::GetComponent<Transform>(m_entities[1]);
 
 	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
@@ -519,6 +540,16 @@ void Universe::KeyInput()
 	{
 		glm::vec3 temp = glm::vec3(0.0f, -1.0f, 0.0f);
 		playerEnt.RotateLocal(temp);
+	}
+
+	//Shoot
+	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		Projectile* bullet = new Projectile(playerEnt, m_entities[0], *m_meshes[int(PlayerMesh::PLAYERBULLET)]);
+		bullet->SetSpeed(100);
+		bullet->SetVelocity(glm::vec3(0, 0, -5));
+
+		m_bullets.push_back(bullet);
 	}
 
 
@@ -604,15 +635,15 @@ void Universe::GamepadInput()
 bool Universe::isCollide(Transform Obj1, Transform Obj2)
 {
 	//X axis collision
-	bool collisionX = Obj1.GetLocalPos().x + Obj1.GetWHD().x >= Obj2.GetLocalPos().x &&
-		Obj2.GetLocalPos().x + Obj2.GetWHD().x >= Obj1.GetLocalPos().x;
+	bool collisionX = Obj1.GetLocalPos().x + Obj1.GetWHD().x * 2  >= Obj2.GetLocalPos().x &&
+		Obj2.GetLocalPos().x + Obj2.GetWHD().x * 2 >= Obj1.GetLocalPos().x;
 
 	//Y axis collision
-	bool collisionY = Obj1.GetLocalPos().y + Obj1.GetWHD().y >= Obj2.GetLocalPos().y &&
-		Obj2.GetLocalPos().y + Obj2.GetWHD().y >= Obj1.GetLocalPos().y;
+	bool collisionY = Obj1.GetLocalPos().y + Obj1.GetWHD().y * 2 >= Obj2.GetLocalPos().y &&
+		Obj2.GetLocalPos().y + Obj2.GetWHD().y * 2 >= Obj1.GetLocalPos().y;
 	//Z axis collision
-	bool collisionZ = Obj1.GetLocalPos().z + Obj1.GetWHD().z >= Obj2.GetLocalPos().z &&
-		Obj2.GetLocalPos().z + Obj2.GetWHD().z >= Obj1.GetLocalPos().z;
+	bool collisionZ = Obj1.GetLocalPos().z + Obj1.GetWHD().z * 2 >= Obj2.GetLocalPos().z &&
+		Obj2.GetLocalPos().z + Obj2.GetWHD().z * 2 >= Obj1.GetLocalPos().z;
 
 	// collision only if on all axis
 	return collisionX && collisionY && collisionZ;

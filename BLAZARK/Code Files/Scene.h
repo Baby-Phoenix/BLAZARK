@@ -13,6 +13,7 @@
 #include "GreyscaleEffect.h"
 #include "SepiaEffect.h"
 #include "EnemyAI.h"
+#include "Projectile.h"
 
 enum class ScenesNum { START_SCREEN, MAIN_MENU, PAUSE_MENU, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
 
@@ -109,6 +110,6 @@ private:
 	float deltaTime;
 
 	std::vector<entt::entity> m_entities;
-
+	std::vector<Projectile*> m_bullets;
 	//entt::entity MainPlayerID;
 };

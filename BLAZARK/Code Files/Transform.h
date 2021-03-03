@@ -4,6 +4,7 @@
 
 #include "glm.hpp"
 #include "gtc/quaternion.hpp"
+#include "ECS.h"
 
 #include <vector>
 
@@ -12,8 +13,6 @@ class Transform
 public:
 	Transform();
 	~Transform();
-
-	//void DoFK();
 
 	glm::mat4& UpdateGlobal();
 
@@ -25,7 +24,7 @@ public:
 	glm::vec3& GetLocalPos() { return m_pos; }
 	glm::vec3& GetLocalRot() { return m_rotationEulerDeg; }
 
-	void SetParent(Transform* parent);
+	void SetParent(entt::entity* parent);
 
 	Transform* MoveLocalPos(glm::vec3& localMovement);
 	Transform* MoveLocalPosFixed(glm::vec3& localMovement);
@@ -52,9 +51,6 @@ public:
 	void SetWHD(glm::vec3 whd);
 
 private:
-	void AddChild(Transform* child);
-	void RemoveChild(Transform* child);
-
 	void UpdateLocalTransform();
 
 	glm::vec3 m_pos;
@@ -73,6 +69,5 @@ private:
 	//width x, height y, depth z
 	glm::vec3 m_whd = glm::vec3(0, 0, 0);
 
-	Transform* m_parent;
-	std::vector<Transform*> m_children;
+	entt::entity* m_parent;
 };

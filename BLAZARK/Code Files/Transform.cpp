@@ -22,25 +22,6 @@ Transform::~Transform()
 	SetParent(nullptr);
 }
 
-//void Transform::DoFK()
-//{
-//
-//	glm::mat4 local = glm::translate(glm::mat4(1.0f), m_pos) *
-//		glm::toMat4(glm::normalize(m_rotation)) *
-//		glm::scale(glm::mat4(1.0f), m_scale);
-//
-//	if (m_parent != nullptr)
-//		m_global = m_parent->m_global * local;
-//
-//	else
-//		m_global = local;
-//
-//	for (auto* child : m_children)
-//	{
-//		child->DoFK();
-//	}
-//}
-
 glm::mat4& Transform::UpdateGlobal()
 {
 
@@ -49,7 +30,7 @@ glm::mat4& Transform::UpdateGlobal()
 		glm::scale(glm::mat4(1.0f), m_scale);
 
 	if (m_parent != nullptr)
-		m_global = m_parent->UpdateGlobal() * local;
+		m_global = GameObject::GetComponent<Transform>(*m_parent).UpdateGlobal() * local;
 	else
 		m_global = local;
 
@@ -77,17 +58,9 @@ glm::mat4& Transform::GetLocal()
 	return m_local;
 }
 
-void Transform::SetParent(Transform* parent)
+void Transform::SetParent(entt::entity* parent)
 {
-	//If parent exists prior, remove as a child
-	if (m_parent != nullptr)
-		m_parent->RemoveChild(this);
-
 	m_parent = parent;
-
-	//Add as child to parent
-	if (m_parent != nullptr)
-		m_parent->AddChild(this);
 }
 
 Transform* Transform::MoveLocalPos(glm::vec3& localMovement)
@@ -195,24 +168,6 @@ void Transform::SetWHD(glm::vec3 whd)
 	m_width = whd.x;
 	m_height = whd.y;
 	m_depth = whd.z;
-}
-
-void Transform::AddChild(Transform* child)
-{
-	m_children.push_back(child);
-}
-
-void Transform::RemoveChild(Transform* child)
-{
-	for (auto it = m_children.begin(); it != m_children.end(); ++it)
-	{
-		if (*it == child)
-		{
-			m_children.erase(it);
-			break;
-		}
-
-	}
 }
 
 void Transform::UpdateLocalTransform()

@@ -96,7 +96,7 @@
     <ClCompile Include="Code Files\EnemyAI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Projectile.cpp">
+    <ClCompile Include="Code Files\Projectile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -197,7 +197,7 @@
     <ClInclude Include="Code Files\EnemyAI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Projectile.h">
+    <ClInclude Include="Code Files\Projectile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
