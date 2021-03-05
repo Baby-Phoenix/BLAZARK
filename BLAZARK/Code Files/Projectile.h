@@ -7,7 +7,7 @@
 class Projectile
 {
 public:
-	Projectile(Transform& transform, entt::entity camera, static Mesh& projectileMesh);
+	Projectile(entt::entity* entityOrigin, entt::entity camera, static Mesh& projectileMesh);
 
 	void SetSpeed(float speed);
 	void SetVelocity(glm::vec3 velocity);

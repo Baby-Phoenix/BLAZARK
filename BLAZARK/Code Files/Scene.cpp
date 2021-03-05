@@ -464,20 +464,29 @@ void Universe::Update(float deltaTime)
 	//Bullet Update
 	for (int i = 0; i < m_bullets.size(); i++)
 	{
+		m_bullets[i]->Update(deltaTime);
+
 		if (m_bullets[i]->GetDestroyed())
+		{
+			GameObject::GetComponent<StaticRenderer>(m_bullets[i]->GetID()).SetisDraw(false);
 			m_bullets.erase(m_bullets.begin() + i);
+		}
 		else
 		{
-			m_bullets[i]->Update(deltaTime);
+			//Bullet to Enemy COllision check
+			if (isCollide(GameObject::GetComponent<Transform>(m_bullets[i]->GetID()), GameObject::GetComponent<Transform>(m_entities[3])))
+			{
+				m_bullets[i]->SetDestroyed(true);
+				GameObject::GetComponent<StaticRenderer>(m_entities[3]).SetisDraw(false);
+				GameObject::GetComponent<StaticRenderer>(m_bullets[i]->GetID()).SetisDraw(false);
 
-
-			if (isCollide(GameObject::GetComponent<Transform>(m_entities[1]), GameObject::GetComponent<Transform>(m_entities[2])))
-				std::cout << "ISCOLLIDE" << std::endl;
+				m_bullets.erase(m_bullets.begin() + i);
+				m_entities.erase(m_entities.begin() + 3);
+			}	
 		}
 	}
 
-	if (isCollide(GameObject::GetComponent<Transform>(m_entities[1]), GameObject::GetComponent<Transform>(m_entities[2])))
-		std::cout << "ISCOLLIDE" << std::endl;
+	
 }
 
 void Universe::Render(float deltaTime)
@@ -542,16 +551,39 @@ void Universe::KeyInput()
 		playerEnt.RotateLocal(temp);
 	}
 
-	//Shoot
+	
+
 	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
-		Projectile* bullet = new Projectile(playerEnt, m_entities[0], *m_meshes[int(PlayerMesh::PLAYERBULLET)]);
-		bullet->SetSpeed(100);
-		bullet->SetVelocity(glm::vec3(0, 0, -5));
+		if (glfwGetTime() - m_startTime >= m_fireRate) {
+			// Shoot Bullet Right
+			Projectile* rightBullet = new Projectile(&m_entities[1], m_entities[0], *m_meshes[int(PlayerMesh::PLAYERBULLET)]);
+			rightBullet->SetSpeed(2000);
+			rightBullet->SetVelocity(glm::vec3(0, 0, -1));
+			//R-bullet pos
+			glm::vec3 offset = glm::vec3(3, 0, -10);
+			GameObject::GetComponent<Transform>(rightBullet->GetID()).MoveLocalPos(offset);
+			GameObject::GetComponent<Transform>(rightBullet->GetID()).SetLocalScale(glm::vec3(3));
+			m_bullets.push_back(rightBullet);
 
-		m_bullets.push_back(bullet);
+			// Shoot Bullet Left
+			Projectile* leftBullet = new Projectile(&m_entities[1], m_entities[0], *m_meshes[int(PlayerMesh::PLAYERBULLET)]);
+			leftBullet->SetSpeed(2000);
+			leftBullet->SetVelocity(glm::vec3(0, 0, -1));
+			//L - Bullet pos
+			offset = glm::vec3(-3, 0, -10);
+			GameObject::GetComponent<Transform>(leftBullet->GetID()).MoveLocalPos(offset);
+			GameObject::GetComponent<Transform>(leftBullet->GetID()).SetLocalScale(glm::vec3(3));
+			m_bullets.push_back(leftBullet);
+
+			//Reset time to fire
+			m_resetTime = true;
+		}
+		if (m_resetTime) {
+			m_startTime = glfwGetTime();
+			m_resetTime = false;
+		}
 	}
-
 
 	// Toggle Textures //
 	if (glfwGetKey(m_window, GLFW_KEY_T) == GLFW_PRESS && !texTglPressed) {
@@ -635,15 +667,15 @@ void Universe::GamepadInput()
 bool Universe::isCollide(Transform Obj1, Transform Obj2)
 {
 	//X axis collision
-	bool collisionX = Obj1.GetLocalPos().x + Obj1.GetWHD().x * 2  >= Obj2.GetLocalPos().x &&
-		Obj2.GetLocalPos().x + Obj2.GetWHD().x * 2 >= Obj1.GetLocalPos().x;
+	bool collisionX = Obj1.GetLocalPos().x + Obj1.GetWHD().x >= Obj2.GetLocalPos().x &&
+		Obj2.GetLocalPos().x + Obj2.GetWHD().x >= Obj1.GetLocalPos().x;
 
 	//Y axis collision
-	bool collisionY = Obj1.GetLocalPos().y + Obj1.GetWHD().y * 2 >= Obj2.GetLocalPos().y &&
-		Obj2.GetLocalPos().y + Obj2.GetWHD().y * 2 >= Obj1.GetLocalPos().y;
+	bool collisionY = Obj1.GetLocalPos().y + Obj1.GetWHD().y >= Obj2.GetLocalPos().y &&
+		Obj2.GetLocalPos().y + Obj2.GetWHD().y >= Obj1.GetLocalPos().y;
 	//Z axis collision
-	bool collisionZ = Obj1.GetLocalPos().z + Obj1.GetWHD().z * 2 >= Obj2.GetLocalPos().z &&
-		Obj2.GetLocalPos().z + Obj2.GetWHD().z * 2 >= Obj1.GetLocalPos().z;
+	bool collisionZ = Obj1.GetLocalPos().z + Obj1.GetWHD().z >= Obj2.GetLocalPos().z &&
+		Obj2.GetLocalPos().z + Obj2.GetWHD().z >= Obj1.GetLocalPos().z;
 
 	// collision only if on all axis
 	return collisionX && collisionY && collisionZ;

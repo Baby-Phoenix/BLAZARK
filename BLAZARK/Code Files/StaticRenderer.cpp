@@ -66,7 +66,6 @@ void StaticRenderer::Draw() {
 	{
 		auto& transform = GameObject::GetComponent<Transform>(m_entity);
 
-		//TODO: Material/Texture and Shader implementation
 		if (m_tex == nullptr || !m_textureToggle) {
 			if (!m_lightSource)
 				currShader = 0;
