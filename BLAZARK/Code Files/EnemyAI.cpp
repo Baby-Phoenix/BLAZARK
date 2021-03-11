@@ -6,27 +6,29 @@ glm::vec3 Lerp(glm::vec3 point1, glm::vec3 point2, float t) {
 	return ((float(1.0 - t) * point1) + (t * point2));
 }
 
-BasicAI::BasicAI(Transform* enemy, Transform* avoid, Transform* player, float dist)
+BasicAI::BasicAI(entt::entity enemy, entt::entity avoid, entt::entity player, float dist)
 {
 	if (!initRandom) {
 		Random::Init();
 	}
 	SetTransform(enemy, player);
-	GeneratePoints(avoid);
+	GeneratePoints(GameObject::GetComponent<Transform>(avoid));
 
 	m_distance = dist;
 }
 
 
-void BasicAI::Update()
+void BasicAI::Update(float deltaTime)
 {
 	CheckForMainPlayer();
 
+	auto& enemyTrans = GameObject::GetComponent<Transform>(m_enemy);
+
 	if (m_isPlayerinRange) {
 
-		glm::vec3 curPoint = m_points[m_nextPoint == 0 ? m_points.size() - 2 : m_nextPoint - 1];
-		glm::vec3 nextPoint = m_points[m_points.size() - 1];
-		glm::vec3 curPosOfEnemy = m_enemy->GetLocalPos();
+		glm::vec3 curPoint = m_points[m_curPoint == 0 ? m_points.size() - 2 : m_curPoint - 1];
+		glm::vec3 nextPoint = GameObject::GetComponent<Transform>(m_player).GetLocalPos();
+		glm::vec3 curPosOfEnemy = enemyTrans.GetLocalPos();
 		
 		/*m_enemy->SetLocalRot(glm::quatLookAt(nextPoint, glm::vec3(0, 1, 0)));*/
 
@@ -36,14 +38,16 @@ void BasicAI::Update()
 		float t = curDist / totalDist; //0 - 1 interpolation paramenter 
 
 		if (t > 0.3)
-		m_enemy->SetLocalPos(Lerp(m_enemy->GetLocalPos(), m_points[m_points.size() - 1], t));
+			enemyTrans.SetLocalPos(glm::mix(curPosOfEnemy, nextPoint, t));
+		
 	
 	}
 	else
 	{
-		glm::vec3 curPoint = m_points[m_nextPoint == 0 ? m_points.size() - 1 : m_nextPoint - 1];
-		glm::vec3 nextPoint = m_points[m_nextPoint];
-		glm::vec3 curPosOfEnemy = m_enemy->GetLocalPos();
+
+		glm::vec3 curPoint = m_points[m_curPoint];
+		glm::vec3 nextPoint = m_points[m_curPoint == m_points.size() - 1 ? 0 : m_curPoint + 1];
+		glm::vec3 curPosOfEnemy = enemyTrans.GetLocalPos();
 
 		/*m_enemy->SetLocalRot(glm::quatLookAt(nextPoint, glm::vec3(0, 1, 0)));*/
 
@@ -52,34 +56,34 @@ void BasicAI::Update()
 
 		float t = curDist / totalDist; // 0 - 1 interpolation paramenter 
 
-			m_enemy->SetLocalPos(Lerp(m_enemy->GetLocalPos(), m_points[m_nextPoint], t));
+		glm::vec3 finalPos = glm::normalize(nextPoint - curPoint) * (deltaTime * 10);
+		enemyTrans.MoveLocalPos(finalPos);
 
-			if (t <= 0.0) {
-				m_nextPoint++;
-				if (m_nextPoint > m_points.size() - 1) {
-					m_nextPoint = 0;
-			}
-			}
+		if (t >= 1.0 || t <= 0.0) {
+			m_curPoint++;
+			if (m_curPoint > m_points.size() - 1)
+				m_curPoint = 0;
+		}
 	}
 }
 
-void BasicAI::SetTransform(Transform* enemy, Transform* player)
+void BasicAI::SetTransform(entt::entity enemy, entt::entity player)
 {
 	SetEnemyTransform(enemy);
 	SetPlayerTransform(player);
 }
 
-void BasicAI::SetEnemyTransform(Transform* enemy)
+void BasicAI::SetEnemyTransform(entt::entity enemy)
 {
 	m_enemy = enemy;
 }
 
-void BasicAI::SetPlayerTransform(Transform* player)
+void BasicAI::SetPlayerTransform(entt::entity player)
 {
 	m_player = player;
 }
 
-void BasicAI::GeneratePoints(Transform* avoidPlace)
+void BasicAI::GeneratePoints(Transform avoidPlace)
 {
 	//gets number of points
 	int numberOfPoints = Random::Range1f(2, 5);
@@ -87,10 +91,10 @@ void BasicAI::GeneratePoints(Transform* avoidPlace)
 	m_points.resize(numberOfPoints);
 
 	//gets the innitial point
-	glm::vec3 randomPoint = Random::GetPointBetween(avoidPlace->GetLocalPos(), avoidPlace->GetRadius());
+	glm::vec3 randomPoint = Random::GetPointBetween(avoidPlace.GetLocalPos(), avoidPlace.GetRadius());
 	m_points[0] = (randomPoint);
 	std::cout << "("<<m_points[0].x << "," << m_points[0].y << "," << m_points[0].z << ")\n";
-	m_enemy->SetLocalPos(m_points[0]);
+	GameObject::GetComponent<Transform>(m_enemy).SetLocalPos(m_points[0]);
 	m_direction = glm::normalize(m_points[0]);
 
 	
@@ -119,31 +123,28 @@ void BasicAI::GeneratePoints(Transform* avoidPlace)
 
 void BasicAI::CheckForMainPlayer()
 {
-	glm::vec3 enemyPos = m_enemy->GetLocalPos();
-	glm::vec3 playerPos = m_enemy->GetLocalPos();
+	Transform& enemyTrans = GameObject::GetComponent<Transform>(m_enemy);
+	glm::vec3 enemyPos = enemyTrans.GetLocalPos();
+
+	glm::vec3 playerPos = GameObject::GetComponent<Transform>(m_player).GetLocalPos();
 
 	//check the distance between the player and this enemy
 	float compareDist = 
 		glm::sqrt(((enemyPos.x - playerPos.x) * (enemyPos.x - playerPos.x)) + 
 								  ((enemyPos.z - playerPos.z) * (enemyPos.z - playerPos.z)));
 
-	if (compareDist < m_distance && !m_isPlayerinRange) {
-		m_points.push_back(m_player->GetLocalPos());
-		m_isPlayerinRange = true;
-	}
+	//if (compareDist <= m_distance && !m_isPlayerinRange)
+	//	m_isPlayerinRange = true;
 
-	else if(compareDist > m_distance && m_isPlayerinRange)
-	{
-		m_points.pop_back();
-		m_isPlayerinRange = false;
-	}
+	//else if(compareDist > m_distance && m_isPlayerinRange)
+	//	m_isPlayerinRange = false;
 }
 
 KamakaziAI::KamakaziAI(Transform* enemy, Transform* player)
 {
 }
 
-void KamakaziAI::Update()
+void KamakaziAI::Update(float deltaTime)
 {
 }
 
@@ -156,7 +157,7 @@ ScavengerAI::ScavengerAI(Transform* enemy, Transform* player)
 {
 }
 
-void ScavengerAI::Update()
+void ScavengerAI::Update(float deltaTime)
 {
 }
 
@@ -169,7 +170,7 @@ BombardierAI::BombardierAI(Transform* enemy, Transform* player)
 {
 }
 
-void BombardierAI::Update()
+void BombardierAI::Update(float deltaTime)
 {
 }
 

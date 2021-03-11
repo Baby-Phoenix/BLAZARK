@@ -16,15 +16,17 @@ public:
 	static void SetRegistry(entt::registry* reg);
 	static entt::registry& GetCurRegistry() { return *m_reg; }
 	
+	//attaches a component
+	template<typename T, typename... Args>
+	static T& AttachComponent(entt::entity ID)
+	{
+		return m_reg->emplace<T>(ID);
+	}
+
 	template<typename T>
 	static T& GetComponent(entt::entity id) 
 	{
 		return m_reg->get<T>(id);
-	}
-	static void DestroyEntity(entt::entity id) {
-		if (id != entt::null) {
-			m_reg->destroy(id);
-		}
 	}
 
 	void DestroyEntity();
@@ -39,8 +41,6 @@ public:
 	{
 		return m_reg->emplace<T>(m_ID, std::forward<Args>(args)...);
 	}
-
-	
 
 	//returns the component
 	template<typename T>

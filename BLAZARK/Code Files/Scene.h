@@ -111,8 +111,5 @@ private:
 	float m_fireRate = 0.3;
 	bool m_resetTime = true;
 	float m_startTime = 0.0;
-
-	std::vector<entt::entity> m_entities;
-	std::vector<Projectile*> m_bullets;
-	//entt::entity MainPlayerID;
+	entt::entity MainPlayerID;
 };

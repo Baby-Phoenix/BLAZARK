@@ -4,6 +4,7 @@
 
 class Camera {
 public:
+	Camera() = default;
 	Camera(entt::entity entity);
 	virtual ~Camera() = default;
 

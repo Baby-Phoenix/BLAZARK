@@ -3,17 +3,22 @@
 std::vector<Shader*> StaticRenderer::m_shader;
 
 StaticRenderer::StaticRenderer(entt::entity camera, entt::entity entity, const Mesh& mesh, Texture* texture, bool lightSource) {
+	Init(camera, entity, mesh, texture, lightSource);
+}
+
+void StaticRenderer::Init(entt::entity camera, entt::entity entity, const Mesh& mesh, Texture* texture, bool lightSource)
+{
 	m_lightSource = lightSource;
 	m_tex = texture;
 	m_camera = camera;
 	m_entity = entity;
 	m_vao = std::make_unique<VertexArray>();
-	
+
 	if (!m_shader.size()) {
-			m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_untex_unlit.frag"));
-			m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_untex_lit.frag"));
-			m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_tex_unlit.frag"));
-			m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_tex_lit.frag"));
+		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_untex_unlit.frag"));
+		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_untex_lit.frag"));
+		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_tex_unlit.frag"));
+		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_tex_lit.frag"));
 	}
 
 	SetVAO(mesh);
