@@ -38,7 +38,7 @@ void Animation2D::Update(float deltaTime)
 	//Subtract delta time from
 	//Frame time
 	m_timePerFrame -= deltaTime;
-	T = m_timePerFrame / m_timePerFrameOriginal;
+	T = 1.0 - (m_timePerFrame / m_timePerFrameOriginal);
 
 	//If frametime is less than or equal to zero
 		//Increase the frame and reset frametime

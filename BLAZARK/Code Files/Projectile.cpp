@@ -61,7 +61,4 @@ void Projectile::Update(float deltaTime)
 		GameObject::GetComponent<Transform>(m_ID).MoveLocalPos(movement);
 		m_lifetime -= deltaTime;
 	}
-	
-
-	
 }

@@ -4,9 +4,6 @@
 #include "btBulletDynamicsCommon.h"
 #include "Skybox.h"
 #include "Sprite2D.h"
-//#include "libs.h"
-//#include "ParticleSystem.h"
-//#include "Projectile.h"
 #include "Random.h"
 #include "GamepadInput.h"
 #include "ColorCorrection.h"
@@ -34,15 +31,11 @@ public:
 
 	void SetWindow(GLFWwindow* window);
 
-	//vector <Shader*> GetShader();
-
 	entt::registry* GetScene();
 
 	virtual void KeyInput() { }
 
 	virtual void GamepadInput() { }
-
-
 
 protected:
 
@@ -103,16 +96,18 @@ public:
 
 	void GamepadInput() override;
 
+	void SolarSystemUpdate();
+
 	bool isCollide(Transform Obj1, Transform Obj2);
 
 private:
 
 	
-	float m_fireRate = 0.3;
+	float m_fireRate = 0.1;
 	bool m_resetTime = true;
 	float m_startTime = 0.0;
 
 	std::vector<entt::entity> m_entities;
+	std::vector<entt::entity> m_solarSystem;
 	std::vector<Projectile*> m_bullets;
-	//entt::entity MainPlayerID;
 };
