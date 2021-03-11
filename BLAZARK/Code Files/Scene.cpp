@@ -299,13 +299,11 @@ void Universe::InitScene()
 		playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
 		playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], nullptr);
 		playerEntity->AttachComponent<EntityType>() = EntityType::PLAYER;
-		//playerEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(0.75));
 		playerEntity->GetComponent<Transform>().SetLocalRot(0, 180, 0);
 		playerEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetWidth(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetHeight(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetDepth()));
 
 		//HUD
 		auto health = GameObject::Allocate();
-
 		auto* tempAnim = &health->AttachComponent<AnimationHandler>();
 		HealthAnim = &health->GetComponent<AnimationHandler>();
 		auto& anim = health->GetComponent<AnimationHandler>();
@@ -328,7 +326,6 @@ void Universe::InitScene()
 		health->AttachComponent<Sprite2D>(m_textures[0], health->GetID(), 15, 15, true, tempAnim);
 		health->AttachComponent<Transform>().SetLocalPos(glm::vec3(-80, -80, -10));
 
-
 		auto abilities = GameObject::Allocate();
 		abilities->AttachComponent<Sprite2D>(m_textures[1], abilities->GetID(), 15, 15);
 		abilities->AttachComponent<Transform>().SetLocalPos(glm::vec3(80, -80, -10));
@@ -343,7 +340,6 @@ void Universe::InitScene()
 		effect->AttachComponent<SepiaEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 		effect->AttachComponent<ColorCorrectionEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 		effect->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/NeutralLUT.cube");*/
-		
 
 		if (m_name == "Universe_19") {
 			// Solar System Centerpoint
@@ -420,11 +416,7 @@ void Universe::InitScene()
 			m_solarSystem.push_back(HPCEntity->GetID());
 			HPCEntity->AttachComponent<Transform>().SetLocalPos(homePlanetEntity->GetComponent<Transform>().GetLocalPos());
 
-			//Setting Parent/Childe
-			cameraEntity->GetComponent<Transform>().SetParent(&m_entities[1]);
-			health->GetComponent<Transform>().SetParent(&m_entities[0]);
-			abilities->GetComponent<Transform>().SetParent(&m_entities[0]);
-			powerUp->GetComponent<Transform>().SetParent(&m_entities[0]);
+			//Setting Solar System Parent/Childe
 			lavaPlanetEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SVC]);
 			desertPlanetEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SYC]);
 			homePlanetEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKRC]);
@@ -475,11 +467,9 @@ void Universe::InitScene()
 			auto gasPlanetTwoEntity = GameObject::Allocate();
 			gasPlanetTwoEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -5000));
 			gasPlanetTwoEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), gasPlanetTwoEntity->GetID(), *m_meshes[int(PlanetMesh::MAGAANTU)], nullptr);
-
-		
 		}
 		else if (m_name == "Universe_5") {
-
+			
 		}
 
 		//Setting Parent/Childe
@@ -500,17 +490,15 @@ void Universe::Update(float deltaTime)
 	// Camera Update 
 	camera->Update();
 	
-	m_sceneReg->view<BasicAI>().each([=](BasicAI& ai) {	
-		ai.Update(deltaTime); });
+	m_sceneReg->view<BasicAI>().each([=](BasicAI& ai) {	ai.Update(deltaTime); });
 
 	m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) {	anim.Update(deltaTime); });
 	
-	// Solar System Rotation (TBD) //
+	// Solar System Rotation (IN-PROGRESS) //
 	SolarSystemUpdate();
 
 	// Transform Update
 	m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal(); });
-
 
 	auto BulletView = m_sceneReg->view<Projectile>();
 	auto AllOtherEntities = m_sceneReg->view<StaticRenderer, EntityType>();
@@ -526,7 +514,6 @@ void Universe::Update(float deltaTime)
 			}
 		}
 	}
-
 }
 
 void Universe::Render(float deltaTime)
@@ -591,24 +578,21 @@ void Universe::KeyInput()
 		playerEnt.RotateLocal(temp);
 	}
 
-	
-
 	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
 		if (glfwGetTime() - m_startTime >= m_fireRate) {
 			// Shoot Bullet Right
-			RightBullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3));
-
-            // Shoot Bullet Left
 			auto RightBullet = GameObject::Allocate();
-			RightBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), RightBullet.get(),*m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(RightBullet->GetID());
+			RightBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), RightBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(RightBullet->GetID());
 			RightBullet->GetComponent<Projectile>().SetSpeed(2000);
 			RightBullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
 			glm::vec3 offset1 = glm::vec3(3, 0, -10);
 			RightBullet->GetComponent<Transform>().MoveLocalPos(offset1);
 			RightBullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3));
+
+            // Shoot Bullet Left
 			auto LeftBullet = GameObject::Allocate();
-			LeftBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), LeftBullet.get(),*m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(LeftBullet->GetID());
+			LeftBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), LeftBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(LeftBullet->GetID());
 			LeftBullet->GetComponent<Projectile>().SetSpeed(2000);
 			LeftBullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
 			glm::vec3 offset2 = glm::vec3(-3, 0, -10);
@@ -618,6 +602,7 @@ void Universe::KeyInput()
 			//Reset time to fire
 			m_resetTime = true;
 		}
+
 		if (m_resetTime) {
 			m_startTime = glfwGetTime();
 			m_resetTime = false;
@@ -697,10 +682,8 @@ void Universe::GamepadInput()
 
 		}
 	}
-
 	else
 		std::cout << "No controller connected" << std::endl;
-
 }
 
 void Universe::SolarSystemUpdate() {
@@ -735,6 +718,7 @@ bool Universe::isCollide(Transform Obj1, Transform Obj2)
 	//Y axis collision
 	bool collisionY = Obj1.GetLocalPos().y + Obj1.GetWHD().y >= Obj2.GetLocalPos().y &&
 		Obj2.GetLocalPos().y + Obj2.GetWHD().y >= Obj1.GetLocalPos().y;
+
 	//Z axis collision
 	bool collisionZ = Obj1.GetLocalPos().z + Obj1.GetWHD().z >= Obj2.GetLocalPos().z &&
 		Obj2.GetLocalPos().z + Obj2.GetWHD().z >= Obj1.GetLocalPos().z;
