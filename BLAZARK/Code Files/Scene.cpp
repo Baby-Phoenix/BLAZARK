@@ -1,6 +1,8 @@
 #include "Scene.h"
 
 
+enum class EntityType { PLAYER, ENEMY };
+
 enum class TextureType { START = 3 };
 
 enum class PlayerMesh { PLAYERSHIPPENCIL, PLAYERSHIPBAT, PLAYERBULLET };
@@ -290,18 +292,16 @@ void Universe::InitScene()
 		cameraEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 13, 25));
 		camera = &cameraEntity->AttachComponent<Camera>(CameraID);
 		camera->PerspectiveProj(0.1f, 1000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 1.0f);
-		m_entities.push_back(CameraID);
 
 		// Player
 		auto playerEntity = GameObject::Allocate();
-		entt::entity MainPlayerID;
 		MainPlayerID = playerEntity->GetID();
 		playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
-		playerEntity->AttachComponent<StaticRenderer>(CameraID, MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], nullptr);
+		playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], nullptr);
+		playerEntity->AttachComponent<EntityType>() = EntityType::PLAYER;
 		//playerEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(0.75));
 		playerEntity->GetComponent<Transform>().SetLocalRot(0, 180, 0);
 		playerEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetWidth(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetHeight(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetDepth()));
-		m_entities.push_back(MainPlayerID);
 
 		//HUD
 		auto health = GameObject::Allocate();
@@ -315,6 +315,11 @@ void Universe::InitScene()
 		Oneclip.AddFrame(UVS(glm::vec2(471, 233), glm::vec2(705, 1)));
 		Oneclip.AddFrame(UVS(glm::vec2(236, 233), glm::vec2(470, 1)));
 		Oneclip.AddFrame(UVS(glm::vec2(1, 233), glm::vec2(235, 1)));
+		/*Oneclip.AddFrame(UVS(glm::vec2(1, 233), glm::vec2(235, 1)));
+		Oneclip.AddFrame(UVS(glm::vec2(236, 233), glm::vec2(470, 1)));
+		Oneclip.AddFrame(UVS(glm::vec2(471, 233), glm::vec2(705, 1)));
+		Oneclip.AddFrame(UVS(glm::vec2(706, 233), glm::vec2(939, 1)));*/
+
 		Oneclip.SetIsRepeating(true);
 		Oneclip.SetSecPerFrame(1.0);
 		anim.AddAnimation(Oneclip);
@@ -369,9 +374,9 @@ void Universe::InitScene()
 			//testing for ai
 			auto enemy = GameObject::Allocate();
 			entt::entity enemyID = enemy->GetID();
-			m_entities.push_back(enemyID);
 			enemy->AttachComponent<Transform>();
-			enemy->AttachComponent<BasicAI>(&enemy->GetComponent<Transform>(), &sunEntity->GetComponent<Transform>(), &playerEntity->GetComponent<Transform>());
+			enemy->AttachComponent<BasicAI>(enemyID, sunEntity->GetID(), playerEntity->GetID());
+			enemy->AttachComponent<EntityType>() = EntityType::ENEMY;
 			enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::NEROTISTU1)], nullptr);
 			enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::NEROTISTU1)]->GetWidth(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetHeight(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetDepth()));
 
@@ -431,7 +436,6 @@ void Universe::InitScene()
 		else if (m_name == "Universe_27") {
 			// Lutero
 			auto sunEntity = GameObject::Allocate();
-			m_entities.push_back(sunEntity->GetID());
 			sunEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
 			sunEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), sunEntity->GetID(), *m_meshes[int(PlanetMesh::LUTERO)], nullptr, true);
 			sunEntity->GetComponent<Transform>().SetRadius(3 * (m_meshes[int(PlanetMesh::LUTERO)]->GetWidth() / 2));
@@ -472,15 +476,17 @@ void Universe::InitScene()
 			gasPlanetTwoEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -5000));
 			gasPlanetTwoEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), gasPlanetTwoEntity->GetID(), *m_meshes[int(PlanetMesh::MAGAANTU)], nullptr);
 
-			//Setting Parent/Childe
-			cameraEntity->GetComponent<Transform>().SetParent(&m_entities[1]);
-			health->GetComponent<Transform>().SetParent(&m_entities[0]);
-			abilities->GetComponent<Transform>().SetParent(&m_entities[0]);
-			powerUp->GetComponent<Transform>().SetParent(&m_entities[0]);
+		
 		}
 		else if (m_name == "Universe_5") {
 
 		}
+
+		//Setting Parent/Childe
+		cameraEntity->GetComponent<Transform>().SetParent(new entt::entity(playerEntity->GetID()));
+		health->GetComponent<Transform>().SetParent(new entt::entity(cameraEntity->GetID()));
+		abilities->GetComponent<Transform>().SetParent(new entt::entity(cameraEntity->GetID()));
+		powerUp->GetComponent<Transform>().SetParent(new entt::entity(cameraEntity->GetID()));
 
 		Skybox::Init();
 	}
@@ -494,7 +500,8 @@ void Universe::Update(float deltaTime)
 	// Camera Update 
 	camera->Update();
 	
-	m_sceneReg->view<BasicAI>().each([=](BasicAI& ai) {	ai.Update(); });
+	m_sceneReg->view<BasicAI>().each([=](BasicAI& ai) {	
+		ai.Update(deltaTime); });
 
 	m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) {	anim.Update(deltaTime); });
 	
@@ -504,32 +511,22 @@ void Universe::Update(float deltaTime)
 	// Transform Update
 	m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal(); });
 
-	//Bullet Update
-	for (int i = 0; i < m_bullets.size(); i++)
-	{
-		m_bullets[i]->Update(deltaTime);
 
-		if (m_bullets[i]->GetDestroyed())
-		{
-			GameObject::GetComponent<StaticRenderer>(m_bullets[i]->GetID()).SetisDraw(false);
-			m_bullets.erase(m_bullets.begin() + i);
-		}
-		else
-		{
-			//Bullet to Enemy Collision check
-			if (isCollide(GameObject::GetComponent<Transform>(m_bullets[i]->GetID()), GameObject::GetComponent<Transform>(m_entities[2])))
+	auto BulletView = m_sceneReg->view<Projectile>();
+	auto AllOtherEntities = m_sceneReg->view<StaticRenderer, EntityType>();
+
+	for (auto Bulletentity : BulletView) {
+		GameObject::GetComponent<Projectile>(Bulletentity).Update(deltaTime);
+		for (auto entity : AllOtherEntities) {
+			if (isCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(entity)) && GameObject::GetComponent<EntityType>(entity) == EntityType::ENEMY)
 			{
-				m_bullets[i]->SetDestroyed(true);
-				GameObject::GetComponent<StaticRenderer>(m_entities[2]).SetisDraw(false);
-				GameObject::GetComponent<StaticRenderer>(m_bullets[i]->GetID()).SetisDraw(false);
-
-				m_bullets.erase(m_bullets.begin() + i);
-				m_entities.erase(m_entities.begin() + 2);
-			}	
+				GameObject::GetComponent<Projectile>(Bulletentity).SetDestroyed(true);
+				GameObject::GetComponent<StaticRenderer>(entity).SetisDraw(false);
+				GameObject::GetComponent<StaticRenderer>(Bulletentity).SetisDraw(false);
+			}
 		}
 	}
 
-	
 }
 
 void Universe::Render(float deltaTime)
@@ -571,7 +568,7 @@ void Universe::KeyInput()
 	}
 
 	// Player Movement //
-	auto& playerEnt = GameObject::GetComponent<Transform>(m_entities[1]);
+	auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
 
 	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
@@ -600,24 +597,23 @@ void Universe::KeyInput()
 	{
 		if (glfwGetTime() - m_startTime >= m_fireRate) {
 			// Shoot Bullet Right
-			Projectile* rightBullet = new Projectile(&m_entities[1], m_entities[0], *m_meshes[int(PlayerMesh::PLAYERBULLET)]);
-			rightBullet->SetSpeed(1000);
-			rightBullet->SetVelocity(glm::vec3(0, 0, -1));
-			//R-bullet pos
-			glm::vec3 offset = glm::vec3(3, 0, -10);
-			GameObject::GetComponent<Transform>(rightBullet->GetID()).MoveLocalPos(offset);
-			GameObject::GetComponent<Transform>(rightBullet->GetID()).SetLocalScale(glm::vec3(3));
-			m_bullets.push_back(rightBullet);
+			RightBullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3));
 
-			// Shoot Bullet Left
-			Projectile* leftBullet = new Projectile(&m_entities[1], m_entities[0], *m_meshes[int(PlayerMesh::PLAYERBULLET)]);
-			leftBullet->SetSpeed(1000);
-			leftBullet->SetVelocity(glm::vec3(0, 0, -1));
-			//L - Bullet pos
-			offset = glm::vec3(-3, 0, -10);
-			GameObject::GetComponent<Transform>(leftBullet->GetID()).MoveLocalPos(offset);
-			GameObject::GetComponent<Transform>(leftBullet->GetID()).SetLocalScale(glm::vec3(3));
-			m_bullets.push_back(leftBullet);
+            // Shoot Bullet Left
+			auto RightBullet = GameObject::Allocate();
+			RightBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), RightBullet.get(),*m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(RightBullet->GetID());
+			RightBullet->GetComponent<Projectile>().SetSpeed(2000);
+			RightBullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
+			glm::vec3 offset1 = glm::vec3(3, 0, -10);
+			RightBullet->GetComponent<Transform>().MoveLocalPos(offset1);
+			RightBullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3));
+			auto LeftBullet = GameObject::Allocate();
+			LeftBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), LeftBullet.get(),*m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(LeftBullet->GetID());
+			LeftBullet->GetComponent<Projectile>().SetSpeed(2000);
+			LeftBullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
+			glm::vec3 offset2 = glm::vec3(-3, 0, -10);
+			LeftBullet->GetComponent<Transform>().MoveLocalPos(offset2);
+			LeftBullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3));
 
 			//Reset time to fire
 			m_resetTime = true;

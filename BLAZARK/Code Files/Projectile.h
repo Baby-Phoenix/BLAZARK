@@ -7,9 +7,10 @@
 class Projectile
 {
 public:
-	Projectile(entt::entity* entityOrigin, entt::entity camera, static Mesh& projectileMesh);
+	Projectile(entt::entity* entityOrigin, entt::entity camera, GameObject* bulletObject, Mesh& projectileMesh);
 
 	void SetSpeed(float speed);
+	void SetID(entt::entity ID);
 	void SetVelocity(glm::vec3 velocity);
 	void SetLifetime(float lifetime);
 	void SetDestroyed(bool isDestroyed);

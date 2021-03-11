@@ -9,23 +9,23 @@ class BasicAI
 {
 public:
 	BasicAI() = default;
-	BasicAI(Transform* enemy, Transform* avoid, Transform* player = nullptr, float dist = 15);
+	BasicAI(entt::entity enemy, entt::entity avoid, entt::entity player = entt::entity(1), float dist = 150);
 
 	~BasicAI() = default;
 
-	virtual void Update();
-	void SetTransform(Transform* enemy, Transform* player);
-	void SetEnemyTransform(Transform* enemy);
-	void SetPlayerTransform(Transform* player);
+	virtual void Update(float deltaTime);
+	void SetTransform(entt::entity enemy, entt::entity player);
+	void SetEnemyTransform(entt::entity enemy);
+	void SetPlayerTransform(entt::entity player);
 
 protected:
-	 void GeneratePoints(Transform* avoidPlace = nullptr);
+	void GeneratePoints(Transform avoidPlace);
 	virtual void CheckForMainPlayer();
 
 	std::vector<glm::vec3> m_points;
-	unsigned int m_nextPoint = 1;
-	Transform* m_enemy = nullptr;
-	Transform* m_player = nullptr;
+	unsigned int m_curPoint = 0;
+	entt::entity m_enemy;
+	entt::entity m_player;
 	glm::vec3 m_direction;
 	float m_distance = 150;
 	bool m_isPlayerinRange = false;
@@ -38,7 +38,7 @@ public:
 	KamakaziAI (Transform* enemy, Transform* player = nullptr);
 	~KamakaziAI () = default;
 
-	void Update() override;
+	void Update(float deltaTime) override;
 
 private:
 	void CheckForMainPlayer() override;
@@ -50,7 +50,7 @@ public:
 	ScavengerAI(Transform* enemy, Transform* player = nullptr);
 	~ScavengerAI() = default;
 	
-	void Update() override;
+	void Update(float deltaTime) override;
 
 private:
 	void CheckForMainPlayer() override;
@@ -63,7 +63,7 @@ public:
 	BombardierAI(Transform* enemy, Transform* player = nullptr);
 	~BombardierAI() = default;
 
-	void Update() override;
+	void Update(float deltaTime) override;
 
 private:
 	void CheckForMainPlayer() override;

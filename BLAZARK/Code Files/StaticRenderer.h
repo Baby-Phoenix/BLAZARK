@@ -11,6 +11,8 @@ class StaticRenderer {
 public:
 	StaticRenderer() = default;
 	StaticRenderer(entt::entity camera, entt::entity entity, const Mesh& mesh,Texture* texture = nullptr, bool lightSource = false);
+
+	void Init(entt::entity camera, entt::entity entity, const Mesh& mesh, Texture* texture = nullptr, bool lightSource = false);
 	virtual ~StaticRenderer() = default;
 
 	StaticRenderer(StaticRenderer&&) = default;

@@ -110,4 +110,5 @@ private:
 	std::vector<entt::entity> m_entities;
 	std::vector<entt::entity> m_solarSystem;
 	std::vector<Projectile*> m_bullets;
+	entt::entity MainPlayerID;
 };

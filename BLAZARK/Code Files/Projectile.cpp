@@ -1,6 +1,6 @@
 #include "Projectile.h"
 
-Projectile::Projectile(entt::entity* entityOrigin, entt::entity camera, static Mesh& projectileMesh)
+Projectile::Projectile(entt::entity* entityOrigin, entt::entity camera, GameObject* bulletObject, Mesh& projectileMesh)
 {
 	m_velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 	m_lifetime = 3;
@@ -8,20 +8,22 @@ Projectile::Projectile(entt::entity* entityOrigin, entt::entity camera, static M
 	m_isDestroyed = false;
 
 	//Bullet
-	auto bulletEntity = GameObject::Allocate();
-	m_ID = bulletEntity->GetID();
 	auto origEntity = GameObject::GetComponent<Transform>(*entityOrigin);
 
-	bulletEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(origEntity.GetLocalPos().x, origEntity.GetLocalPos().y, origEntity.GetLocalPos().z));
-	bulletEntity->GetComponent<Transform>().SetLocalRot(origEntity.GetLocalRot().x, origEntity.GetLocalRot().y, origEntity.GetLocalRot().z);
-
-	bulletEntity->GetComponent<Transform>().SetWHD(glm::vec3(projectileMesh.GetWidth(), projectileMesh.GetHeight(), projectileMesh.GetDepth()));
-	bulletEntity->AttachComponent<StaticRenderer>(camera, bulletEntity->GetID(), projectileMesh, nullptr, true);
+	bulletObject->AttachComponent<Transform>().SetLocalPos(glm::vec3(origEntity.GetLocalPos().x, origEntity.GetLocalPos().y, origEntity.GetLocalPos().z));
+	bulletObject->GetComponent<Transform>().SetLocalRot(origEntity.GetLocalRot().x, origEntity.GetLocalRot().y, origEntity.GetLocalRot().z);
+	bulletObject->GetComponent<Transform>().SetWHD(glm::vec3(projectileMesh.GetWidth(), projectileMesh.GetHeight(), projectileMesh.GetDepth()));
+	bulletObject->AttachComponent<StaticRenderer>(camera, bulletObject->GetID(), projectileMesh, nullptr, true);
 }
 
 void Projectile::SetSpeed(float speed)
 {
 	m_speed = speed;
+}
+
+void Projectile::SetID(entt::entity ID)
+{
+	m_ID = ID;
 }
 
 void Projectile::SetVelocity(glm::vec3 velocity)
