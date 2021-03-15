@@ -58,7 +58,7 @@ void Projectile::Update(float deltaTime)
 	if (m_lifetime < 0.0f)
 		m_isDestroyed = true;
 
-	if(!GetDestroyed())
+	if(!m_isDestroyed)
 	{
 		GameObject::GetComponent<Transform>(m_ID).MoveLocalPos(movement);
 		m_lifetime -= deltaTime;

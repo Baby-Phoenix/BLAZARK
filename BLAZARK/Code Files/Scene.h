@@ -22,7 +22,6 @@ public:
 	Scene() { }
 	std::string GetName();
 
-
 	virtual void Render(float deltaTime) {	}
 
 	virtual void Update(float deltaTime) {	}
@@ -37,10 +36,14 @@ public:
 
 	virtual void GamepadInput() { }
 
+	virtual unsigned int GetSceneResumeNumber();
+	virtual void SetSceneResumeNo(unsigned int sceneno);
+
 protected:
 
 	unsigned int* SceneNo = nullptr;
 	bool* switchIt = nullptr;
+	unsigned int m_SceneResumeNo;
 
 	bool initialised = false;
 
@@ -70,12 +73,22 @@ public:
 
 	void Update(float deltaTime) override;
 
+	 unsigned int GetSceneResumeNumber() override;
+	 void SetSceneResumeNo(unsigned int sceneno) override;
 
 	void KeyInput() override;
 
 	void GamepadInput() override;
 
 	void Render(float deltaTime) override;
+
+private:
+	std::unique_ptr<GameObject> m_StartOrResume[4];
+	unsigned int m_curButton = 0;
+	bool m_switchButton = false;
+	bool m_ControlsSelected = false;
+	float m_delay = 0.0f;
+	float m_deltaTime;
 
 };
 
@@ -85,6 +98,8 @@ public:
 
 	Universe(std::string name, unsigned int* num = nullptr, bool* change = nullptr);
 
+	 unsigned int GetSceneResumeNumber() override;
+	 void SetSceneResumeNo(unsigned int sceneno) override;
 
 	void InitScene() override;
 

@@ -59,10 +59,9 @@ class AnimationHandler
 {
 public:
 	AnimationHandler() = default;
-	~AnimationHandler() {
-		delete First_frame;
-		delete Second_frame;
-	}
+	~AnimationHandler() {	}
+
+	void UnloadMesh();
 	void InitUVS(Texture* tex);
 
 	void Update(float deltaTime);
