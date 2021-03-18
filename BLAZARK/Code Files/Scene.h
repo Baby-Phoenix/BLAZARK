@@ -11,6 +11,7 @@
 #include "SepiaEffect.h"
 #include "EnemyAI.h"
 #include "Projectile.h"
+#include "ScoreHandler.h"
 
 enum class ScenesNum { START_SCREEN, MAIN_MENU, PAUSE_MENU, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
 
@@ -84,11 +85,15 @@ public:
 
 private:
 	std::unique_ptr<GameObject> m_StartOrResume[4];
+	float m_scoreTime = 1.0f;
+
+
 	unsigned int m_curButton = 0;
 	bool m_switchButton = false;
 	bool m_ControlsSelected = false;
 	float m_delay = 0.0f;
 	float m_deltaTime;
+	
 
 };
 
@@ -123,6 +128,7 @@ private:
 	float m_startTime = 0.0;
 
 	std::vector<entt::entity> m_solarSystem;
+	std::unique_ptr<GameObject> m_score;
 	std::vector<Projectile*> m_bullets;
 	entt::entity MainPlayerID;
 };

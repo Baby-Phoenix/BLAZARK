@@ -33,6 +33,11 @@ void Animation2D::RemoveFrame()
 	m_frames.pop_back();
 }
 
+void Animation2D::Clear()
+{
+	m_frames.clear();
+}
+
 void Animation2D::Update(float deltaTime)
 {
 	//Subtract delta time from

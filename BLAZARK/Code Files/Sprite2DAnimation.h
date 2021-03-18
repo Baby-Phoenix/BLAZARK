@@ -26,6 +26,7 @@ public:
 	void AddFrame(UVS frame);
 	void AddFrame(glm::vec2 bottomLeft, glm::vec2 topRight);
 	void RemoveFrame();
+	void Clear();
 
 
 	void Update(float deltaTime);
