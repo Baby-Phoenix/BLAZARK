@@ -26,6 +26,7 @@ public:
 	void AddFrame(UVS frame);
 	void AddFrame(glm::vec2 bottomLeft, glm::vec2 topRight);
 	void RemoveFrame();
+	void Clear();
 
 
 	void Update(float deltaTime);
@@ -59,10 +60,9 @@ class AnimationHandler
 {
 public:
 	AnimationHandler() = default;
-	~AnimationHandler() {
-		delete First_frame;
-		delete Second_frame;
-	}
+	~AnimationHandler() {	}
+
+	void UnloadMesh();
 	void InitUVS(Texture* tex);
 
 	void Update(float deltaTime);

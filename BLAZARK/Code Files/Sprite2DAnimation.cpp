@@ -33,6 +33,11 @@ void Animation2D::RemoveFrame()
 	m_frames.pop_back();
 }
 
+void Animation2D::Clear()
+{
+	m_frames.clear();
+}
+
 void Animation2D::Update(float deltaTime)
 {
 	//Subtract delta time from
@@ -123,6 +128,12 @@ void Animation2D::SetSecPerFrame(float sec)
 	Reset();
 }
 
+void AnimationHandler::UnloadMesh()
+{
+	delete First_frame;
+	delete Second_frame;
+}
+
 void AnimationHandler::InitUVS(Texture* tex)
 {
 	m_texturesize = tex->GetWidthAndHeight();
@@ -166,12 +177,14 @@ void AnimationHandler::UpdateAnimation()
 
 	First_frame->SetTexCoords(tempFrame);
 
-#pragma endregion
-
-#pragma region SecondFrame
 	//give the new texcords to the vao
 	if ((vbo = First_frame->GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
 		m_sprite_VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::NORMAL);
+
+#pragma endregion
+
+#pragma region SecondFrame
+	
 
 	//Gettting UVS for the second frame
 	uv = m_animations[m_activeAnimation].GetNextFrame();

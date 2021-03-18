@@ -3,7 +3,7 @@
 
 enum class EntityType { PLAYER, ENEMY };
 
-enum class TextureType { START = 3 };
+enum class TextureType { START = 3 , RESUME, CONTROLS, EXIT, BACKGROUND, CONTROLSMENU, SCORE, SCORENUM};
 
 enum class PlayerMesh { PLAYERSHIPXWINGS, PLAYERSHIPXWINGE = 2, PLAYERSHIPPENCIL, PLAYERSHIPBAT, PLAYERBULLET };
 
@@ -20,8 +20,6 @@ std::vector<Mesh*> Scene::m_meshes;
 std::vector<Texture*> Scene::m_textures;
 
 std::unique_ptr<GameObject> effect;
-
-AnimationHandler* HealthAnim;
 
 StaticRenderer tempEnemy;
 
@@ -46,8 +44,18 @@ Scene::Scene(std::string name)
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/health_spritesheet.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/Abilities_Unavailable_Temp.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/PowerUP_Unavailable_Temp.png"));
+		
 		/////////
 		m_textures.push_back(new Texture("Resource Files/Textures/Menu/TitleScreen.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/Menu/Resume.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/Menu/Control.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/Menu/Exit.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/Menu/Pause_Menu_Background.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/Menu/Controls.png"));
+
+		m_textures.push_back(new Texture("Resource Files/Textures/HUD/SCORE_LABEL.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/HUD/ScoreAnim.png"));
+		
 	}
 
 	if (m_meshes.size() < 1) {
@@ -132,6 +140,16 @@ entt::registry* Scene::GetScene()
 	return m_sceneReg;
 }
 
+unsigned int Scene::GetSceneResumeNumber()
+{
+	return m_SceneResumeNo;
+}
+
+void Scene::SetSceneResumeNo(unsigned int sceneno)
+{
+	m_SceneResumeNo = sceneno;
+}
+
 Menu::Menu(std::string name, unsigned int* num, bool* change)
 	:Scene(name)
 {
@@ -164,8 +182,98 @@ void Menu::InitScene()
 
 		}
 		else if (m_name == "Pause_Menu") {
+			
 
-		}
+			//Resume
+			{
+				m_StartOrResume[0] = GameObject::Allocate();
+				auto* tempAnim = &m_StartOrResume[0]->AttachComponent<AnimationHandler>();
+				auto& anim = m_StartOrResume[0]->GetComponent<AnimationHandler>();
+				anim.InitUVS(m_textures[int(TextureType::RESUME)]);
+				Animation2D Oneclip;
+				Oneclip.AddFrame(UVS(glm::vec2(1, 50), glm::vec2(258, 1)));
+				Oneclip.SetIsRepeating(true);
+				Oneclip.SetSecPerFrame(1.0);
+				anim.AddAnimation(Oneclip);
+
+				Animation2D Twoclip;
+				Twoclip.AddFrame(UVS(glm::vec2(260, 50), glm::vec2(517, 1)));
+				Twoclip.SetIsRepeating(false);
+				Twoclip.SetSecPerFrame(1.0);
+				anim.AddAnimation(Twoclip);
+				anim.SetActiveAnim(1);
+
+				m_StartOrResume[0]->AttachComponent<Sprite2D>(m_textures[int(TextureType::RESUME)], m_StartOrResume[0]->GetID(), 20, 10, false, tempAnim);
+				m_StartOrResume[0]->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 10, 10));
+			}
+
+			//Instructions
+			{
+				m_StartOrResume[1] = GameObject::Allocate();
+				auto* tempAnim = &m_StartOrResume[1]->AttachComponent<AnimationHandler>();
+				auto& anim = m_StartOrResume[1]->GetComponent<AnimationHandler>();
+				anim.InitUVS(m_textures[int(TextureType::CONTROLS)]);
+				Animation2D Oneclip;
+				Oneclip.AddFrame(UVS(glm::vec2(1, 50), glm::vec2(346, 1)));
+
+				Oneclip.SetIsRepeating(false);
+				Oneclip.SetSecPerFrame(1.0);
+				anim.AddAnimation(Oneclip);
+				anim.SetActiveAnim(0);
+				 
+				Animation2D Twoclip;
+				Twoclip.AddFrame(UVS(glm::vec2(348, 50), glm::vec2(693, 1)));
+
+				Twoclip.SetIsRepeating(false);
+				Twoclip.SetSecPerFrame(1.0);
+				anim.AddAnimation(Twoclip);
+				anim.SetActiveAnim(0);
+
+
+				m_StartOrResume[1]->AttachComponent<Sprite2D>(m_textures[int(TextureType::CONTROLS)], m_StartOrResume[1]->GetID(), 30, 10, true, tempAnim);
+				m_StartOrResume[1]->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, -30, 10));
+			}
+
+			//Exit
+			{
+				m_StartOrResume[2] = GameObject::Allocate();
+				auto* tempAnim = &m_StartOrResume[2]->AttachComponent<AnimationHandler>();
+				auto& anim = m_StartOrResume[2]->GetComponent<AnimationHandler>();
+				anim.InitUVS(m_textures[int(TextureType::EXIT)]);
+				Animation2D Oneclip;
+				Oneclip.AddFrame(UVS(glm::vec2(1, 50), glm::vec2(136, 1)));
+
+				Oneclip.SetIsRepeating(false);
+				Oneclip.SetSecPerFrame(1.0);
+				anim.AddAnimation(Oneclip);
+				anim.SetActiveAnim(0);
+
+				Animation2D Twoclip;
+				Twoclip.AddFrame(UVS(glm::vec2(138, 50), glm::vec2(273, 1)));
+
+				Twoclip.SetIsRepeating(false);
+				Twoclip.SetSecPerFrame(1.0);
+				anim.AddAnimation(Twoclip);
+				anim.SetActiveAnim(0);
+
+
+				m_StartOrResume[2]->AttachComponent<Sprite2D>(m_textures[int(TextureType::EXIT)], m_StartOrResume[2]->GetID(), 20, 10, true, tempAnim);
+				m_StartOrResume[2]->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, -70, 10));
+			}
+
+			//instruction background
+			{
+				m_StartOrResume[3] = GameObject::Allocate();
+
+				m_StartOrResume[3]->AttachComponent<Sprite2D>(m_textures[int(TextureType::CONTROLSMENU)], m_StartOrResume[3]->GetID(), 100, 100);
+				m_StartOrResume[3]->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -10));
+			}
+		
+			auto background = GameObject::Allocate();
+			background->AttachComponent<Sprite2D>(m_textures[int(TextureType::BACKGROUND)], background->GetID(), 100, 100);
+			background->AttachComponent<Transform>().SetLocalPos(0, 0, -5);
+
+			}
 	}
 }
 
@@ -173,6 +281,15 @@ void Menu::Update(float deltaTime)
 {
 	// Transform Update
 	m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal(); });
+	m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) {	anim.Update(deltaTime); });
+	m_deltaTime = deltaTime;
+
+	//m_scoreTime -= deltaTime;
+
+	//if (m_scoreTime <= 0) {
+	//	m_score->GetComponent<ScoreHandler>().Add(20);
+	//	m_scoreTime = 0.1f;
+	//}
 
 	// Key Input
 	KeyInput();
@@ -181,11 +298,19 @@ void Menu::Update(float deltaTime)
 	camera->Update();
 }
 
+unsigned int Menu::GetSceneResumeNumber()
+{
+	return m_SceneResumeNo;
+}
+
+void Menu::SetSceneResumeNo(unsigned int sceneno)
+{
+	m_SceneResumeNo = sceneno;
+}
+
+
 void Menu::KeyInput()
 {
-	if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(m_window, GLFW_TRUE);
-
 	// Scene Switching //
 	if (glfwGetKey(m_window, GLFW_KEY_0) == GLFW_PRESS) {
 		*switchIt = true;
@@ -198,6 +323,61 @@ void Menu::KeyInput()
 	if (glfwGetKey(m_window, GLFW_KEY_2) == GLFW_PRESS) {
 		*switchIt = true;
 		*SceneNo = int(ScenesNum::UNIVERSE_27);
+	}
+
+
+	if (m_name == "Pause_Menu") {
+		if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		{
+			if (m_ControlsSelected) {
+				m_StartOrResume[3]->GetComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -10));
+				m_ControlsSelected = false;
+			}
+		}
+
+		if (m_switchButton)
+			m_delay -= m_deltaTime;
+
+		if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS) {
+
+			if (!m_switchButton)
+				m_switchButton = true;
+
+			if (m_delay <= 0.0f) {
+				m_StartOrResume[m_curButton]->GetComponent<AnimationHandler>().SetActiveAnim(0);
+				m_curButton = m_curButton <= 0 ? 2 : m_curButton - 1;
+				m_StartOrResume[m_curButton]->GetComponent<AnimationHandler>().SetActiveAnim(1);
+				m_switchButton = false;
+				m_delay = 0.2f;
+			}
+		}
+		if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+
+			if (!m_switchButton)
+				m_switchButton = true;
+
+			if (m_delay <= 0.0f) {
+				m_StartOrResume[m_curButton]->GetComponent<AnimationHandler>().SetActiveAnim(0);
+				m_curButton = m_curButton >= 2 ? 0 : m_curButton + 1;
+				m_StartOrResume[m_curButton]->GetComponent<AnimationHandler>().SetActiveAnim(1);
+				m_switchButton = false;
+				m_delay = 0.2f;
+			}
+		}
+
+		if (glfwGetKey(m_window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+			if (m_curButton == 0) {
+				*switchIt = true;
+				*SceneNo = m_SceneResumeNo;
+			}
+			else if (m_curButton == 1) {
+				m_StartOrResume[3]->GetComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 20));
+				m_ControlsSelected = true;
+			}
+			else if (m_curButton == 2) {
+				glfwSetWindowShouldClose(m_window, GLFW_TRUE);
+			}
+		}
 	}
 }
 
@@ -284,6 +464,15 @@ Universe::Universe(std::string name, unsigned int* num, bool* change)
 	switchIt = change;
 }
 
+unsigned int Universe::GetSceneResumeNumber()
+{
+	return m_SceneResumeNo;
+}
+
+void Universe::SetSceneResumeNo(unsigned int sceneno)
+{
+}
+
 void Universe::InitScene()
 {
 	//creating a new registry for the scene when initialised
@@ -297,6 +486,7 @@ void Universe::InitScene()
 		// Camera
 		auto cameraEntity = GameObject::Allocate();
 		entt::entity CameraID;
+		entt::entity* camentity = new entt::entity(cameraEntity->GetID());
 		CameraID = cameraEntity->GetID();
 		cameraEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 13, 25));
 		camera = &cameraEntity->AttachComponent<Camera>(int(CameraID));
@@ -317,25 +507,25 @@ void Universe::InitScene()
 		//HUD
 		auto health = GameObject::Allocate();
 		auto* tempAnim = &health->AttachComponent<AnimationHandler>();
-		HealthAnim = &health->GetComponent<AnimationHandler>();
+		health->GetComponent<AnimationHandler>();
 		auto& anim = health->GetComponent<AnimationHandler>();
 		anim.InitUVS(m_textures[0]);
 		Animation2D Oneclip;
-		Oneclip.AddFrame(UVS(glm::vec2(706, 233), glm::vec2(939, 1)));
+		/*Oneclip.AddFrame(UVS(glm::vec2(706, 233), glm::vec2(939, 1)));
 		Oneclip.AddFrame(UVS(glm::vec2(471, 233), glm::vec2(705, 1)));
 		Oneclip.AddFrame(UVS(glm::vec2(236, 233), glm::vec2(470, 1)));
-		Oneclip.AddFrame(UVS(glm::vec2(1, 233), glm::vec2(235, 1)));
-		/*Oneclip.AddFrame(UVS(glm::vec2(1, 233), glm::vec2(235, 1)));
-		Oneclip.AddFrame(UVS(glm::vec2(236, 233), glm::vec2(470, 1)));
-		Oneclip.AddFrame(UVS(glm::vec2(471, 233), glm::vec2(705, 1)));
-		Oneclip.AddFrame(UVS(glm::vec2(706, 233), glm::vec2(939, 1)));*/
+		Oneclip.AddFrame(UVS(glm::vec2(1, 233), glm::vec2(235, 1)));*/
+		Oneclip.AddFrame(UVS(glm::vec2(1, 235), glm::vec2(235, 1)));
+		Oneclip.AddFrame(UVS(glm::vec2(236, 235), glm::vec2(470, 1)));
+		Oneclip.AddFrame(UVS(glm::vec2(471, 235), glm::vec2(705, 1)));
+		Oneclip.AddFrame(UVS(glm::vec2(706, 235), glm::vec2(939, 1)));
 
 		Oneclip.SetIsRepeating(true);
 		Oneclip.SetSecPerFrame(1.0);
 		anim.AddAnimation(Oneclip);
 		anim.SetActiveAnim(0);
 
-		health->AttachComponent<Sprite2D>(m_textures[0], health->GetID(), 15, 15, true, tempAnim);
+		health->AttachComponent<Sprite2D>(m_textures[0], health->GetID(), 15, 15, false, tempAnim);
 		health->AttachComponent<Transform>().SetLocalPos(glm::vec3(-80, -80, -10));
 
 		auto abilities = GameObject::Allocate();
@@ -344,6 +534,18 @@ void Universe::InitScene()
 		auto powerUp = GameObject::Allocate();
 		powerUp->AttachComponent<Sprite2D>(m_textures[2], powerUp->GetID(), 6, 45);
 		powerUp->AttachComponent<Transform>().SetLocalPos(glm::vec3(-90, 10, -10));
+
+
+		glm::vec3 scorePos;
+		auto score = GameObject::Allocate();
+		score->AttachComponent<Sprite2D>(m_textures[int(TextureType::SCORE)], score->GetID(), 10, 5);
+		score->AttachComponent<Transform>().SetLocalPos(-80, 80, -10);
+
+		scorePos = score->GetComponent<Transform>().GetLocalPos();
+
+		m_score = GameObject::Allocate();
+		m_score->AttachComponent<ScoreHandler>(scorePos, m_textures[int(TextureType::SCORENUM)], camentity);
+
 
 		//effects
 		/*effect = GameObject::Allocate();
@@ -354,6 +556,9 @@ void Universe::InitScene()
 		effect->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/NeutralLUT.cube");*/
 
 		if (m_name == "Universe_19") {
+
+			m_SceneResumeNo = int(ScenesNum::UNIVERSE_19);
+
 			// Solar System Centerpoint
 			auto SVCEntity = GameObject::Allocate();
 			m_solarSystem.push_back(SVCEntity->GetID());
@@ -438,6 +643,8 @@ void Universe::InitScene()
 			HPCEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKRC]);
 		}
 		else if (m_name == "Universe_27") {
+
+			m_SceneResumeNo = int(ScenesNum::UNIVERSE_27);
 			// Lutero
 			auto sunEntity = GameObject::Allocate();
 			sunEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
@@ -481,14 +688,15 @@ void Universe::InitScene()
 			gasPlanetTwoEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), gasPlanetTwoEntity->GetID(), *m_meshes[int(PlanetMesh::MAGAANTU)], nullptr);
 		}
 		else if (m_name == "Universe_5") {
-			
+		m_SceneResumeNo = int(ScenesNum::UNIVERSE_5);
 		}
 
 		//Setting Parent/Childe
 		cameraEntity->GetComponent<Transform>().SetParent(new entt::entity(playerEntity->GetID()));
-		health->GetComponent<Transform>().SetParent(new entt::entity(cameraEntity->GetID()));
-		abilities->GetComponent<Transform>().SetParent(new entt::entity(cameraEntity->GetID()));
-		powerUp->GetComponent<Transform>().SetParent(new entt::entity(cameraEntity->GetID()));
+		health->GetComponent<Transform>().SetParent(camentity);
+		abilities->GetComponent<Transform>().SetParent(camentity);
+		powerUp->GetComponent<Transform>().SetParent(camentity);
+		score->GetComponent<Transform>().SetParent(camentity);
 
 		Skybox::Init();
 	}
@@ -551,7 +759,10 @@ void Universe::Render(float deltaTime)
 void Universe::KeyInput()
 {
 	if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(m_window, GLFW_TRUE);
+	{
+		*switchIt = true;
+		*SceneNo = int(ScenesNum::PAUSE_MENU);
+	}
 
 	// Scene Switching //
 	if (glfwGetKey(m_window, GLFW_KEY_0) == GLFW_PRESS) {

@@ -41,6 +41,7 @@
     <ClCompile Include="Code Files\Projectile.cpp" />
     <ClCompile Include="Code Files\Random.cpp" />
     <ClCompile Include="Code Files\Scene.cpp" />
+    <ClCompile Include="Code Files\ScoreHandler.cpp" />
     <ClCompile Include="Code Files\SepiaEffect.cpp" />
     <ClCompile Include="Code Files\Shader.cpp" />
     <ClCompile Include="Code Files\Skybox.cpp" />
@@ -77,6 +78,7 @@
     <ClInclude Include="Code Files\Projectile.h" />
     <ClInclude Include="Code Files\Random.h" />
     <ClInclude Include="Code Files\Scene.h" />
+    <ClInclude Include="Code Files\ScoreHandler.h" />
     <ClInclude Include="Code Files\SepiaEffect.h" />
     <ClInclude Include="Code Files\Shader.h" />
     <ClInclude Include="Code Files\Skybox.h" />

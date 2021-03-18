@@ -12,6 +12,7 @@
 #include "SepiaEffect.h"
 #include "EnemyAI.h"
 #include "Projectile.h"
+#include "ScoreHandler.h"
 
 enum class ScenesNum { START_SCREEN, MAIN_MENU, PAUSE_MENU, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
 
@@ -22,7 +23,6 @@ public:
 
 	Scene() { }
 	std::string GetName();
-
 
 	virtual void Render(float deltaTime) {	}
 
@@ -38,10 +38,14 @@ public:
 
 	virtual void GamepadInput() { }
 
+	virtual unsigned int GetSceneResumeNumber();
+	virtual void SetSceneResumeNo(unsigned int sceneno);
+
 protected:
 
 	unsigned int* SceneNo = nullptr;
 	bool* switchIt = nullptr;
+	unsigned int m_SceneResumeNo;
 
 	bool initialised = false;
 
@@ -72,12 +76,26 @@ public:
 
 	void Update(float deltaTime) override;
 
+	 unsigned int GetSceneResumeNumber() override;
+	 void SetSceneResumeNo(unsigned int sceneno) override;
 
 	void KeyInput() override;
 
 	void GamepadInput() override;
 
 	void Render(float deltaTime) override;
+
+private:
+	std::unique_ptr<GameObject> m_StartOrResume[4];
+	float m_scoreTime = 1.0f;
+
+
+	unsigned int m_curButton = 0;
+	bool m_switchButton = false;
+	bool m_ControlsSelected = false;
+	float m_delay = 0.0f;
+	float m_deltaTime;
+	
 
 };
 
@@ -87,6 +105,8 @@ public:
 
 	Universe(std::string name, unsigned int* num = nullptr, bool* change = nullptr);
 
+	 unsigned int GetSceneResumeNumber() override;
+	 void SetSceneResumeNo(unsigned int sceneno) override;
 
 	void InitScene() override;
 
@@ -110,6 +130,7 @@ private:
 	float m_startTime = 0.0;
 
 	std::vector<entt::entity> m_solarSystem;
+	std::unique_ptr<GameObject> m_score;
 	std::vector<Projectile*> m_bullets;
 	entt::entity MainPlayerID;
 };

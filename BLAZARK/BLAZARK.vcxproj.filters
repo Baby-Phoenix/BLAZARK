@@ -99,10 +99,14 @@
     <ClCompile Include="Code Files\Projectile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="Code Files\MorphAnimController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Code Files\DynamicRenderer.cpp">
+=======
+    <ClCompile Include="Code Files\ScoreHandler.cpp">
+>>>>>>> main
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -206,10 +210,14 @@
     <ClInclude Include="Code Files\Projectile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="Code Files\MorphAnimController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Code Files\DynamicRenderer.h">
+=======
+    <ClInclude Include="Code Files\ScoreHandler.h">
+>>>>>>> main
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -28,14 +28,18 @@ Sprite2D::Sprite2D(Texture* tex, entt::entity entity, float width, float height,
 		const VertexBuffer* vbo;
 
 		if (!m_isAnimated) {
+			
+			if (anim != nullptr) {
+				SetAnimationHandler(anim);
+			}
+			else {
+				if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
+					VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::NORMAL);
+			}
+
 			if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::POSITION)) != nullptr)
 				VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::POSITION);
-
-			if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::NORMAL)) != nullptr)
-				VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::NORMAL);
-
-			if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
-				VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::TEXCOORD);
+			
 		}
 
 		else {
@@ -44,11 +48,6 @@ Sprite2D::Sprite2D(Texture* tex, entt::entity entity, float width, float height,
 			if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::POSITION)) != nullptr)
 				VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::POSITION);
 
-		/*	if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::NORMAL)) != nullptr) 
-				VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::NORMAL);
-
-			if ((vbo = m_planeMesh->GetVBO(Mesh::VertexAttrib::TEXCOORD)) != nullptr)
-				VAO->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::TEXCOORD);*/
 		}
 	}
 }
@@ -67,10 +66,12 @@ void Sprite2D::Draw(Camera* cam)
 	cam->OrthographicProj(1.0f, 10000.0f, -100.0f, 100.0f, -100.0f, 100.0f);
 
 	transform.SetLocalScale(glm::vec3(m_width,1, m_height));
-	transform.SetLocalRot(glm::vec3(90, 0, 180));
+	transform.SetLocalRot(glm::vec3(90, 180, 180));
 	transform.UpdateGlobal();
 	//shader stuff
 	
+	glDisable(GL_CULL_FACE);
+
 	if (!m_isAnimated) {
 		m_Sprite2D_shader[0]->use();
 
@@ -104,7 +105,7 @@ void Sprite2D::Draw(Camera* cam)
 	glBindVertexArray(GL_NONE);
 	m_texture->unbind();
 	glUseProgram(GL_NONE);
-
+	glEnable(GL_CULL_FACE);
 	cam->PerspectiveProj(1.0f, 10000000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 100.0f);
 	
 

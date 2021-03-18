@@ -27,6 +27,7 @@ void Game::InitGame()
 
 void Game::SwitchScene()
 {
+	m_scenes[m_SceneNo]->SetSceneResumeNo(m_curScene->GetSceneResumeNumber());
 	m_curScene = m_scenes[m_SceneNo];
 	m_curScene->InitScene();
 	m_curScene->SetWindow(Application::GetWindow());
