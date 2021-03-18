@@ -1,7 +1,7 @@
 #include "Camera.h"
 
-Camera::Camera(entt::entity entity) {
-	m_entity = entity;
+Camera::Camera(unsigned int entity) {
+	m_entity = entt::entity(entity);
 }
 
 void Camera::PerspectiveProj(float near, float far, float aspect, float FoVY) {

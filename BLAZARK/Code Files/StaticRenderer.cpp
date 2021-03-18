@@ -3,11 +3,6 @@
 std::vector<Shader*> StaticRenderer::m_shader;
 
 StaticRenderer::StaticRenderer(entt::entity camera, entt::entity entity, const Mesh& mesh, Texture* texture, bool lightSource) {
-	Init(camera, entity, mesh, texture, lightSource);
-}
-
-void StaticRenderer::Init(entt::entity camera, entt::entity entity, const Mesh& mesh, Texture* texture, bool lightSource)
-{
 	m_lightSource = lightSource;
 	m_tex = texture;
 	m_camera = camera;
@@ -52,52 +47,39 @@ void StaticRenderer::SetVAO(const Mesh& mesh) {
 		m_vao->BindBuffer(*vbo, (GLint)Mesh::VertexAttrib::DISSOLVE);
 }
 
-void StaticRenderer::SetisDraw(bool isDrawing)
-{
-	m_isDraw = isDrawing;
-}
-
-bool StaticRenderer::GetisDraw()
-{
-	return m_isDraw;
-}
-
 void StaticRenderer::toggleTexture() {
 	m_textureToggle = !m_textureToggle;
 }
 
 void StaticRenderer::Draw() {
-	if (GetisDraw())
-	{
-		auto& transform = GameObject::GetComponent<Transform>(m_entity);
+	auto& transform = GameObject::GetComponent<Transform>(m_entity);
 
-		if (m_tex == nullptr || !m_textureToggle) {
-			if (!m_lightSource)
-				currShader = 0;
-			else
-				currShader = 1;
-		}
-		else if (m_textureToggle && m_tex != nullptr) {
-			if (!m_lightSource)
-				currShader = 2;
-			else
-				currShader = 3;
-		}
-
-		m_shader[currShader]->use();
-
-		if (m_tex != nullptr) {
-			m_shader[currShader]->set1i(0, "albedo");
-			m_tex->bind(0);
-		}
-
-		m_shader[currShader]->setVec3f(GameObject::GetComponent<Transform>(m_camera).GetLocalPos(), "camPos");
-		m_shader[currShader]->setMat4fv(GameObject::GetComponent<Camera>(m_camera).GetViewProj(), "ViewProjection");
-		m_shader[currShader]->setMat4fv(transform.GetGlobal(), "ModelMatrix");
-		m_shader[currShader]->setMat3fv(transform.GetNormal(), "NormalMatrix");
-
-		m_vao->DrawArray();
-		m_shader[currShader]->unuse();
-		glBindVertexArray(GL_NONE);
+	if (m_tex == nullptr || !m_textureToggle) {
+		if (!m_lightSource)
+			currShader = 0;
+		else
+			currShader = 1;
 	}
+	else if (m_textureToggle && m_tex != nullptr) {
+		if (!m_lightSource)
+			currShader = 2;
+		else
+			currShader = 3;
+	}
+
+	m_shader[currShader]->use();
+
+	if (m_tex != nullptr) {
+		m_shader[currShader]->set1i(0, "albedo");
+		m_tex->bind(0);
+	}
+
+	m_shader[currShader]->setVec3f(GameObject::GetComponent<Transform>(m_camera).GetLocalPos(), "camPos");
+	m_shader[currShader]->setMat4fv(GameObject::GetComponent<Camera>(m_camera).GetViewProj(), "ViewProjection");
+	m_shader[currShader]->setMat4fv(transform.GetGlobal(), "ModelMatrix");
+	m_shader[currShader]->setMat3fv(transform.GetNormal(), "NormalMatrix");
+
+	m_vao->DrawArray();
+	m_shader[currShader]->unuse();
+	glBindVertexArray(GL_NONE);
 }

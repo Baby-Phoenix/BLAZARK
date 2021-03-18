@@ -11,31 +11,28 @@ class StaticRenderer {
 public:
 	StaticRenderer() = default;
 	StaticRenderer(entt::entity camera, entt::entity entity, const Mesh& mesh,Texture* texture = nullptr, bool lightSource = false);
-
-	void Init(entt::entity camera, entt::entity entity, const Mesh& mesh, Texture* texture = nullptr, bool lightSource = false);
 	virtual ~StaticRenderer() = default;
 
 	StaticRenderer(StaticRenderer&&) = default;
 	StaticRenderer& operator=(StaticRenderer&&) = default;
 
 	void SetVAO(const Mesh& mesh);
-	void SetisDraw(bool isDrawing);
-	
 
 	void toggleTexture();
 
 	virtual void Draw();
 
-private:
-	bool GetisDraw();
-
-	std::unique_ptr<VertexArray> m_vao;
-	static std::vector<Shader*> m_shader;
-	int currShader;
+protected:
 	entt::entity m_camera;
 	entt::entity m_entity;
+
+	std::unique_ptr<VertexArray> m_vao;
+
+	static std::vector<Shader*> m_shader;
+	int currShader;
+
 	Texture* m_tex;
+
 	bool m_textureToggle = true;
 	bool m_lightSource;
-	bool m_isDraw;
 };

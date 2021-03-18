@@ -21,6 +21,4 @@ struct DATAGETTER {
 	int componentSize;
 };
 
-
 void loadGLTF(const char* fileName, Mesh& mesh, bool UVYFlip = true);
-

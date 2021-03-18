@@ -1,11 +1,13 @@
 #pragma once
 
 #include "ECS.h"
+#include <iostream>
 
 class Camera {
 public:
-	Camera() = default;
-	Camera(entt::entity entity);
+	Camera() { 
+		std::cout << "exsdcfvgbh"; }
+	Camera(unsigned int entity);
 	virtual ~Camera() = default;
 
 	void PerspectiveProj(float near, float far, float aspect, float FoVY);

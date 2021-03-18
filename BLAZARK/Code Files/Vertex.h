@@ -37,7 +37,7 @@ public:
 		m_bufferLen = (GLsizei)data.size();
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_bufferID);
-		glBufferData(GL_ARRAY_BUFFER, m_typeSize * m_bufferLen, &(data[0]), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, m_typeSize * m_bufferLen, &(data[0]), GL_DYNAMIC_DRAW);
 	}
 
 	// Getters //

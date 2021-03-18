@@ -1,6 +1,7 @@
 #pragma once
 
 #include "StaticRenderer.h"
+#include "MorphAnimController.h"
 #include "btBulletDynamicsCommon.h"
 #include "Skybox.h"
 #include "Sprite2D.h"
@@ -54,6 +55,7 @@ protected:
 	GamePad gamepad;
 
 	Camera* camera;
+	MorphAnimController* playerController;
 
 	static std::vector<Texture*> m_textures;
 	static std::vector<Mesh*> m_meshes;

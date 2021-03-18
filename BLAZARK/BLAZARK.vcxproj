@@ -25,6 +25,7 @@
     <ClCompile Include="Code Files\Application.cpp" />
     <ClCompile Include="Code Files\ColorCorrection.cpp" />
     <ClCompile Include="Code Files\Dependencies\tinygltf\tiny_gltf_impl.cpp" />
+    <ClCompile Include="Code Files\DynamicRenderer.cpp" />
     <ClCompile Include="Code Files\ECS.cpp" />
     <ClCompile Include="Code Files\Effect.cpp" />
     <ClCompile Include="Code Files\EnemyAI.cpp" />
@@ -36,6 +37,7 @@
     <ClCompile Include="Code Files\Input.cpp" />
     <ClCompile Include="Code Files\main.cpp" />
     <ClCompile Include="Code Files\Mesh.cpp" />
+    <ClCompile Include="Code Files\MorphAnimController.cpp" />
     <ClCompile Include="Code Files\Projectile.cpp" />
     <ClCompile Include="Code Files\Random.cpp" />
     <ClCompile Include="Code Files\Scene.cpp" />
@@ -57,6 +59,7 @@
     <ClInclude Include="Code Files\Dependencies\tinygltf\stb_image.h" />
     <ClInclude Include="Code Files\Dependencies\tinygltf\stb_image_write.h" />
     <ClInclude Include="Code Files\Dependencies\tinygltf\tiny_gltf.h" />
+    <ClInclude Include="Code Files\DynamicRenderer.h" />
     <ClInclude Include="Code Files\ECS.h" />
     <ClInclude Include="Code Files\Effect.h" />
     <ClInclude Include="Code Files\EnemyAI.h" />
@@ -69,6 +72,7 @@
     <ClInclude Include="Code Files\JSON.h" />
     <ClInclude Include="Code Files\Material.h" />
     <ClInclude Include="Code Files\Mesh.h" />
+    <ClInclude Include="Code Files\MorphAnimController.h" />
     <ClInclude Include="Code Files\OBJLoader.h" />
     <ClInclude Include="Code Files\Projectile.h" />
     <ClInclude Include="Code Files\Random.h" />

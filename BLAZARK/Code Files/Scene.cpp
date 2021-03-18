@@ -5,15 +5,16 @@ enum class EntityType { PLAYER, ENEMY };
 
 enum class TextureType { START = 3 };
 
-enum class PlayerMesh { PLAYERSHIPPENCIL, PLAYERSHIPBAT, PLAYERBULLET };
+enum class PlayerMesh { PLAYERSHIPXWINGS, PLAYERSHIPXWINGE = 2, PLAYERSHIPPENCIL, PLAYERSHIPBAT, PLAYERBULLET };
 
-enum class EnemyMesh { NEROTISTU1 = 3};
+enum class EnemyMesh { SCAVENGERU1S = 6, SCAVENGERU1E = 8, NEROTISTU1};
 
-enum class PlanetMesh { SOLARI = 4, VERASTEN, YECHIN, KERANTIA, LUNARI, GUERISTIS, KEMINTH, 
+enum class PlanetMesh { SOLARI = 10, VERASTEN, YECHIN, KERANTIA, LUNARI, GUERISTIS, KEMINTH, 
 						LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MAGAANTU };
 
 enum Universe19SS { SVC, SYC, SKRC, SGC, SKEC, SOLARI, VERASTEN, YECHIN, KERANTIA, GUERISTIS, KEMINTH, HPC };
 enum Universe27SS {};
+enum Universe5SS {};
 
 std::vector<Mesh*> Scene::m_meshes;
 std::vector<Texture*> Scene::m_textures;
@@ -51,6 +52,10 @@ Scene::Scene(std::string name)
 
 	if (m_meshes.size() < 1) {
 		// Player Ships //
+		for (int i = 0; i <= 2; i++) {
+			m_meshes.push_back(new Mesh());
+			loadOBJ(("Resource Files/OBJFiles/PlayerShips/Morph/PlayerShipX-WingFrame" + std::to_string(i) + ".obj").c_str(), *m_meshes[i]);
+		}
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/PlayerShips/PlayerShipPencil.obj", *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]);
 		m_meshes.push_back(new Mesh());
@@ -58,6 +63,10 @@ Scene::Scene(std::string name)
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Misc/laserBullet.obj", *m_meshes[int(PlayerMesh::PLAYERBULLET)]);
 		// Universe-19 //
+		for (int i = 1; i <= 3; i++) {
+			m_meshes.push_back(new Mesh());
+			loadOBJ(("Resource Files/OBJFiles/Universe-19/EnemyShips/Morph/Scavenger_Idle_" + std::to_string(i) + ".obj").c_str(), *m_meshes[i + int(PlayerMesh::PLAYERBULLET)]);
+		}
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Universe-19/EnemyShips/Nerotist.obj", *m_meshes[int(EnemyMesh::NEROTISTU1)]);
 		m_meshes.push_back(new Mesh());
@@ -290,17 +299,20 @@ void Universe::InitScene()
 		entt::entity CameraID;
 		CameraID = cameraEntity->GetID();
 		cameraEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 13, 25));
-		camera = &cameraEntity->AttachComponent<Camera>(CameraID);
+		camera = &cameraEntity->AttachComponent<Camera>(int(CameraID));
 		camera->PerspectiveProj(0.1f, 1000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 1.0f);
 
 		// Player
 		auto playerEntity = GameObject::Allocate();
 		MainPlayerID = playerEntity->GetID();
 		playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
-		playerEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)], nullptr);
+		playerEntity->AttachComponent<DynamicRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)], nullptr);
 		playerEntity->AttachComponent<EntityType>() = EntityType::PLAYER;
 		playerEntity->GetComponent<Transform>().SetLocalRot(0, 180, 0);
-		playerEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetWidth(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetHeight(), m_meshes[int(PlayerMesh::PLAYERSHIPPENCIL)]->GetDepth()));
+		playerEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetWidth(), m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetHeight(), m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetDepth()));
+
+		playerController = &playerEntity->AttachComponent<MorphAnimController>(int(MainPlayerID));
+		playerController->SetFrames(m_meshes, int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/), int(PlayerMesh::PLAYERSHIPXWINGE/*EnemyMesh::SCAVENGERU1E*/));
 
 		//HUD
 		auto health = GameObject::Allocate();
@@ -489,16 +501,18 @@ void Universe::Update(float deltaTime)
 
 	// Camera Update 
 	camera->Update();
+
+	playerController->Update(deltaTime);
 	
 	m_sceneReg->view<BasicAI>().each([=](BasicAI& ai) {	ai.Update(deltaTime); });
 
-	m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) {	anim.Update(deltaTime); });
+	m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) { anim.Update(deltaTime); });
 	
 	// Solar System Rotation (IN-PROGRESS) //
 	SolarSystemUpdate();
 
 	// Transform Update
-	m_sceneReg->view<Transform>().each([=](Transform& transform) {	transform.UpdateGlobal(); });
+	m_sceneReg->view<Transform>().each([=](Transform& transform) { transform.UpdateGlobal(); });
 
 	auto BulletView = m_sceneReg->view<Projectile>();
 	auto AllOtherEntities = m_sceneReg->view<StaticRenderer, EntityType>();
@@ -509,8 +523,6 @@ void Universe::Update(float deltaTime)
 			if (isCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(entity)) && GameObject::GetComponent<EntityType>(entity) == EntityType::ENEMY)
 			{
 				GameObject::GetComponent<Projectile>(Bulletentity).SetDestroyed(true);
-				GameObject::GetComponent<StaticRenderer>(entity).SetisDraw(false);
-				GameObject::GetComponent<StaticRenderer>(Bulletentity).SetisDraw(false);
 			}
 		}
 	}
@@ -524,6 +536,7 @@ void Universe::Render(float deltaTime)
 	//effect->GetComponent<PostEffect>().BindBuffer(0);
 
 	m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) { renderer.Draw(); });
+	m_sceneReg->view<DynamicRenderer>().each([=](DynamicRenderer& renderer) { renderer.Draw(); });
 	Skybox::Draw(camera->GetView(), camera->GetProj());
 	m_sceneReg->view<Sprite2D>().each([=](Sprite2D& renderer) {renderer.Draw(camera); });
 	
