@@ -170,7 +170,7 @@ void Menu::InitScene()
 
 		auto cameraEntity = GameObject::Allocate();
 		cameraEntity->AttachComponent<Transform>();
-		camera = &cameraEntity->AttachComponent<Camera>(cameraEntity->GetID());
+		camera = &cameraEntity->AttachComponent<Camera>(int(cameraEntity->GetID()));
 		cameraEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 100.0f));
 
 		if (m_name == "Start_Screen") {
@@ -722,15 +722,17 @@ void Universe::Update(float deltaTime)
 	// Transform Update
 	m_sceneReg->view<Transform>().each([=](Transform& transform) { transform.UpdateGlobal(); });
 
-	auto BulletView = m_sceneReg->view<Projectile>();
-	auto AllOtherEntities = m_sceneReg->view<StaticRenderer, EntityType>();
 
-	for (auto Bulletentity : BulletView) {
+	for (auto Bulletentity : m_sceneReg->view<Projectile>()) {
+		
 		GameObject::GetComponent<Projectile>(Bulletentity).Update(deltaTime);
-		for (auto entity : AllOtherEntities) {
+		
+		for (auto entity : m_sceneReg->view<StaticRenderer, EntityType>()) {
 			if (isCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(entity)) && GameObject::GetComponent<EntityType>(entity) == EntityType::ENEMY)
 			{
-				GameObject::GetComponent<Projectile>(Bulletentity).SetDestroyed(true);
+				m_sceneReg->destroy(entity);
+				m_sceneReg->destroy(Bulletentity);
+				m_score->GetComponent<ScoreHandler>().Add(1);
 			}
 		}
 	}

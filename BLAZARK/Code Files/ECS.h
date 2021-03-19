@@ -29,6 +29,11 @@ public:
 		return m_reg->get<T>(id);
 	}
 
+	static void DestroyEntity(entt::entity id)
+	{
+		m_reg->destroy(id);
+	}
+
 	void DestroyEntity();
 	entt::entity GetID();
 
