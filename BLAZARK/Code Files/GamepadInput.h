@@ -2,7 +2,7 @@
 #include "glfw3.h"
 #include<iostream>
 
-enum Direction { LEFT = 0, RIGHT };
+enum Joystick { LEFT = 0, RIGHT };
 
 struct Triggers {
 

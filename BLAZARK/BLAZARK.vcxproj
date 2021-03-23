@@ -38,6 +38,7 @@
     <ClCompile Include="Code Files\main.cpp" />
     <ClCompile Include="Code Files\Mesh.cpp" />
     <ClCompile Include="Code Files\MorphAnimController.cpp" />
+    <ClCompile Include="Code Files\ParticleSystem.cpp" />
     <ClCompile Include="Code Files\Projectile.cpp" />
     <ClCompile Include="Code Files\Random.cpp" />
     <ClCompile Include="Code Files\Scene.cpp" />
@@ -75,6 +76,7 @@
     <ClInclude Include="Code Files\Mesh.h" />
     <ClInclude Include="Code Files\MorphAnimController.h" />
     <ClInclude Include="Code Files\OBJLoader.h" />
+    <ClInclude Include="Code Files\ParticleSystem.h" />
     <ClInclude Include="Code Files\Projectile.h" />
     <ClInclude Include="Code Files\Random.h" />
     <ClInclude Include="Code Files\Scene.h" />

@@ -1,234 +1,82 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
+    <ClCompile Include="Code Files\AudioEngine.cpp" />
+    <ClCompile Include="Code Files\BloomEffect.cpp" />
+    <ClCompile Include="Code Files\Camera.cpp" />
+    <ClCompile Include="Code Files\Application.cpp" />
+    <ClCompile Include="Code Files\ColorCorrection.cpp" />
+    <ClCompile Include="Code Files\Dependencies\tinygltf\tiny_gltf_impl.cpp" />
+    <ClCompile Include="Code Files\DynamicRenderer.cpp" />
+    <ClCompile Include="Code Files\ECS.cpp" />
+    <ClCompile Include="Code Files\Effect.cpp" />
+    <ClCompile Include="Code Files\EnemyAI.cpp" />
+    <ClCompile Include="Code Files\FrameBuffer.cpp" />
+    <ClCompile Include="Code Files\Game.cpp" />
+    <ClCompile Include="Code Files\GamepadInput.cpp" />
+    <ClCompile Include="Code Files\GLTFLoader.cpp" />
+    <ClCompile Include="Code Files\GreyscaleEffect.cpp" />
+    <ClCompile Include="Code Files\Input.cpp" />
+    <ClCompile Include="Code Files\main.cpp" />
+    <ClCompile Include="Code Files\Mesh.cpp" />
+    <ClCompile Include="Code Files\MorphAnimController.cpp" />
+    <ClCompile Include="Code Files\Projectile.cpp" />
+    <ClCompile Include="Code Files\Random.cpp" />
+    <ClCompile Include="Code Files\Scene.cpp" />
+    <ClCompile Include="Code Files\ScoreHandler.cpp" />
+    <ClCompile Include="Code Files\SepiaEffect.cpp" />
+    <ClCompile Include="Code Files\Shader.cpp" />
+    <ClCompile Include="Code Files\Skybox.cpp" />
+    <ClCompile Include="Code Files\Sprite2D.cpp" />
+    <ClCompile Include="Code Files\Sprite2DAnimation.cpp" />
+    <ClCompile Include="Code Files\StaticRenderer.cpp" />
+    <ClCompile Include="Code Files\Texture.cpp" />
+    <ClCompile Include="Code Files\Transform.cpp" />
+    <ClCompile Include="Code Files\ParticleSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Code Files\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\ECS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Transform.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Input.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\StaticRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Scene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Random.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\GamepadInput.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Skybox.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\AudioEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Sprite2D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\GLTFLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Dependencies\tinygltf\tiny_gltf_impl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\FrameBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Effect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\GreyscaleEffect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\SepiaEffect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\ColorCorrection.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\BloomEffect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Sprite2DAnimation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\EnemyAI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\Projectile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-<<<<<<< HEAD
-    <ClCompile Include="Code Files\MorphAnimController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code Files\DynamicRenderer.cpp">
-=======
-    <ClCompile Include="Code Files\ScoreHandler.cpp">
->>>>>>> main
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClInclude Include="Code Files\Application.h" />
+    <ClInclude Include="Code Files\AudioEngine.h" />
+    <ClInclude Include="Code Files\BloomEffect.h" />
+    <ClInclude Include="Code Files\Camera.h" />
+    <ClInclude Include="Code Files\ColorCorrection.h" />
+    <ClInclude Include="Code Files\Dependencies\tinygltf\stb_image.h" />
+    <ClInclude Include="Code Files\Dependencies\tinygltf\stb_image_write.h" />
+    <ClInclude Include="Code Files\Dependencies\tinygltf\tiny_gltf.h" />
+    <ClInclude Include="Code Files\DynamicRenderer.h" />
+    <ClInclude Include="Code Files\ECS.h" />
+    <ClInclude Include="Code Files\Effect.h" />
+    <ClInclude Include="Code Files\EnemyAI.h" />
+    <ClInclude Include="Code Files\FrameBuffer.h" />
+    <ClInclude Include="Code Files\Game.h" />
+    <ClInclude Include="Code Files\GamepadInput.h" />
+    <ClInclude Include="Code Files\GLTFLoader.h" />
+    <ClInclude Include="Code Files\GreyscaleEffect.h" />
+    <ClInclude Include="Code Files\Input.h" />
+    <ClInclude Include="Code Files\JSON.h" />
+    <ClInclude Include="Code Files\Material.h" />
+    <ClInclude Include="Code Files\Mesh.h" />
+    <ClInclude Include="Code Files\MorphAnimController.h" />
+    <ClInclude Include="Code Files\OBJLoader.h" />
+    <ClInclude Include="Code Files\Projectile.h" />
+    <ClInclude Include="Code Files\Random.h" />
+    <ClInclude Include="Code Files\Scene.h" />
+    <ClInclude Include="Code Files\ScoreHandler.h" />
+    <ClInclude Include="Code Files\SepiaEffect.h" />
+    <ClInclude Include="Code Files\Shader.h" />
+    <ClInclude Include="Code Files\Skybox.h" />
+    <ClInclude Include="Code Files\Sprite2D.h" />
+    <ClInclude Include="Code Files\Sprite2DAnimation.h" />
+    <ClInclude Include="Code Files\StaticRenderer.h" />
+    <ClInclude Include="Code Files\Texture.h" />
+    <ClInclude Include="Code Files\Transform.h" />
+    <ClInclude Include="Code Files\Vertex.h" />
+    <ClInclude Include="Code Files\ParticleSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Code Files\Game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Vertex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\ECS.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Transform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Input.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\StaticRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\OBJLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Scene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Random.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\GamepadInput.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Skybox.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\AudioEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\GLTFLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\JSON.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Sprite2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Dependencies\tinygltf\stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Dependencies\tinygltf\stb_image_write.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Dependencies\tinygltf\tiny_gltf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Effect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\FrameBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\GreyscaleEffect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\SepiaEffect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\ColorCorrection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\BloomEffect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Sprite2DAnimation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\EnemyAI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\Projectile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-<<<<<<< HEAD
-    <ClInclude Include="Code Files\MorphAnimController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Code Files\DynamicRenderer.h">
-=======
-    <ClInclude Include="Code Files\ScoreHandler.h">
->>>>>>> main
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resource Files\Shaders\skybox_frag_shader.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Resource Files\Shaders\skybox_vert_shader.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Resource Files\Shaders\static_shader.frag" />
     <None Include="Code Files\Dependencies\tinygltf\LICENSE" />
+    <None Include="Resource Files\Shaders\skybox_frag_shader.glsl" />
+    <None Include="Resource Files\Shaders\skybox_vert_shader.glsl" />
+    <None Include="Resource Files\Shaders\static_shader.frag" />
   </ItemGroup>
 </Project>

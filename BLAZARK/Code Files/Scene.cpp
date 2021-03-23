@@ -7,9 +7,9 @@ enum class TextureType { START = 3 , RESUME, CONTROLS, EXIT, BACKGROUND, CONTROL
 
 enum class PlayerMesh { PLAYERSHIPXWINGS, PLAYERSHIPXWINGE = 2, PLAYERSHIPPENCIL, PLAYERSHIPBAT, PLAYERBULLET };
 
-enum class EnemyMesh { SCAVENGERU1S = 6, SCAVENGERU1E = 8, NEROTISTU1};
+enum class EnemyMesh { SCAVENGERU1S = 6, SCAVENGERU1E = 8, NEROTISTU1, JELLYFISHS, JELLYFISHE = 31 };
 
-enum class PlanetMesh { SOLARI = 10, VERASTEN, YECHIN, KERANTIA, LUNARI, GUERISTIS, KEMINTH, 
+enum class PlanetMesh { SOLARI = 32, VERASTEN, YECHIN, KERANTIA, LUNARI, GUERISTIS, KEMINTH, 
 						LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MAGAANTU };
 
 enum Universe19SS { SVC, SYC, SKRC, SGC, SKEC, SOLARI, VERASTEN, YECHIN, KERANTIA, GUERISTIS, KEMINTH, HPC };
@@ -75,8 +75,15 @@ Scene::Scene(std::string name)
 			m_meshes.push_back(new Mesh());
 			loadOBJ(("Resource Files/OBJFiles/Universe-19/EnemyShips/Morph/Scavenger_Idle_" + std::to_string(i) + ".obj").c_str(), *m_meshes[i + int(PlayerMesh::PLAYERBULLET)]);
 		}
+		
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Universe-19/EnemyShips/Nerotist.obj", *m_meshes[int(EnemyMesh::NEROTISTU1)]);
+
+		for (int i = 1; i <= 26; i++) {
+			m_meshes.push_back(new Mesh());
+			loadOBJ(("Resource Files/OBJFiles/Universe-19/EnemyShips/Morph/Boss/jellyfishBoss_" + std::to_string(i) + ".obj").c_str(), *m_meshes[i + int(EnemyMesh::NEROTISTU1)]);
+		}
+
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Universe-19/Planets/Solari.obj", *m_meshes[int(PlanetMesh::SOLARI)]);
 		m_meshes.push_back(new Mesh());
@@ -383,6 +390,7 @@ void Menu::KeyInput()
 
 void Menu::GamepadInput()
 {
+	
 	if (gamepad.getGamepadInput()) {
 		//button input
 		if (gamepad.buttons.A) {
@@ -399,8 +407,10 @@ void Menu::GamepadInput()
 		}
 
 		//trigger input
+		//Left Trigger move forward
 		if (gamepad.trigger.LT > 0 && gamepad.trigger.LT < 1) {
-
+			/*temp = glm::vec3(0, 0, -2);
+			playerEnt.MoveLocalPos(temp);*/
 		}
 
 		else if (gamepad.trigger.LT > -1 && gamepad.trigger.LT < 0) {
@@ -415,32 +425,36 @@ void Menu::GamepadInput()
 
 		}
 
-		//axes input
-		if (gamepad.axes[Direction::LEFT].X > 0 && gamepad.axes[Direction::LEFT].X < 1) {
+
+		//Left Joystick rotate left
+		if (gamepad.axes[Joystick::LEFT].X > -0.1f && gamepad.axes[Joystick::LEFT].X > -0.33) {
+		}
+		else if (gamepad.axes[Joystick::LEFT].X < -0.3 && gamepad.axes[Joystick::LEFT].X > -0.66f) {
 
 		}
-		else if (gamepad.axes[Direction::LEFT].X > -1 && gamepad.axes[Direction::LEFT].X < 0) {
-
-		}
-
-		if (gamepad.axes[Direction::LEFT].Y > 0 && gamepad.axes[Direction::LEFT].Y < 1) {
-
-		}
-		else if (gamepad.axes[Direction::LEFT].Y > -1 && gamepad.axes[Direction::LEFT].Y < 0) {
+		else if (gamepad.axes[Joystick::LEFT].X < -0.66) {
 
 		}
 
-		if (gamepad.axes[Direction::RIGHT].X > 0 && gamepad.axes[Direction::RIGHT].X < 1) {
+
+		if (gamepad.axes[Joystick::LEFT].Y > 0 && gamepad.axes[Joystick::LEFT].Y < 1) {
 
 		}
-		else if (gamepad.axes[Direction::RIGHT].X > -1 && gamepad.axes[Direction::RIGHT].X < 0) {
+		else if (gamepad.axes[Joystick::LEFT].Y > -1 && gamepad.axes[Joystick::LEFT].Y < 0) {
 
 		}
 
-		if (gamepad.axes[Direction::RIGHT].Y > 0 && gamepad.axes[Direction::RIGHT].Y < 1) {
+		if (gamepad.axes[Joystick::RIGHT].X > 0 && gamepad.axes[Joystick::RIGHT].X < 1) {
 
 		}
-		else if (gamepad.axes[Direction::RIGHT].Y > -1 && gamepad.axes[Direction::RIGHT].Y < 0) {
+		else if (gamepad.axes[Joystick::RIGHT].X > -1 && gamepad.axes[Joystick::RIGHT].X < 0) {
+
+		}
+
+		if (gamepad.axes[Joystick::RIGHT].Y > 0 && gamepad.axes[Joystick::RIGHT].Y < 1) {
+
+		}
+		else if (gamepad.axes[Joystick::RIGHT].Y > -1 && gamepad.axes[Joystick::RIGHT].Y < 0) {
 
 		}
 	}
@@ -488,6 +502,7 @@ void Universe::InitScene()
 		entt::entity CameraID;
 		entt::entity* camentity = new entt::entity(cameraEntity->GetID());
 		CameraID = cameraEntity->GetID();
+		CamID = cameraEntity->GetID();
 		cameraEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 13, 25));
 		camera = &cameraEntity->AttachComponent<Camera>(int(CameraID));
 		camera->PerspectiveProj(0.1f, 1000.0f, Application::GetWindowWidth() / Application::GetWindowHeight(), 1.0f);
@@ -502,8 +517,25 @@ void Universe::InitScene()
 		playerEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetWidth(), m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetHeight(), m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetDepth()));
 
 		playerController = &playerEntity->AttachComponent<MorphAnimController>(int(MainPlayerID));
-		playerController->SetFrames(m_meshes, int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/), int(PlayerMesh::PLAYERSHIPXWINGE/*EnemyMesh::SCAVENGERU1E*/));
+		playerController->SetFrames(m_meshes, int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/), int(PlayerMesh::PLAYERSHIPXWINGE/*EnemyMesh::SCAVENGERU1E*/), false);
 
+		//Player Thrusters
+		//Left - 0
+		glm::vec3 playerPos = GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos();
+		particleTemp = new ParticleController(1, glm::vec3(playerPos.x - 0.6, playerPos.y - 0.0, playerPos.z + 2.2f));		
+		//particleTemp->setRotation(glm::vec3(0, 180, 0));
+		particleTemp->getEmitter()->setRadius(0.3);
+		particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+		particleTemp->getEmitter()->setSpeed(2);	  
+		particles.push_back(particleTemp);
+		//Center Right - 1
+		particleTemp = new ParticleController(1, glm::vec3(playerPos.x + 0.6, playerPos.y - 0.0, playerPos.z + 2.2f));
+		//particleTemp->setRotation(glm::vec3(0, 180, 0));
+		particleTemp->getEmitter()->setRadius(0.3);
+		particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+		particleTemp->getEmitter()->setSpeed(2);
+		particles.push_back(particleTemp);
+			
 		//HUD
 		auto health = GameObject::Allocate();
 		auto* tempAnim = &health->AttachComponent<AnimationHandler>();
@@ -592,6 +624,18 @@ void Universe::InitScene()
 			enemy->AttachComponent<EntityType>() = EntityType::ENEMY;
 			enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::NEROTISTU1)], nullptr);
 			enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::NEROTISTU1)]->GetWidth(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetHeight(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetDepth()));
+
+			// Jellyfish
+			auto jellyfishEntity = GameObject::Allocate();
+			BossID = jellyfishEntity->GetID();
+			jellyfishEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(700, -100, 0));
+			jellyfishEntity->AttachComponent<DynamicRenderer>(cameraEntity->GetID(), BossID, *m_meshes[int(EnemyMesh::JELLYFISHS)], nullptr);
+			jellyfishEntity->AttachComponent<EntityType>() = EntityType::ENEMY;
+			jellyfishEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(10.0));
+			jellyfishEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::JELLYFISHS)]->GetWidth(), m_meshes[int(EnemyMesh::JELLYFISHS)]->GetHeight(), m_meshes[int(EnemyMesh::JELLYFISHS)]->GetDepth()));
+
+			jellyfishController = &jellyfishEntity->AttachComponent<MorphAnimController>(int(BossID));
+			jellyfishController->SetFrames(m_meshes, int(EnemyMesh::JELLYFISHS), int(EnemyMesh::JELLYFISHE), false);
 
 			// Verasten
 			auto lavaPlanetEntity = GameObject::Allocate();
@@ -688,7 +732,7 @@ void Universe::InitScene()
 			gasPlanetTwoEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), gasPlanetTwoEntity->GetID(), *m_meshes[int(PlanetMesh::MAGAANTU)], nullptr);
 		}
 		else if (m_name == "Universe_5") {
-		m_SceneResumeNo = int(ScenesNum::UNIVERSE_5);
+			m_SceneResumeNo = int(ScenesNum::UNIVERSE_5);
 		}
 
 		//Setting Parent/Childe
@@ -706,11 +750,13 @@ void Universe::Update(float deltaTime)
 {
 	// Key Input
 	KeyInput();
+	GamepadInput();
 
 	// Camera Update 
 	camera->Update();
 
 	playerController->Update(deltaTime);
+	jellyfishController->Update(deltaTime);
 	
 	m_sceneReg->view<BasicAI>().each([=](BasicAI& ai) {	ai.Update(deltaTime); });
 
@@ -722,10 +768,11 @@ void Universe::Update(float deltaTime)
 	// Transform Update
 	m_sceneReg->view<Transform>().each([=](Transform& transform) { transform.UpdateGlobal(); });
 
+	//Particle
+	for (auto& i : this->particles)
+		i->update(deltaTime, camera->GetProj(), camera->GetView(), GameObject::GetComponent<Transform>(MainPlayerID).UpdateGlobal());
 
 	for (auto Bulletentity : m_sceneReg->view<Projectile>()) {
-		
-		GameObject::GetComponent<Projectile>(Bulletentity).Update(deltaTime);
 		
 		for (auto entity : m_sceneReg->view<StaticRenderer, EntityType>()) {
 			if (isCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(entity)) && GameObject::GetComponent<EntityType>(entity) == EntityType::ENEMY)
@@ -735,6 +782,8 @@ void Universe::Update(float deltaTime)
 				m_score->GetComponent<ScoreHandler>().Add(1);
 			}
 		}
+
+		GameObject::GetComponent<Projectile>(Bulletentity).Update(deltaTime);
 	}
 }
 
@@ -748,6 +797,11 @@ void Universe::Render(float deltaTime)
 	m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) { renderer.Draw(); });
 	m_sceneReg->view<DynamicRenderer>().each([=](DynamicRenderer& renderer) { renderer.Draw(); });
 	Skybox::Draw(camera->GetView(), camera->GetProj());
+
+	//Particles
+	for (auto& i : this->particles)
+		i->draw();
+
 	m_sceneReg->view<Sprite2D>().each([=](Sprite2D& renderer) {renderer.Draw(camera); });
 	
 	//effect->GetComponent<PostEffect>().UnbindBuffer();
@@ -782,6 +836,7 @@ void Universe::KeyInput()
 
 	// Player Movement //
 	auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
+	auto& camEnt = GameObject::GetComponent<Transform>(CamID);
 
 	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
@@ -804,9 +859,54 @@ void Universe::KeyInput()
 		playerEnt.RotateLocal(temp);
 	}
 
+	//CamMove
+	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(0, 0, -0.5);
+		camEnt.MoveLocalPos(temp);
+	}
+	else if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(0, 0, 0.5);
+		camEnt.MoveLocalPos(temp);
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(0.0f, 0.5f, 0.0f);
+		camEnt.RotateLocal(temp);
+	}
+	else if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(0.0f, -0.5f, 0.0f);
+		camEnt.RotateLocal(temp);
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_Z) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(0.0f, 0.5f, 0.0f);
+		camEnt.MoveLocalPos(temp);
+	}
+	else if (glfwGetKey(m_window, GLFW_KEY_C) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(0.0f, -0.5f, 0.0f);
+		camEnt.MoveLocalPos(temp);
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(-0.5f, 0.0f, 0.0f);
+		camEnt.MoveLocalPos(temp);
+	}
+	else if (glfwGetKey(m_window, GLFW_KEY_E) == GLFW_PRESS)
+	{
+		glm::vec3 temp = glm::vec3(0.5f, 0.0f, 0.0f);
+		camEnt.MoveLocalPos(temp);
+	}
+
 	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
+		
 		if (glfwGetTime() - m_startTime >= m_fireRate) {
+			playerController->SetAnimate(true);
+			playerController->SetReverse();
 			// Shoot Bullet Right
 			auto RightBullet = GameObject::Allocate();
 			RightBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), RightBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(RightBullet->GetID());
@@ -847,64 +947,178 @@ void Universe::KeyInput()
 
 void Universe::GamepadInput()
 {
+	float temp;
+
 	if (gamepad.getGamepadInput()) {
-		//button input
-		if (gamepad.buttons.A) {
+		auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
+		glm::vec3 temp;
 
-		}
-		else if (gamepad.buttons.B) {
+		
 
-		}
-		else if (gamepad.buttons.X) {
+		if (gamepad.getGamepadInput()) {
+			//button input
+			if (gamepad.buttons.A) {
 
-		}
-		else if (gamepad.buttons.Y) {
+			}
+			else if (gamepad.buttons.B) {
 
-		}
+			}
+			else if (gamepad.buttons.X) {
 
-		//trigger input
-		if (gamepad.trigger.LT > 0 && gamepad.trigger.LT < 1) {
+			}
+			else if (gamepad.buttons.Y) {
 
-		}
+			}
 
-		else if (gamepad.trigger.LT > -1 && gamepad.trigger.LT < 0) {
+			//Left Trigger
+			{	
 
-		}
+				if (gamepad.trigger.LT > -1 && gamepad.trigger.LT < -0.8) {
+					temp = glm::vec3(0, 0, -0.2);
+					playerEnt.MoveLocalPos(temp);
+					
+				}
+				else if (gamepad.trigger.LT > -0.8 && gamepad.trigger.LT < -0.6) {
+					temp = glm::vec3(0, 0, -0.4);
+					playerEnt.MoveLocalPos(temp);
+				}
+				else if (gamepad.trigger.LT > -0.6 && gamepad.trigger.LT < -0.4) {
+					temp = glm::vec3(0, 0, -0.6);
+					playerEnt.MoveLocalPos(temp);
+				}
+				else if (gamepad.trigger.LT > -0.4 && gamepad.trigger.LT < -0.2) {
+					temp = glm::vec3(0, 0, -0.8);
+					playerEnt.MoveLocalPos(temp);
+				}
+				else if (gamepad.trigger.LT > -0.2 && gamepad.trigger.LT < 0) {
+					temp = glm::vec3(0, 0, -1.0);
+					playerEnt.MoveLocalPos(temp);
+				}
+				else if (gamepad.trigger.LT > 0 && gamepad.trigger.LT < 0.2) {
+					temp = glm::vec3(0, 0, -1.2);
+					playerEnt.MoveLocalPos(temp);
+				}
+				else if (gamepad.trigger.LT > 0.2 && gamepad.trigger.LT < 0.4) {
+					temp = glm::vec3(0, 0, -1.4);
+					playerEnt.MoveLocalPos(temp);
+				}
+				else if (gamepad.trigger.LT > 1 && gamepad.trigger.LT < 0.6) {
+					temp = glm::vec3(0, 0, -1.6);
+					playerEnt.MoveLocalPos(temp);
+				}
+				else if (gamepad.trigger.LT > 1 && gamepad.trigger.LT < 0.8) {
+					temp = glm::vec3(0, 0, -1.8);
+					playerEnt.MoveLocalPos(temp);
+				}
+				else if (gamepad.trigger.LT > 0.8 ) {
+					temp = glm::vec3(0, 0, -2);
+					playerEnt.MoveLocalPos(temp);
+				}		
+			}
 
-		if (gamepad.trigger.RT > 0 && gamepad.trigger.RT < 1) {
+			//Right Trigger
+			{
+				if (glfwGetTime() - m_startTime >= m_fireRate) {
+					if (gamepad.trigger.RT > -0.8) {
+						// Shoot Bullet Right
+						auto RightBullet = GameObject::Allocate();
+						RightBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), RightBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(RightBullet->GetID());
+						RightBullet->GetComponent<Projectile>().SetSpeed(2000);
+						RightBullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
+						glm::vec3 offset1 = glm::vec3(3, 0, -10);
+						RightBullet->GetComponent<Transform>().MoveLocalPos(offset1);
+						RightBullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3));
 
-		}
+						// Shoot Bullet Left
+						auto LeftBullet = GameObject::Allocate();
+						LeftBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), LeftBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(LeftBullet->GetID());
+						LeftBullet->GetComponent<Projectile>().SetSpeed(2000);
+						LeftBullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
+						glm::vec3 offset2 = glm::vec3(-3, 0, -10);
+						LeftBullet->GetComponent<Transform>().MoveLocalPos(offset2);
+						LeftBullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3));
 
-		else if (gamepad.trigger.RT > -1 && gamepad.trigger.RT < 0) {
+						//Reset time to fire
+						m_resetTime = true;
+					}
 
-		}
+					if (m_resetTime) {
+						m_startTime = glfwGetTime();
+						m_resetTime = false;
+					}
+				}
+			}
 
-		//axes input
-		if (gamepad.axes[Direction::LEFT].X > 0 && gamepad.axes[Direction::LEFT].X < 1) {
+				
+			//Left Joystick
+			{
+				float tempSpeed = 0.0f;
 
-		}
-		else if (gamepad.axes[Direction::LEFT].X > -1 && gamepad.axes[Direction::LEFT].X < 0) {
+				//ROTATE LEFT
+				if (gamepad.axes[Joystick::LEFT].X < -0.17f && gamepad.axes[Joystick::LEFT].X > -0.33) {
+					temp = glm::vec3(0.0f, 0.25f, 0.0f);
+					playerEnt.RotateLocal(temp);
+				}
+				else if (gamepad.axes[Joystick::LEFT].X < -0.3 && gamepad.axes[Joystick::LEFT].X > -0.55f) {
+					temp = glm::vec3(0.0f, 0.5f, 0.0f);
+					playerEnt.RotateLocal(temp);
+				}
+				else if (gamepad.axes[Joystick::LEFT].X < -0.77) {
+					temp = glm::vec3(0.0f, 0.75f, 0.0f);
+					playerEnt.RotateLocal(temp);
+				}
+				else if (gamepad.axes[Joystick::LEFT].X < -0.99) {
+					temp = glm::vec3(0.0f, 1.0f, 0.0f);
+					playerEnt.RotateLocal(temp);
+				}
+				//ROTATE RIGHT
+				if (gamepad.axes[Joystick::LEFT].X > 0.17f && gamepad.axes[Joystick::LEFT].X < 0.33) {
+					temp = glm::vec3(0.0f, -0.25f, 0.0f);
+					playerEnt.RotateLocal(temp);
+				}
+				else if (gamepad.axes[Joystick::LEFT].X > 0.3 && gamepad.axes[Joystick::LEFT].X < 0.55f) {
+					temp = glm::vec3(0.0f, -0.5f, 0.0f);
+					playerEnt.RotateLocal(temp);
+				}
+				else if (gamepad.axes[Joystick::LEFT].X > 0.77) {
+					temp = glm::vec3(0.0f, -0.75f, 0.0f);
+					playerEnt.RotateLocal(temp);
+				}
+				else if (gamepad.axes[Joystick::LEFT].X > 0.99) {
+					temp = glm::vec3(0.0f, -1.0f, 0.0f);
+					playerEnt.RotateLocal(temp);
+				}
+				//MOVE FORWARD
+				if (gamepad.axes[Joystick::LEFT].Y < -0.17 && gamepad.axes[Joystick::LEFT].Y > -0.25) {
+					temp = glm::vec3(0, 0, -0.4);
+					playerEnt.MoveLocalPos(temp);
+					tempSpeed = 0.8f;
+				}
+				else if (gamepad.axes[Joystick::LEFT].Y < -0.25 && gamepad.axes[Joystick::LEFT].Y > -0.45) {
+					temp = glm::vec3(0, 0, -0.8);
+					playerEnt.MoveLocalPos(temp);
+					tempSpeed = 1.6f;
+				}
+				else if (gamepad.axes[Joystick::LEFT].Y < -0.45 && gamepad.axes[Joystick::LEFT].Y > -0.65) {
+					temp = glm::vec3(0, 0, -1.2);
+					playerEnt.MoveLocalPos(temp);
+					tempSpeed = 2.4f;
+				}
+				else if (gamepad.axes[Joystick::LEFT].Y < -0.65 && gamepad.axes[Joystick::LEFT].Y > -0.85) {
+					temp = glm::vec3(0, 0, -1.6);
+					playerEnt.MoveLocalPos(temp);
+					tempSpeed = 3.2f;
+				}
+				else if (gamepad.axes[Joystick::LEFT].Y < -0.85) {
+					temp = glm::vec3(0, 0, -2.0);
+					playerEnt.MoveLocalPos(temp);
+					tempSpeed = 4.0f;
+				}
 
-		}
+				particles[ParticleName::PLAYER_CENTER_LEFT]->getEmitter()->setSpeed(tempSpeed);
+				particles[ParticleName::PLAYER_CENTER_RIGHT]->getEmitter()->setSpeed(tempSpeed);
+			}
 
-		if (gamepad.axes[Direction::LEFT].Y > 0 && gamepad.axes[Direction::LEFT].Y < 1) {
-
-		}
-		else if (gamepad.axes[Direction::LEFT].Y > -1 && gamepad.axes[Direction::LEFT].Y < 0) {
-
-		}
-
-		if (gamepad.axes[Direction::RIGHT].X > 0 && gamepad.axes[Direction::RIGHT].X < 1) {
-
-		}
-		else if (gamepad.axes[Direction::RIGHT].X > -1 && gamepad.axes[Direction::RIGHT].X < 0) {
-
-		}
-
-		if (gamepad.axes[Direction::RIGHT].Y > 0 && gamepad.axes[Direction::RIGHT].Y < 1) {
-
-		}
-		else if (gamepad.axes[Direction::RIGHT].Y > -1 && gamepad.axes[Direction::RIGHT].Y < 0) {
 
 		}
 	}

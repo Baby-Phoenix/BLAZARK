@@ -2,7 +2,7 @@
 
 #include "ECS.h"
 #include "DynamicRenderer.h"
-
+#include <algorithm>
 class MorphAnimController {
 public:
 	MorphAnimController() = default;
@@ -15,8 +15,11 @@ public:
 	void Update(float deltaTime);
 
 	// Setters
-	void SetFrames(std::vector<Mesh*>& frames, int startIndex, int endIndex);
+	void SetFrames(std::vector<Mesh*>& frames, int startIndex, int endIndex, bool isRepeat = true);
 	void SetFrameTime(float frameTime);
+	void SetReverse();
+	void SetAnimate(bool isAnimate);
+	void SetTargert(int index);
 
 private:
 	entt::entity m_entity;
@@ -26,4 +29,9 @@ private:
 	float m_timer;
 	float m_frameTime;
 	int m_index;
+	int m_targetIndex;
+
+	bool m_isRepeat = true;
+	bool m_isAnimate = true;
+	bool m_isReversed = false;
 };

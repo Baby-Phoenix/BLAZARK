@@ -13,6 +13,7 @@
 #include "EnemyAI.h"
 #include "Projectile.h"
 #include "ScoreHandler.h"
+#include "ParticleSystem.h"
 
 enum class ScenesNum { START_SCREEN, MAIN_MENU, PAUSE_MENU, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
 
@@ -46,7 +47,7 @@ protected:
 	unsigned int* SceneNo = nullptr;
 	bool* switchIt = nullptr;
 	unsigned int m_SceneResumeNo;
-
+	float m_deltaTime;
 	bool initialised = false;
 
 	std::string m_name = "None";
@@ -60,6 +61,7 @@ protected:
 
 	Camera* camera;
 	MorphAnimController* playerController;
+	MorphAnimController* jellyfishController;
 
 	static std::vector<Texture*> m_textures;
 	static std::vector<Mesh*> m_meshes;
@@ -94,7 +96,7 @@ private:
 	bool m_switchButton = false;
 	bool m_ControlsSelected = false;
 	float m_delay = 0.0f;
-	float m_deltaTime;
+	
 	
 
 };
@@ -124,13 +126,18 @@ public:
 
 private:
 
-	
-	float m_fireRate = 0.1;
+	float m_fireRate = 0.3;
 	bool m_resetTime = true;
 	float m_startTime = 0.0;
+	
+	//Particles
+	ParticleController* particleTemp;
+	std::vector<ParticleController*> particles;
 
 	std::vector<entt::entity> m_solarSystem;
 	std::unique_ptr<GameObject> m_score;
 	std::vector<Projectile*> m_bullets;
 	entt::entity MainPlayerID;
+	entt::entity BossID;
+	entt::entity CamID;
 };

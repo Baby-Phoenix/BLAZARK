@@ -55,7 +55,7 @@ void Application::Init(const std::string& name, bool isFullscreen)
 
 	glEnable(GL_DEPTH_TEST);
 
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
 	//glDisable(GL_CULL_FACE);
 
