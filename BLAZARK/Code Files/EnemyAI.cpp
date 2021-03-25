@@ -1,7 +1,7 @@
 #include "EnemyAI.h"
 
 bool BasicAI::initRandom = false;
-glm::vec3 prevPlayerpos;
+Mesh* BasicAI::m_bulletMesh = nullptr;
 
 glm::vec3 Lerp(glm::vec3 point1, glm::vec3 point2, float t) {
 	return ((float(1.0 - t) * point1) + (t * point2));
@@ -32,6 +32,7 @@ void BasicAI::Update(float deltaTime)
 
 	if (m_isPlayerinRange) {
 
+#pragma region movement
 		curPoint = m_points[m_curPoint];  //curpoint the enemy started from
 		nextPoint = GameObject::GetComponent<Transform>(m_player).GetLocalPos(); //current position of the player
 		curPosOfEnemy = enemyTrans.GetLocalPos(); //current position
@@ -48,6 +49,26 @@ void BasicAI::Update(float deltaTime)
 			enemyTrans.MoveLocalPosFixed(finalPos);
 
 		rotate = true;
+#pragma endregion
+
+#pragma region BulletShooting
+
+		if (glfwGetTime() - m_startTime >= m_fireRate) {
+			auto bullet = GameObject::Allocate();
+			bullet->AttachComponent<Projectile>(&m_enemy, entt::entity(0), bullet.get(), *m_bulletMesh).SetID(bullet->GetID());
+			bullet->GetComponent<Projectile>().SetSpeed(500);
+			bullet->AttachComponent<EntityType>() = EntityType::ENEMY;
+			bullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
+			glm::vec3 offset1 = glm::vec3(0, 0, -10);
+			bullet->GetComponent<Transform>().MoveLocalPos(offset1);
+			m_resetTime = true;
+		}
+		if (m_resetTime) {
+			m_startTime = glfwGetTime();
+			m_resetTime = false;
+		}
+
+#pragma endregion
 	}
 	else
 	{
@@ -76,6 +97,18 @@ void BasicAI::Update(float deltaTime)
 	if (rotate) {
 		glm::vec3 rotationvector = glm::degrees(glm::eulerAngles(glm::quat_cast(glm::transpose(glm::lookAt(curPosOfEnemy, nextPoint, glm::vec3(0, 1, 0))))));
 		enemyTrans.SetLocalRot(rotationvector);
+	}
+}
+
+entt::entity BasicAI::GetID()
+{
+	return m_enemy;
+}
+
+void BasicAI::SetBulletMesh(Mesh* bulletMesh)
+{
+	if (m_bulletMesh == nullptr) {
+		m_bulletMesh = bulletMesh;
 	}
 }
 

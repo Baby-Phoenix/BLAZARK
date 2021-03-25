@@ -89,4 +89,6 @@ private:
 	glm::vec4 m_endColor;
 	Texture* m_tex;
 	float m_size;
+
+	Projectile* m_next = nullptr;
 };

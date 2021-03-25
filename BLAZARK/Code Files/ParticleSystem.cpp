@@ -88,8 +88,6 @@ void ParticleEmitter::update(const float dt)
 		else if (m_emitterType == 2) //Explosion EMITTER
 		{
 
-			
-
 			if (m_particles[i].m_lifetime <= 0.0f)
 			{
 

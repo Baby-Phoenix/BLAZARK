@@ -1,6 +1,5 @@
 #pragma once
 
-#include "StaticRenderer.h"
 #include "MorphAnimController.h"
 #include "btBulletDynamicsCommon.h"
 #include "Skybox.h"
@@ -11,7 +10,6 @@
 #include "GreyscaleEffect.h"
 #include "SepiaEffect.h"
 #include "EnemyAI.h"
-#include "Projectile.h"
 #include "ScoreHandler.h"
 #include "ParticleSystem.h"
 
@@ -58,6 +56,7 @@ protected:
 	entt::registry* m_sceneReg = nullptr;
 
 	GamePad gamepad;
+	int m_PlayerHealth = 4.0;
 
 	Camera* camera;
 	MorphAnimController* playerController;

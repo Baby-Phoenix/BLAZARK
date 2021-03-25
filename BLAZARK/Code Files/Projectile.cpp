@@ -56,10 +56,8 @@ void Projectile::Update(float deltaTime)
 	glm::vec3 movement = m_velocity * m_speed * deltaTime;
 
 	if (m_lifetime < 0.0f)
-	{
 		m_isDestroyed = true;
-		GameObject::GetCurRegistry().destroy(m_ID);
-	}
+		
 
 	if(!m_isDestroyed)
 	{

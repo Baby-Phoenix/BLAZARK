@@ -1,8 +1,5 @@
 #include "Scene.h"
 
-
-enum class EntityType { PLAYER, ENEMY };
-
 enum class TextureType { START = 3 , RESUME, CONTROLS, EXIT, BACKGROUND, CONTROLSMENU, SCORE, SCORENUM};
 
 enum class PlayerMesh { PLAYERSHIPXWINGS, PLAYERSHIPXWINGE = 2, PLAYERSHIPPENCIL, PLAYERSHIPBAT, PLAYERBULLET };
@@ -21,8 +18,6 @@ std::vector<Texture*> Scene::m_textures;
 
 std::unique_ptr<GameObject> effect;
 
-StaticRenderer tempEnemy;
-
 // Solar System Rotation
 glm::vec3 sunRotation = glm::vec3(0, -0.025, 0);
 glm::vec3 planetRotation = glm::vec3(0, 0.045583, 0);
@@ -32,42 +27,6 @@ glm::vec3 yechinOrbit = glm::vec3(0, 0.003502, 0);
 glm::vec3 kerantiaOrbit = glm::vec3(0, 0.002978, 0);
 glm::vec3 gueristisOrbit = glm::vec3(0, 0.0024077, 0);
 glm::vec3 keminthOrbit = glm::vec3(0, 0.000543, 0);
-int iterationn = 1;
-int binarySearch(int item) {
-	std::vector<int> list = { 2, 5, 7, 15, 21, 28 ,29, 37, 45, 51, 57, 61, 72, 78, 81, 87, 91, 97 };
-
-	int first = 0;
-	int last = list.size() - 1;
-	int mid;
-	
-	bool found = false;
-	while (first <= last && !found) {
-		mid = (first + last) / 2;
-		if (list[mid] == item)
-			found = true;
-		else
-			if (list[mid] > item)
-				last = mid - 1;
-			else
-				first = mid + 1;
-
-		std::cout << "Iteration " << iterationn << std::endl;
-		std::cout << "First: " << first << std::endl;
-		std::cout << "Last: " << last << std::endl;
-		std::cout << "Mid: " << mid << std::endl;
-		std::cout << "List[mid]: " << list[mid] << std::endl;
-		std::cout << std::endl;
-
-		iterationn++;
-	}
-
-	
-
-	if (found)
-		return mid;
-	else
-		return mid;
-}
 
 // Key Toggles
 bool texTglPressed = false;
@@ -533,7 +492,7 @@ void Universe::InitScene()
 
 	//Giving the ECS the same registry as the current scene
 	GameObject::SetRegistry(m_sceneReg);
-	binarySearch(81);
+
 	if (GameObject::IsEmpty()) {
 		// Camera
 		auto cameraEntity = GameObject::Allocate();
@@ -560,14 +519,15 @@ void Universe::InitScene()
 		//Player Thrusters
 		//Left - 0
 		glm::vec3 playerPos = GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos();
-		particleTemp = new ParticleController(1, glm::vec3(playerPos.x - 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), new Texture("Resource Files/Textures/yellow.png"));
+		Texture* BulletTex = new Texture("Resource Files/Textures/yellow.png");
+		particleTemp = new ParticleController(1, glm::vec3(playerPos.x - 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), BulletTex);
 		//particleTemp->setRotation(glm::vec3(0, 180, 0));
 		particleTemp->getEmitter()->setRadius(0.3);
 		particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
 		particleTemp->getEmitter()->setSpeed(2);	  
 		particles.push_back(particleTemp);
 		//Center Right - 1
-		particleTemp = new ParticleController(1, glm::vec3(playerPos.x + 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), new Texture("Resource Files/Textures/yellow.png"));
+		particleTemp = new ParticleController(1, glm::vec3(playerPos.x + 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), BulletTex);
 		//particleTemp->setRotation(glm::vec3(0, 180, 0));
 		particleTemp->getEmitter()->setRadius(0.3);
 		particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
@@ -576,9 +536,7 @@ void Universe::InitScene()
 		
 		//explosion
 		particleTemp = new ParticleController(2, playerPos, new Texture("Resource Files/Textures/yellow.png"));
-		//particleTemp->setRotation(glm::vec3(0, 180, 0));;
 		particleTemp->setSize(10);
-		particleTemp->setColor(glm::vec4(0.0, 0.0, 1.0, 1.0), glm::vec4(1.0, 0.0, 0.0, 1.0));
 		particleTemp->getEmitter()->setLifetime(2.5, 2.5);
 		particleTemp->getEmitter()->setSpeed(200);
 		particles.push_back(particleTemp);
@@ -604,7 +562,7 @@ void Universe::InitScene()
 		anim.AddAnimation(Oneclip);
 		anim.SetActiveAnim(0);
 
-		health->AttachComponent<Sprite2D>(m_textures[0], health->GetID(), 15, 15, false, tempAnim);
+		health->AttachComponent<Sprite2D>(m_textures[0], health->GetID(), 15, 15, true, tempAnim);
 		health->AttachComponent<Transform>().SetLocalPos(glm::vec3(-80, -80, -10));
 
 		auto abilities = GameObject::Allocate();
@@ -664,13 +622,23 @@ void Universe::InitScene()
 			sunEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
 
 			//testing for ai
-			auto enemy = GameObject::Allocate();
-			entt::entity enemyID = enemy->GetID();
-			enemy->AttachComponent<Transform>();
-			enemy->AttachComponent<BasicAI>(enemyID, sunEntity->GetID(), playerEntity->GetID());
-			enemy->AttachComponent<EntityType>() = EntityType::ENEMY;
-			enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::NEROTISTU1)], nullptr);
-			enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::NEROTISTU1)]->GetWidth(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetHeight(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetDepth()));
+			
+			auto enemy1 = GameObject::Allocate();
+			enemy1->AttachComponent<Transform>();
+			enemy1->AttachComponent<BasicAI>(enemy1->GetID(), sunEntity->GetID(), playerEntity->GetID()).SetBulletMesh(m_meshes[int(PlayerMesh::PLAYERBULLET)]);
+			enemy1->AttachComponent<EntityType>() = EntityType::NEROTIST;
+			enemy1->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy1->GetID(), *m_meshes[int(EnemyMesh::NEROTISTU1)], nullptr);
+			enemy1->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::NEROTISTU1)]->GetWidth(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetHeight(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetDepth()));
+			
+			auto enemy2 = GameObject::Allocate();
+			enemy2->AttachComponent<Transform>();
+			enemy2->AttachComponent<KamakaziAI>(enemy2->GetID(), sunEntity->GetID(), playerEntity->GetID());
+			enemy2->AttachComponent<EntityType>() = EntityType::KAMAKAZI;
+			enemy2->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy2->GetID(), *m_meshes[int(EnemyMesh::NEROTISTU1)], nullptr);
+			enemy2->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::NEROTISTU1)]->GetWidth(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetHeight(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetDepth()));
+			
+
+			
 
 			//// Jellyfish
 			//auto jellyfishEntity = GameObject::Allocate();
@@ -804,16 +772,13 @@ void Universe::Update(float deltaTime)
 
 	playerController->Update(deltaTime);
 	//jellyfishController->Update(deltaTime);
-	
-	m_sceneReg->view<BasicAI>().each([=](BasicAI& ai) {	ai.Update(deltaTime); });
 
-	m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) { anim.Update(deltaTime); });
-	
 	// Solar System Rotation (IN-PROGRESS) //
 	SolarSystemUpdate();
 
 	// Transform Update
 	m_sceneReg->view<Transform>().each([=](Transform& transform) { transform.UpdateGlobal(); });
+	m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) { anim.Update(deltaTime); });
 
 	//Particle
 	for (int i = 0; i <= 1; i++)
@@ -821,21 +786,63 @@ void Universe::Update(float deltaTime)
 
 	particles[2]->update(deltaTime, camera->GetProj(), camera->GetView(), glm::mat4(1));
 
+
+#pragma region Collision
+	std::vector<BasicAI*> AI;
+	for (auto enemy : m_sceneReg->view<EntityType>()) {
+		int index = AI.size();
+		if (GameObject::GetComponent<EntityType>(enemy) == EntityType::NEROTIST) {
+			AI.push_back(&GameObject::GetComponent<BasicAI>(enemy));
+			AI[index]->Update(deltaTime);
+		}
+		else if (GameObject::GetComponent<EntityType>(enemy) == EntityType::KAMAKAZI) {
+			AI.push_back(&GameObject::GetComponent<KamakaziAI>(enemy));
+			AI[index]->Update(deltaTime);
+		}
+		else if (GameObject::GetComponent<EntityType>(enemy) == EntityType::SCAVENGER) {
+			AI.push_back(&GameObject::GetComponent<ScavengerAI>(enemy));
+			AI[index]->Update(deltaTime);
+		}
+		else if (GameObject::GetComponent<EntityType>(enemy) == EntityType::BOMBARDIER) {
+			AI.push_back(&GameObject::GetComponent<BombardierAI>(enemy));
+			AI[index]->Update(deltaTime);
+		}
+	}
+
+	//Bullet and enemy collision update
 	for (auto Bulletentity : m_sceneReg->view<Projectile>()) {
+		
 
 		GameObject::GetComponent<Projectile>(Bulletentity).Update(deltaTime);
 
-		for (auto entity : m_sceneReg->view<StaticRenderer, EntityType>()) {
-			if (isCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(entity)) && GameObject::GetComponent<EntityType>(entity) == EntityType::ENEMY)
+		if (GameObject::GetComponent<Projectile>(Bulletentity).GetDestroyed()) {
+			m_sceneReg->destroy(Bulletentity);
+			continue;
+		}
+		
+		for (int i = 0; i < AI.size(); i++) {
+			entt::entity enemy = AI[i]->GetID();
+			if (GameObject::GetComponent<EntityType>(enemy) >= EntityType::NEROTIST && GameObject::GetComponent<EntityType>(enemy) <= EntityType::BOMBARDIER && GameObject::GetComponent<EntityType>(Bulletentity) == EntityType::PLAYER &&
+				isCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(AI[i]->GetID())))
+
 			{
-				m_sceneReg->destroy(entity);
+			/*	AI[i]->m_health--;
+				
+				if (AI[i]->m_health <= 0)
+				{*/
+					m_sceneReg->destroy(enemy);
+					AI.erase(AI.begin() + i);
+					m_score->GetComponent<ScoreHandler>().Add(1);
+				//}
+
 				m_sceneReg->destroy(Bulletentity);
-				m_score->GetComponent<ScoreHandler>().Add(1);
 			}
 		}
 
 		
 	}
+
+#pragma endregion
 }
 
 void Universe::Render(float deltaTime)
@@ -967,8 +974,9 @@ void Universe::KeyInput()
 			// Shoot Bullet Right
 			auto RightBullet = GameObject::Allocate();
 			RightBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), RightBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(RightBullet->GetID());
-			RightBullet->GetComponent<Projectile>().SetSpeed(2000);
+			RightBullet->GetComponent<Projectile>().SetSpeed(500);
 			RightBullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
+			RightBullet->AttachComponent<EntityType>() = EntityType::PLAYER;
 			glm::vec3 offset1 = glm::vec3(3, 0, -10);
 			RightBullet->GetComponent<Transform>().MoveLocalPos(offset1);
 			RightBullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3));
@@ -976,7 +984,8 @@ void Universe::KeyInput()
             // Shoot Bullet Left
 			auto LeftBullet = GameObject::Allocate();
 			LeftBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), LeftBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(LeftBullet->GetID());
-			LeftBullet->GetComponent<Projectile>().SetSpeed(2000);
+			LeftBullet->GetComponent<Projectile>().SetSpeed(500);
+			LeftBullet->AttachComponent<EntityType>() = EntityType::PLAYER;
 			LeftBullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
 			glm::vec3 offset2 = glm::vec3(-3, 0, -10);
 			LeftBullet->GetComponent<Transform>().MoveLocalPos(offset2);
@@ -1004,7 +1013,6 @@ void Universe::KeyInput()
 
 void Universe::GamepadInput()
 {
-	float temp;
 
 	if (gamepad.getGamepadInput()) {
 		auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
@@ -1076,13 +1084,15 @@ void Universe::GamepadInput()
 
 			//Right Trigger
 			{
-				if (glfwGetTime() - m_startTime >= m_fireRate) {
-					if (gamepad.trigger.RT > -0.8) {
+			
+				if (gamepad.trigger.RT > -0.8) {
+					if (glfwGetTime() - m_startTime >= m_fireRate) {
 						// Shoot Bullet Right
 						auto RightBullet = GameObject::Allocate();
 						RightBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), RightBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(RightBullet->GetID());
-						RightBullet->GetComponent<Projectile>().SetSpeed(2000);
+						RightBullet->GetComponent<Projectile>().SetSpeed(500);
 						RightBullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
+						RightBullet->AttachComponent<EntityType>() = EntityType::PLAYER;
 						glm::vec3 offset1 = glm::vec3(3, 0, -10);
 						RightBullet->GetComponent<Transform>().MoveLocalPos(offset1);
 						RightBullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3));
@@ -1090,7 +1100,8 @@ void Universe::GamepadInput()
 						// Shoot Bullet Left
 						auto LeftBullet = GameObject::Allocate();
 						LeftBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), LeftBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(LeftBullet->GetID());
-						LeftBullet->GetComponent<Projectile>().SetSpeed(2000);
+						LeftBullet->GetComponent<Projectile>().SetSpeed(500);
+						LeftBullet->AttachComponent<EntityType>() = EntityType::PLAYER;
 						LeftBullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
 						glm::vec3 offset2 = glm::vec3(-3, 0, -10);
 						LeftBullet->GetComponent<Transform>().MoveLocalPos(offset2);
@@ -1180,8 +1191,8 @@ void Universe::GamepadInput()
 
 		}
 	}
-	else
-		std::cout << "No controller connected" << std::endl;
+	//else
+	//	std::cout << "No controller connected" << std::endl;
 }
 
 void Universe::SolarSystemUpdate() {
