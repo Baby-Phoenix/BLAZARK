@@ -38,7 +38,6 @@ ParticleEmitter::ParticleEmitter(int emitterType)
 	// fill the position buffer
 	glBindBuffer(GL_ARRAY_BUFFER, m_positionBuffer);
 	glBufferData(GL_ARRAY_BUFFER, m_particles.size() * 4 * sizeof(float), m_positions, GL_DYNAMIC_DRAW);
-
 	glEnableVertexAttribArray(4);
 	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glVertexAttribDivisor(4, 1);
@@ -86,6 +85,26 @@ void ParticleEmitter::update(const float dt)
 
 			m_particles[i].m_position += dt * m_particles[i].m_velocity;
 		}
+		else if (m_emitterType == 2) //Explosion EMITTER
+		{
+
+			
+
+			if (m_particles[i].m_lifetime <= 0.0f)
+			{
+
+				glm::vec3 pos = Random::Range3f(-0.1, 0.1);
+
+				m_particles[i].m_velocity = m_speed * glm::normalize(pos - m_controllerPos);
+
+				if (glm::sqrt((pos.x * pos.x) + (pos.y * pos.y) + (pos.z * pos.z)) < 1)
+					m_particles[i].m_position = pos;
+
+				m_particles[i].m_lifetime = Random::Range1f(m_minLife, m_maxLife);
+			}
+
+			m_particles[i].m_position += dt * m_particles[i].m_velocity;
+		}
 
 
 		//Update the position buffer
@@ -96,7 +115,6 @@ void ParticleEmitter::update(const float dt)
 		m_positions[i * 4 + 3] = m_particles[i].m_lifetime;
 
 	}
-
 }
 
 
@@ -123,6 +141,11 @@ void ParticleEmitter::setLifetime(float min, float max)
 	m_maxLife = max;
 }
 
+void ParticleEmitter::setControllerPos(glm::vec3 pos)
+{
+	m_controllerPos = pos;
+}
+
 void ParticleEmitter::draw()
 {
 	//Bind and update data
@@ -140,13 +163,16 @@ void ParticleEmitter::draw()
 }
 
 
-ParticleController::ParticleController(int emitterType, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
+ParticleController::ParticleController(int emitterType, glm::vec3 position, Texture* texture)
 {
 	m_shader = new Shader("Resource Files/Shaders/particles_vertex_shader.glsl", "Resource Files/Shaders/particles_fragment_shader.glsl");
 	m_emitter = new ParticleEmitter(emitterType);
+	m_emitter->setControllerPos(position);
 	m_position = position;
-	m_rotation = rotation;
-	m_scale = scale;
+	m_rotation = glm::vec3(0.0);
+	m_scale = glm::vec3(1.0);
+	m_size = 0.1;
+	m_tex = texture;
 }
 
 
@@ -167,6 +193,17 @@ void ParticleController::setRotation(glm::vec3 rotation)
 	m_rotation = rotation;
 }
 
+void ParticleController::setSize(float size)
+{
+	m_size = size;
+}
+
+void ParticleController::setColor(glm::vec4 startColor, glm::vec4 endColor)
+{
+	m_startColor = startColor;
+	m_endColor = endColor;
+}
+
 ParticleEmitter* ParticleController::getEmitter()
 {
 	return m_emitter;
@@ -176,6 +213,10 @@ ParticleEmitter* ParticleController::getEmitter()
 void ParticleController::update(const float dt, const glm::mat4 ProjectionMatrix, const glm::mat4& ViewMatrix, glm::mat4 ParentMatrix)
 {
 	m_shader->use();
+	
+	//glUniform1i(10, 0);
+	//m_shader->set1i(0, "myTexture");
+	
 	m_emitter->update(dt);
 	m_modelMatrix = ParentMatrix * glm::mat4(glm::translate(glm::mat4(1.0f), m_position) *
 		glm::rotate(glm::mat4(1.0f), glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f)) *
@@ -185,11 +226,18 @@ void ParticleController::update(const float dt, const glm::mat4 ProjectionMatrix
 	m_shader->setMat4fv(ProjectionMatrix, "ProjectionMatrix");
 	m_shader->setMat4fv(ViewMatrix, "ViewMatrix");
 	m_shader->setMat4fv(m_modelMatrix, "ModelMatrix");
-	m_shader->set1f(0.1, "particleSize");
+	m_shader->setVec4f(m_startColor, "sParticleColor");
+	m_shader->setVec4f(m_endColor, "eParticleColor");
+	m_shader->set1f(m_size, "particleSize");
+	
 }
 
 void ParticleController::draw()
 {
+	glDepthMask(GL_FALSE);
 	m_shader->use();
+	m_tex->bind(10);
 	m_emitter->draw();
+	m_tex->unbind();
+	glDepthMask(GL_TRUE);
 }

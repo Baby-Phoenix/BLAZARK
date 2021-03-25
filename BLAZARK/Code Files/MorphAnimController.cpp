@@ -39,6 +39,8 @@ void MorphAnimController::Update(float deltaTime) {
 	}
 	else
 	{
+		
+
 		if (m_frameTime > 0.0f) {
 			m_timer += deltaTime;
 
@@ -46,12 +48,16 @@ void MorphAnimController::Update(float deltaTime) {
 
 				if (m_isAnimate)
 				{
+					if (m_index == 0 || m_index == 2)
+					{
+						m_isAnimate = false;
+					}
+
 					m_index++;
 
-					if (m_index >= m_frames.size())
+					if (m_index == m_frames.size())
 					{
-						m_index = 0;
-						m_isAnimate = false;
+					 	m_index = 0;
 					}
 				}
 			}
@@ -65,13 +71,14 @@ void MorphAnimController::Update(float deltaTime) {
 			t = 0.0f;
 		}
 	}
-	/*if (m_isReversed)
+	
+	/*if (m_isReversed && !m_isAnimate)
 	{
-		m_index = 0;
+		m_index = 1;
 		std::reverse(m_frames.begin(), m_frames.end());
 		m_isReversed = false;
-	}*/
 
+	}*/
 	
 		size_t indexOne, indexTwo = m_index;
 
@@ -88,7 +95,11 @@ void MorphAnimController::SetFrames(std::vector<Mesh*>& frameList, int startInde
 	for (int i = startIndex; i <= endIndex; i++) {
 		m_frames.push_back(frameList[i]);
 	}
-
+	
+	if (!isRepeat) {
+		m_frames.push_back(m_frames[1]);
+	}
+	
 	m_isRepeat = isRepeat;
 }
 

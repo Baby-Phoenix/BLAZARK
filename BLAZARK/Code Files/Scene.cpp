@@ -32,9 +32,46 @@ glm::vec3 yechinOrbit = glm::vec3(0, 0.003502, 0);
 glm::vec3 kerantiaOrbit = glm::vec3(0, 0.002978, 0);
 glm::vec3 gueristisOrbit = glm::vec3(0, 0.0024077, 0);
 glm::vec3 keminthOrbit = glm::vec3(0, 0.000543, 0);
+int iterationn = 1;
+int binarySearch(int item) {
+	std::vector<int> list = { 2, 5, 7, 15, 21, 28 ,29, 37, 45, 51, 57, 61, 72, 78, 81, 87, 91, 97 };
+
+	int first = 0;
+	int last = list.size() - 1;
+	int mid;
+	
+	bool found = false;
+	while (first <= last && !found) {
+		mid = (first + last) / 2;
+		if (list[mid] == item)
+			found = true;
+		else
+			if (list[mid] > item)
+				last = mid - 1;
+			else
+				first = mid + 1;
+
+		std::cout << "Iteration " << iterationn << std::endl;
+		std::cout << "First: " << first << std::endl;
+		std::cout << "Last: " << last << std::endl;
+		std::cout << "Mid: " << mid << std::endl;
+		std::cout << "List[mid]: " << list[mid] << std::endl;
+		std::cout << std::endl;
+
+		iterationn++;
+	}
+
+	
+
+	if (found)
+		return mid;
+	else
+		return mid;
+}
 
 // Key Toggles
 bool texTglPressed = false;
+bool isPlayerAnim = false;
 
 Scene::Scene(std::string name)
 	:m_name(name)
@@ -125,6 +162,7 @@ std::string Scene::GetName()
 
 void Scene::InitScene()
 {
+	
 	//creating a new registry for the scene when initialised
 	if (m_sceneReg == nullptr)
 	m_sceneReg = new entt::registry();
@@ -495,7 +533,7 @@ void Universe::InitScene()
 
 	//Giving the ECS the same registry as the current scene
 	GameObject::SetRegistry(m_sceneReg);
-
+	binarySearch(81);
 	if (GameObject::IsEmpty()) {
 		// Camera
 		auto cameraEntity = GameObject::Allocate();
@@ -522,20 +560,29 @@ void Universe::InitScene()
 		//Player Thrusters
 		//Left - 0
 		glm::vec3 playerPos = GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos();
-		particleTemp = new ParticleController(1, glm::vec3(playerPos.x - 0.6, playerPos.y - 0.0, playerPos.z + 2.2f));		
+		particleTemp = new ParticleController(1, glm::vec3(playerPos.x - 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), new Texture("Resource Files/Textures/yellow.png"));
 		//particleTemp->setRotation(glm::vec3(0, 180, 0));
 		particleTemp->getEmitter()->setRadius(0.3);
 		particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
 		particleTemp->getEmitter()->setSpeed(2);	  
 		particles.push_back(particleTemp);
 		//Center Right - 1
-		particleTemp = new ParticleController(1, glm::vec3(playerPos.x + 0.6, playerPos.y - 0.0, playerPos.z + 2.2f));
+		particleTemp = new ParticleController(1, glm::vec3(playerPos.x + 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), new Texture("Resource Files/Textures/yellow.png"));
 		//particleTemp->setRotation(glm::vec3(0, 180, 0));
 		particleTemp->getEmitter()->setRadius(0.3);
 		particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
 		particleTemp->getEmitter()->setSpeed(2);
 		particles.push_back(particleTemp);
-			
+		
+		//explosion
+		particleTemp = new ParticleController(2, playerPos, new Texture("Resource Files/Textures/yellow.png"));
+		//particleTemp->setRotation(glm::vec3(0, 180, 0));;
+		particleTemp->setSize(10);
+		particleTemp->setColor(glm::vec4(0.0, 0.0, 1.0, 1.0), glm::vec4(1.0, 0.0, 0.0, 1.0));
+		particleTemp->getEmitter()->setLifetime(2.5, 2.5);
+		particleTemp->getEmitter()->setSpeed(200);
+		particles.push_back(particleTemp);
+
 		//HUD
 		auto health = GameObject::Allocate();
 		auto* tempAnim = &health->AttachComponent<AnimationHandler>();
@@ -625,17 +672,17 @@ void Universe::InitScene()
 			enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::NEROTISTU1)], nullptr);
 			enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::NEROTISTU1)]->GetWidth(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetHeight(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetDepth()));
 
-			// Jellyfish
-			auto jellyfishEntity = GameObject::Allocate();
-			BossID = jellyfishEntity->GetID();
-			jellyfishEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(700, -100, 0));
-			jellyfishEntity->AttachComponent<DynamicRenderer>(cameraEntity->GetID(), BossID, *m_meshes[int(EnemyMesh::JELLYFISHS)], nullptr);
-			jellyfishEntity->AttachComponent<EntityType>() = EntityType::ENEMY;
-			jellyfishEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(10.0));
-			jellyfishEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::JELLYFISHS)]->GetWidth(), m_meshes[int(EnemyMesh::JELLYFISHS)]->GetHeight(), m_meshes[int(EnemyMesh::JELLYFISHS)]->GetDepth()));
+			//// Jellyfish
+			//auto jellyfishEntity = GameObject::Allocate();
+			//BossID = jellyfishEntity->GetID();
+			//jellyfishEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(700, -100, 0));
+			//jellyfishEntity->AttachComponent<DynamicRenderer>(cameraEntity->GetID(), BossID, *m_meshes[int(EnemyMesh::JELLYFISHS)], nullptr);
+			//jellyfishEntity->AttachComponent<EntityType>() = EntityType::ENEMY;
+			//jellyfishEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(10.0));
+			//jellyfishEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::JELLYFISHS)]->GetWidth(), m_meshes[int(EnemyMesh::JELLYFISHS)]->GetHeight(), m_meshes[int(EnemyMesh::JELLYFISHS)]->GetDepth()));
 
-			jellyfishController = &jellyfishEntity->AttachComponent<MorphAnimController>(int(BossID));
-			jellyfishController->SetFrames(m_meshes, int(EnemyMesh::JELLYFISHS), int(EnemyMesh::JELLYFISHE), false);
+			//jellyfishController = &jellyfishEntity->AttachComponent<MorphAnimController>(int(BossID));
+			//jellyfishController->SetFrames(m_meshes, int(EnemyMesh::JELLYFISHS), int(EnemyMesh::JELLYFISHE), false);
 
 			// Verasten
 			auto lavaPlanetEntity = GameObject::Allocate();
@@ -756,7 +803,7 @@ void Universe::Update(float deltaTime)
 	camera->Update();
 
 	playerController->Update(deltaTime);
-	jellyfishController->Update(deltaTime);
+	//jellyfishController->Update(deltaTime);
 	
 	m_sceneReg->view<BasicAI>().each([=](BasicAI& ai) {	ai.Update(deltaTime); });
 
@@ -769,11 +816,15 @@ void Universe::Update(float deltaTime)
 	m_sceneReg->view<Transform>().each([=](Transform& transform) { transform.UpdateGlobal(); });
 
 	//Particle
-	for (auto& i : this->particles)
-		i->update(deltaTime, camera->GetProj(), camera->GetView(), GameObject::GetComponent<Transform>(MainPlayerID).UpdateGlobal());
+	for (int i = 0; i <= 1; i++)
+		particles[i]->update(deltaTime, camera->GetProj(), camera->GetView(), GameObject::GetComponent<Transform>(MainPlayerID).UpdateGlobal());
+
+	particles[2]->update(deltaTime, camera->GetProj(), camera->GetView(), glm::mat4(1));
 
 	for (auto Bulletentity : m_sceneReg->view<Projectile>()) {
-		
+
+		GameObject::GetComponent<Projectile>(Bulletentity).Update(deltaTime);
+
 		for (auto entity : m_sceneReg->view<StaticRenderer, EntityType>()) {
 			if (isCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(entity)) && GameObject::GetComponent<EntityType>(entity) == EntityType::ENEMY)
 			{
@@ -783,7 +834,7 @@ void Universe::Update(float deltaTime)
 			}
 		}
 
-		GameObject::GetComponent<Projectile>(Bulletentity).Update(deltaTime);
+		
 	}
 }
 
@@ -900,13 +951,19 @@ void Universe::KeyInput()
 		glm::vec3 temp = glm::vec3(0.5f, 0.0f, 0.0f);
 		camEnt.MoveLocalPos(temp);
 	}
+	if (glfwGetKey(m_window, GLFW_KEY_F) == GLFW_PRESS && !isPlayerAnim) {
+		playerController->SetAnimate(true);
+		playerController->SetReverse();
+		isPlayerAnim = true;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_F) == GLFW_RELEASE) {
+		isPlayerAnim = false;
+	}
 
 	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
 		
 		if (glfwGetTime() - m_startTime >= m_fireRate) {
-			playerController->SetAnimate(true);
-			playerController->SetReverse();
 			// Shoot Bullet Right
 			auto RightBullet = GameObject::Allocate();
 			RightBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), RightBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(RightBullet->GetID());
@@ -1013,7 +1070,8 @@ void Universe::GamepadInput()
 				else if (gamepad.trigger.LT > 0.8 ) {
 					temp = glm::vec3(0, 0, -2);
 					playerEnt.MoveLocalPos(temp);
-				}		
+				}	
+
 			}
 
 			//Right Trigger
