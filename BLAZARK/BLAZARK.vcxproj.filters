@@ -33,6 +33,7 @@
     <ClCompile Include="Code Files\Texture.cpp" />
     <ClCompile Include="Code Files\Transform.cpp" />
     <ClCompile Include="Code Files\ParticleSystem.cpp" />
+    <ClCompile Include="Code Files\PixelationEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code Files\Application.h" />
@@ -72,6 +73,7 @@
     <ClInclude Include="Code Files\Transform.h" />
     <ClInclude Include="Code Files\Vertex.h" />
     <ClInclude Include="Code Files\ParticleSystem.h" />
+    <ClInclude Include="Code Files\PixelationEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Code Files\Dependencies\tinygltf\LICENSE" />
