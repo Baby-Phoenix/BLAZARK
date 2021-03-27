@@ -8,11 +8,11 @@ DynamicRenderer::DynamicRenderer(entt::entity camera, entt::entity entity, const
 	m_vao = std::make_unique<VertexArray>();
 
 	if (!m_shader.size()) {
-		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_untex_unlit.frag"));
-		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_untex_lit.frag"));
-		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_tex_unlit.frag"));
-		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/static_shader_tex_lit.frag"));
-		m_shader.push_back(new Shader("Resource Files/Shaders/dynamic_shader.vert", "Resource Files/Shaders/dynamic_shader_untex_unlit.frag"));
+		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/untextured_unlit.frag"));
+		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/untextured_lit.frag"));
+		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/textured_unlit.frag"));
+		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/textured_lit.frag"));
+		m_shader.push_back(new Shader("Resource Files/Shaders/dynamic_shader.vert", "Resource Files/Shaders/untextured_unlit.frag"));
 	}
 
 	const VertexBuffer* vbo;

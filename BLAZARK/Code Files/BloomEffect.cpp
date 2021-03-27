@@ -7,6 +7,7 @@ void BloomEffect::Init(unsigned width, unsigned height)
 	// 0 
 	_buffers.push_back(new FrameBuffer());
 	_buffers[index]->AddColorTarget(GL_RGBA8);
+	_buffers[index]->AddColorTarget(GL_RGBA8);
 	_buffers[index]->Init(width, height);
 
 	//1
@@ -17,10 +18,9 @@ void BloomEffect::Init(unsigned width, unsigned height)
 	index++;
 
 	_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/passthrough_frag.glsl")); //0
-	_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/PostEffects/BlurlFrag.glsl")); // 1
-	_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/PostEffects/BloomHighPassFrag.glsl")); // 2 
+	_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/PostEffects/BloomHighPassFrag.glsl")); // 1
+	_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/PostEffects/BlurlFrag.glsl")); // 2 
 	_shaders.push_back(new Shader("Resource Files/Shaders/passthrough_vert.glsl", "Resource Files/Shaders/PostEffects/BloomCompositeFrag.glsl")); //3 
-
 }
 
 void BloomEffect::ApplyEffect(PostEffect* buffer)
@@ -37,8 +37,8 @@ void BloomEffect::ApplyEffect(PostEffect* buffer)
 		UnbindShader();
 
 		//the first shader -> high pass
-		BindShader(2);
-		_shaders[2]->set1f(_threshold, "threshold");
+		BindShader(1);
+		_shaders[1]->set1f(_threshold, "threshold");
 
 		BindColorAsTexture(0, 0, 0);
 
@@ -52,12 +52,12 @@ void BloomEffect::ApplyEffect(PostEffect* buffer)
 		for (unsigned int i = 0; i < _number_passes; i++) {
 
 			// blur frag
-			BindShader(1);
-			_shaders[1]->set1i((i % 2 == 0), "horizontal");
+			BindShader(2);
+			_shaders[2]->set1i((i % 2 == 0), "horizontal");
 
 			BindColorAsTexture(0, 0, 0);
 
-			_buffers[1]->RenderToFSQ();
+			_buffers[2]->RenderToFSQ();
 
 			UnbindTexture(0);
 

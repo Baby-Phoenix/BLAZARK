@@ -831,7 +831,6 @@ void Universe::Update(float deltaTime)
 
 	//particles[2]->update(deltaTime, camera->GetProj(), camera->GetView(), glm::mat4(1));
 
-
 #pragma region Collision
 
 	//Enemy collisions with the player as well as bullets
