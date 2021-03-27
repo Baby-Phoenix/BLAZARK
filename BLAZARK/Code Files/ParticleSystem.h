@@ -1,16 +1,18 @@
 #pragma once
 
-#include "glm.hpp"
 #include <vector>
 #include "Shader.h"
 #include "Random.h"
 #include "Texture.h";
+#include "Transform.h"
 
 class ParticleEmitter
 {
 public:
 	ParticleEmitter(int emitterType);
 	~ParticleEmitter();
+	void init();
+
 
 	void update(const float dt);
 
@@ -21,6 +23,9 @@ public:
 	void setLifetime(float min, float max);
 
 	void setControllerPos(glm::vec3 pos);
+
+	float getEmitterType();
+	bool getDone();
 	void draw();
 	
 
@@ -44,6 +49,7 @@ private:
 	float m_minLife = 1;
 	float m_maxLife = 7;
 	float m_degrees = 15;
+	bool m_isDone = false;
 	glm::vec3 m_controllerPos;
 	GLuint m_vertexBuffer;
 	GLuint m_positionBuffer;
@@ -63,7 +69,7 @@ public:
 
 
 
-	ParticleController(int emitterType, glm::vec3 position, Texture* texture);
+	ParticleController(int emitterType, glm::vec3 position, Texture* texture, entt::entity parent);
 	~ParticleController();
 
 	void setPosition(glm::vec3 position);
@@ -73,7 +79,7 @@ public:
 
 	ParticleEmitter* getEmitter();
 
-	void update(const float dt, const glm::mat4 ProjectionMatrix, const glm::mat4& ViewMatrix, glm::mat4 ParentMatrix);
+	void update(const float dt, const glm::mat4 ProjectionMatrix, const glm::mat4& ViewMatrix);
 	void draw();
 
 private:
@@ -82,6 +88,7 @@ private:
 	GLuint m_VAO;
 
 	glm::mat4 m_modelMatrix;
+	entt::entity m_parentEntity;
 	glm::vec3 m_position;
 	glm::vec3 m_rotation;
 	glm::vec3 m_scale;
@@ -90,5 +97,5 @@ private:
 	Texture* m_tex;
 	float m_size;
 
-	Projectile* m_next = nullptr;
+	//Projectile* m_next = nullptr;
 };

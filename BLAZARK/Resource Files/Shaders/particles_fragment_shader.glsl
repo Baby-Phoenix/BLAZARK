@@ -19,5 +19,7 @@ void main()
 	//if (lifetime < 1)
 	// fragColor = vec4(1.0f * lifetime, 1.0f * lifetime, 1.0f * lifetime, f) * sColor * 0.2;
 	 //fragColor = pColor;
-   fragColor = texture(myTexture, vs_texcoord.xy);
+	
+	fragColor = texture(myTexture, vs_texcoord.xy);
+	fragColor.a = fragColor.a* lifetime;
 }

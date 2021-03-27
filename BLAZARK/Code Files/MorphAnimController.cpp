@@ -107,10 +107,6 @@ void MorphAnimController::SetFrameTime(float frameTime) {
 	m_frameTime = frameTime;
 }
 
-void MorphAnimController::SetReverse()
-{
-	m_isReversed = !m_isReversed;
-}
 
 void MorphAnimController::SetAnimate(bool isAnimate)
 {
@@ -120,4 +116,9 @@ void MorphAnimController::SetAnimate(bool isAnimate)
 void MorphAnimController::SetTargert(int index)
 {
 	m_targetIndex = index;
+}
+
+bool MorphAnimController::getAnimate()
+{
+	return m_isAnimate;
 }

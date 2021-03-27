@@ -17,9 +17,10 @@ public:
 	// Setters
 	void SetFrames(std::vector<Mesh*>& frames, int startIndex, int endIndex, bool isRepeat = true);
 	void SetFrameTime(float frameTime);
-	void SetReverse();
 	void SetAnimate(bool isAnimate);
 	void SetTargert(int index);
+
+	bool getAnimate();
 
 private:
 	entt::entity m_entity;
@@ -33,5 +34,4 @@ private:
 
 	bool m_isRepeat = true;
 	bool m_isAnimate = true;
-	bool m_isReversed = false;
 };

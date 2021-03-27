@@ -31,6 +31,8 @@ glm::vec3 keminthOrbit = glm::vec3(0, 0.000543, 0);
 // Key Toggles
 bool texTglPressed = false;
 bool isPlayerAnim = false;
+bool isWingOpen = false;
+bool isexplode = false;
 
 Scene::Scene(std::string name)
 	:m_name(name)
@@ -520,26 +522,24 @@ void Universe::InitScene()
 		//Left - 0
 		glm::vec3 playerPos = GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos();
 		Texture* BulletTex = new Texture("Resource Files/Textures/yellow.png");
-		particleTemp = new ParticleController(1, glm::vec3(playerPos.x - 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), BulletTex);
+		particleTemp = new ParticleController(1, glm::vec3(playerPos.x - 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), BulletTex, MainPlayerID);
 		//particleTemp->setRotation(glm::vec3(0, 180, 0));
 		particleTemp->getEmitter()->setRadius(0.3);
 		particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
-		particleTemp->getEmitter()->setSpeed(2);	  
+		particleTemp->getEmitter()->setSpeed(2);	
+		particleTemp->getEmitter()->init();
 		particles.push_back(particleTemp);
 		//Center Right - 1
-		particleTemp = new ParticleController(1, glm::vec3(playerPos.x + 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), BulletTex);
+		particleTemp = new ParticleController(1, glm::vec3(playerPos.x + 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), BulletTex, MainPlayerID);
 		//particleTemp->setRotation(glm::vec3(0, 180, 0));
 		particleTemp->getEmitter()->setRadius(0.3);
 		particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
 		particleTemp->getEmitter()->setSpeed(2);
+		particleTemp->getEmitter()->init();
 		particles.push_back(particleTemp);
 		
-		//explosion
-		particleTemp = new ParticleController(2, playerPos, new Texture("Resource Files/Textures/yellow.png"));
-		particleTemp->setSize(10);
-		particleTemp->getEmitter()->setLifetime(2.5, 2.5);
-		particleTemp->getEmitter()->setSpeed(200);
-		particles.push_back(particleTemp);
+		
+		
 
 		//HUD
 		auto health = GameObject::Allocate();
@@ -773,7 +773,7 @@ void Universe::Update(float deltaTime)
 	playerController->Update(deltaTime);
 	//jellyfishController->Update(deltaTime);
 
-	// Solar System Rotation (IN-PROGRESS) //
+	// Solar System Rotation (IN-PROGRESS) 
 	SolarSystemUpdate();
 
 	// Transform Update
@@ -781,10 +781,18 @@ void Universe::Update(float deltaTime)
 	m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) { anim.Update(deltaTime); });
 
 	//Particle
-	for (int i = 0; i <= 1; i++)
-		particles[i]->update(deltaTime, camera->GetProj(), camera->GetView(), GameObject::GetComponent<Transform>(MainPlayerID).UpdateGlobal());
+	for (int i = 0; i <= particles.size() - 1; i++)
+	{
+		if (particles[i]->getEmitter()->getDone())
+		{
+			delete particles[i];
+			particles.erase(particles.begin() + i);
+		}
+		else
+			particles[i]->update(deltaTime, camera->GetProj(), camera->GetView());
+	}
 
-	particles[2]->update(deltaTime, camera->GetProj(), camera->GetView(), glm::mat4(1));
+	//particles[2]->update(deltaTime, camera->GetProj(), camera->GetView(), glm::mat4(1));
 
 
 #pragma region Collision
@@ -830,9 +838,17 @@ void Universe::Update(float deltaTime)
 				
 				if (AI[i]->m_health <= 0)
 				{*/
+				//explosion
+					particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), new Texture("Resource Files/Textures/yellow.png"), enemy);
+					particleTemp->setSize(10);
+					particleTemp->getEmitter()->setLifetime(0.2, 0.2);
+					particleTemp->getEmitter()->setSpeed(100);
+					particleTemp->getEmitter()->init();
+					particles.push_back(particleTemp);
 					m_sceneReg->destroy(enemy);
 					AI.erase(AI.begin() + i);
 					m_score->GetComponent<ScoreHandler>().Add(1);
+					
 				//}
 
 				m_sceneReg->destroy(Bulletentity);
@@ -960,11 +976,25 @@ void Universe::KeyInput()
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_F) == GLFW_PRESS && !isPlayerAnim) {
 		playerController->SetAnimate(true);
-		playerController->SetReverse();
 		isPlayerAnim = true;
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_F) == GLFW_RELEASE) {
 		isPlayerAnim = false;
+	}
+
+	if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS && !isexplode) {
+		//explosion
+		particleTemp = new ParticleController(2, playerEnt.GetLocalPos(), new Texture("Resource Files/Textures/yellow.png"), MainPlayerID);
+		particleTemp->setSize(10);
+		particleTemp->getEmitter()->setLifetime(2.5, 2.5);
+		particleTemp->getEmitter()->setSpeed(200);
+		particleTemp->getEmitter()->init();
+		particles.push_back(particleTemp);
+		isexplode = true;
+
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_RELEASE) {
+		isexplode = false;
 	}
 
 	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
@@ -972,6 +1002,8 @@ void Universe::KeyInput()
 		
 		if (glfwGetTime() - m_startTime >= m_fireRate) {
 			// Shoot Bullet Right
+			
+
 			auto RightBullet = GameObject::Allocate();
 			RightBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), RightBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(RightBullet->GetID());
 			RightBullet->GetComponent<Projectile>().SetSpeed(500);
@@ -1158,7 +1190,15 @@ void Universe::GamepadInput()
 					playerEnt.RotateLocal(temp);
 				}
 				//MOVE FORWARD
-				if (gamepad.axes[Joystick::LEFT].Y < -0.17 && gamepad.axes[Joystick::LEFT].Y > -0.25) {
+				if (gamepad.axes[Joystick::LEFT].Y > -0.17) {
+					if (isWingOpen && !playerController->getAnimate())
+					{
+						playerController->SetAnimate(true);
+						isPlayerAnim = true;
+						isWingOpen = false;
+					}
+				}
+				else if (gamepad.axes[Joystick::LEFT].Y < -0.17 && gamepad.axes[Joystick::LEFT].Y > -0.25) {
 					temp = glm::vec3(0, 0, -0.4);
 					playerEnt.MoveLocalPos(temp);
 					tempSpeed = 0.8f;
@@ -1182,7 +1222,15 @@ void Universe::GamepadInput()
 					temp = glm::vec3(0, 0, -2.0);
 					playerEnt.MoveLocalPos(temp);
 					tempSpeed = 4.0f;
+
+					if (!isWingOpen && !playerController->getAnimate())
+					{
+						playerController->SetAnimate(true);
+						isPlayerAnim = true;
+						isWingOpen = true;
+					}
 				}
+
 
 				particles[ParticleName::PLAYER_CENTER_LEFT]->getEmitter()->setSpeed(tempSpeed);
 				particles[ParticleName::PLAYER_CENTER_RIGHT]->getEmitter()->setSpeed(tempSpeed);
