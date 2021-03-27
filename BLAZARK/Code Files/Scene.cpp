@@ -303,7 +303,7 @@ void Menu::Update(float deltaTime)
 
 	// Key Input
 	KeyInput();
-	GamePad();
+	GamepadInput();
 
 	// Camera Update
 	camera->Update();
@@ -462,12 +462,6 @@ void Menu::GamepadInput()
 
 		}
 	}
-
-	else
-		std::cout << "No controller connected" << std::endl;
-
-	
-
 }
 
 void Menu::Render(float deltaTime)
@@ -678,40 +672,46 @@ void Universe::InitScene()
 			m_solarSystem.push_back(lavaPlanetEntity->GetID());
 			lavaPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 750));
 			lavaPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), lavaPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::VERASTEN)], nullptr);
-
+			lavaPlanetEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::VERASTEN)]->GetWidth() / 2));
+			
 			auto Cometent = GameObject::Allocate();
 			Cometent->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 1000));
 			Cometent->AttachComponent<StaticRenderer>(cameraEntity->GetID(), Cometent->GetID(), *m_meshes[int(PlanetMesh::COMET)], m_textures[int(TextureType::COMET)]);
-
+			Cometent->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::COMET)]->GetWidth() / 2));
 
 			// Yechin
 			auto desertPlanetEntity = GameObject::Allocate();
 			m_solarSystem.push_back(desertPlanetEntity->GetID());
 			desertPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(1500, 0, 0));
 			desertPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), desertPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::YECHIN)], nullptr);
-
+			desertPlanetEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::YECHIN)]->GetWidth() / 2));
+			
 			// Kerantia
 			auto homePlanetEntity = GameObject::Allocate();
 			m_solarSystem.push_back(homePlanetEntity->GetID());
 			homePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -2250));
 			homePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), homePlanetEntity->GetID(), *m_meshes[int(PlanetMesh::KERANTIA)], nullptr);
-
+			homePlanetEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::KERANTIA)]->GetWidth() / 2));
+			
 			// Lunari
 			auto moonEntity = GameObject::Allocate();
 			moonEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 250));
 			moonEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), moonEntity->GetID(), *m_meshes[int(PlanetMesh::LUNARI)], nullptr);
+			moonEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::LUNARI)]->GetWidth() / 2));
 
 			// Gueristis
 			auto rockPlanetEntity = GameObject::Allocate();
 			m_solarSystem.push_back(rockPlanetEntity->GetID());
 			rockPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(-2875, 0, 0));
 			rockPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), rockPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::GUERISTIS)], nullptr);
+			rockPlanetEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::GUERISTIS)]->GetWidth() / 2));
 
 			// Keminth
 			auto icePlanetEntity = GameObject::Allocate();
 			m_solarSystem.push_back(icePlanetEntity->GetID());
 			icePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 3500));
 			icePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), icePlanetEntity->GetID(), *m_meshes[int(PlanetMesh::KEMINTH)], nullptr);
+			icePlanetEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::KEMINTH)]->GetWidth() / 2));
 
 			// Home Planet Centerpoint
 			auto HPCEntity = GameObject::Allocate();
@@ -789,7 +789,6 @@ void Universe::InitScene()
 
 void Universe::Update(float deltaTime)
 {
-	GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
 	// Key Input
 	KeyInput();
 	GamepadInput();
@@ -823,6 +822,8 @@ void Universe::Update(float deltaTime)
 
 
 #pragma region Collision
+
+	//Enemy collisions with the player as well as bullets
 	std::vector<BasicAI*> AI;
 	for (auto enemy : m_sceneReg->view<EntityType>()) {
 		int index = AI.size();
@@ -833,6 +834,19 @@ void Universe::Update(float deltaTime)
 		else if (GameObject::GetComponent<EntityType>(enemy) == EntityType::KAMAKAZI) {
 			AI.push_back(&GameObject::GetComponent<KamakaziAI>(enemy));
 			AI[index]->Update(deltaTime);
+
+			if (isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
+				AI.pop_back();
+				particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), new Texture("Resource Files/Textures/yellow.png"), enemy);
+				particleTemp->setSize(10);
+				particleTemp->getEmitter()->setLifetime(0.2, 0.2);
+				particleTemp->getEmitter()->setSpeed(100);
+				particleTemp->getEmitter()->init();
+				particles.push_back(particleTemp);
+				m_sceneReg->destroy(enemy);
+				m_PlayerHealth -= m_PlayerHealth > 0 ? 1 : 0;
+				GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+			}
 		}
 		else if (GameObject::GetComponent<EntityType>(enemy) == EntityType::SCAVENGER) {
 			AI.push_back(&GameObject::GetComponent<ScavengerAI>(enemy));
@@ -855,12 +869,11 @@ void Universe::Update(float deltaTime)
 			continue;
 		}
 
-			{
-			/*	AI[i]->m_health--;
-				
-				if (AI[i]->m_health <= 0)
-				{*/
-				//explosion
+		if (GameObject::GetComponent<EntityType>(Bulletentity) == EntityType::PLAYER) {
+			for (int i = 0; i < AI.size(); i++) {
+				entt::entity enemy = AI[i]->GetID();
+				if (isBoxCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(AI[i]->GetID())))
+				{
 					particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), new Texture("Resource Files/Textures/yellow.png"), enemy);
 					particleTemp->setSize(10);
 					particleTemp->getEmitter()->setLifetime(0.2, 0.2);
@@ -870,8 +883,7 @@ void Universe::Update(float deltaTime)
 					m_sceneReg->destroy(enemy);
 					AI.erase(AI.begin() + i);
 					m_score->GetComponent<ScoreHandler>().Add(1);
-					
-				//}
+				
 
 					m_sceneReg->destroy(Bulletentity);
 				}
@@ -879,16 +891,35 @@ void Universe::Update(float deltaTime)
 		}
 
 		else if (GameObject::GetComponent<EntityType>(Bulletentity) == EntityType::ENEMY) {
-			if (isCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(MainPlayerID)))
-
+			if (isBoxCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(MainPlayerID)))
 			{
 				m_sceneReg->destroy(Bulletentity);
 				m_PlayerHealth -= m_PlayerHealth > 0 ? 1 : 0;
+				GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
 			}
 		}
 		
 	}
 
+
+	if (m_name == "Universe_19") {
+		//collisions of player with planets
+		for (int i = Universe19SS::SOLARI; i <= Universe19SS::KEMINTH; i++) {
+			if (isBoxCircleCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(m_solarSystem[i]))) {
+				m_PlayerHealth = 0;
+				GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+			}
+		}
+	}
+
+	else if(m_name == "Universe_27")
+	{
+
+	}
+
+	else if (m_name == "Universe_5") {
+
+	}
 #pragma endregion
 }
 
@@ -1297,7 +1328,7 @@ void Universe::SolarSystemUpdate() {
 	}
 }
 
-bool Universe::isCollide(Transform Obj1, Transform Obj2)
+bool Universe::isBoxCollide(Transform Obj1, Transform Obj2)
 {
 	//X axis collision
 	bool collisionX = Obj1.GetLocalPos().x + Obj1.GetWHD().x >= Obj2.GetLocalPos().x &&
@@ -1313,4 +1344,15 @@ bool Universe::isCollide(Transform Obj1, Transform Obj2)
 
 	// collision only if on all axis
 	return collisionX && collisionY && collisionZ;
+}
+
+bool Universe::isBoxCircleCollide(Transform objBox, Transform objCircle)
+{
+	bool collisionX = objBox.GetLocalPos().x + objBox.GetWHD().x >= objCircle.GetLocalPos().x 
+		&& objCircle.GetLocalPos().x + objCircle.GetRadius()>=objBox.GetLocalPos().x;
+
+	bool collisionZ = objBox.GetLocalPos().z + objBox.GetWHD().z >= objCircle.GetLocalPos().z
+		&& objCircle.GetLocalPos().z + objCircle.GetRadius() >= objBox.GetLocalPos().z;
+
+	return collisionX && collisionZ;
 }

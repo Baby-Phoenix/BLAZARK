@@ -120,7 +120,8 @@ public:
 
 	void SolarSystemUpdate();
 
-	bool isCollide(Transform Obj1, Transform Obj2);
+	bool isBoxCollide(Transform Obj1, Transform Obj2);
+	bool isBoxCircleCollide(Transform objBox, Transform objCircle);
 
 private:
 
