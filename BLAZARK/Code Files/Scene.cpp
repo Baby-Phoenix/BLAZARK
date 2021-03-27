@@ -521,6 +521,7 @@ void Universe::InitScene()
 		//Left - 0
 		glm::vec3 playerPos = GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos();
 		Texture* BulletTex = new Texture("Resource Files/Textures/yellow.png");
+		Texture* sky2Tex = new Texture("Resource Files/Textures/sky3.png");
 		particleTemp = new ParticleController(1, glm::vec3(playerPos.x - 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), BulletTex, MainPlayerID);
 		//particleTemp->setRotation(glm::vec3(0, 180, 0));
 		particleTemp->getEmitter()->setRadius(0.3);
@@ -537,8 +538,18 @@ void Universe::InitScene()
 		particleTemp->getEmitter()->init();
 		particles.push_back(particleTemp);
 		
-		
-		
+
+		auto tempEnt = GameObject::Allocate();
+		tempEnt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+		//TESTING PORTAL
+		particleTemp = new ParticleController(3, playerEntity->GetComponent<Transform>().GetLocalPos(), sky2Tex, tempEnt->GetID());
+		//particleTemp->setRotation(glm::vec3(0, 180, 0));
+		particleTemp->getEmitter()->setRadius(30);
+		particleTemp->setSize(2.5);
+		particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+		particleTemp->getEmitter()->setSpeed(0.5);
+		particleTemp->getEmitter()->init();
+		particles.push_back(particleTemp);
 
 		//HUD
 		auto healthent = GameObject::Allocate();
@@ -904,7 +915,7 @@ void Universe::Update(float deltaTime)
 
 	if (m_name == "Universe_19") {
 		//collisions of player with planets
-		for (int i = Universe19SS::SOLARI; i <= Universe19SS::KEMINTH; i++) {
+		for (int i = Universe19SS::SOLARI + 1; i <= Universe19SS::KEMINTH; i++) {
 			if (isBoxCircleCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(m_solarSystem[i]))) {
 				m_PlayerHealth = 0;
 				GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);

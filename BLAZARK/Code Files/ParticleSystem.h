@@ -50,6 +50,7 @@ private:
 	float m_maxLife = 7;
 	float m_degrees = 15;
 	bool m_isDone = false;
+	float m_waveIndex = 0;
 	glm::vec3 m_controllerPos;
 	GLuint m_vertexBuffer;
 	GLuint m_positionBuffer;

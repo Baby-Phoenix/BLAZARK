@@ -2,7 +2,7 @@
 
 ParticleEmitter::ParticleEmitter(int emitterType)
 {
-	// create 100 particles
+	// create 200 particles
 	m_particles.resize(2000);
 
 	m_emitterType = emitterType;
@@ -95,6 +95,20 @@ void ParticleEmitter::init()
 			m_particles[i].m_lifetime = Random::Range1f(m_minLife, m_maxLife);
 
 		}
+		else if (m_emitterType == 3) //Portal EMITTER
+		{
+
+
+			float tanTheta = glm::tan(glm::radians(m_degrees));
+
+
+			glm::vec2 tempVec2 = Random::Circle2f(m_radius);
+
+			m_particles[i].m_velocity = m_speed * glm::normalize(glm::vec3(tanTheta * tempVec2.x, tanTheta * tempVec2.y, 1.0f));
+			m_particles[i].m_position = glm::vec3(tempVec2.x, tempVec2.y, 0);
+			m_particles[i].m_lifetime = Random::Range1f(m_minLife, m_maxLife);
+
+		}
 
 	}
 }
@@ -156,6 +170,23 @@ void ParticleEmitter::update(const float dt)
 
 			if(!m_particles.empty())
 				m_particles[i].m_position += dt * m_particles[i].m_velocity;
+		}
+		else if (m_emitterType == 3) //Portal EMITTER
+		{
+
+			float tanTheta = glm::tan(glm::radians(m_degrees));
+
+			if (m_particles[i].m_lifetime <= 0.0f)
+			{
+				glm::vec2 tempVec2 = Random::Circle2f(m_radius);
+
+				m_particles[i].m_velocity = m_speed * glm::normalize(glm::vec3(1.0f, tanTheta * tempVec2.y, 1.0f));
+				m_particles[i].m_position = glm::vec3(tempVec2.x, tempVec2.y, 0);
+				m_particles[i].m_lifetime = Random::Range1f(m_minLife, m_maxLife);
+			}
+
+			m_particles[i].m_position += dt * m_particles[i].m_velocity;
+
 		}
 
 		if (!m_particles.empty())
