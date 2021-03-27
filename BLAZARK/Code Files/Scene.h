@@ -56,7 +56,6 @@ protected:
 	entt::registry* m_sceneReg = nullptr;
 
 	GamePad gamepad;
-	int m_PlayerHealth = 4.0;
 
 	Camera* camera;
 	MorphAnimController* playerController;
@@ -139,4 +138,7 @@ private:
 	entt::entity MainPlayerID;
 	entt::entity BossID;
 	entt::entity CamID;
+
+	static entt::entity health;
+	static int m_PlayerHealth;
 };
