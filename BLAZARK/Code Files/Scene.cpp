@@ -59,6 +59,7 @@ Scene::Scene(std::string name)
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/ScoreAnim.png"));
 
 		m_textures.push_back(new Texture("Resource Files/Textures/CometTexture.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/yellow.png"));
 		
 	}
 
@@ -124,6 +125,16 @@ Scene::Scene(std::string name)
 		loadOBJ("Resource Files/OBJFiles/Universe-27/Planets/Magaantu.obj", *m_meshes[int(PlanetMesh::MAGAANTU)]);
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Misc/Comet.obj", *m_meshes[int(PlanetMesh::COMET)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids 1.obj", *m_meshes[int(PlanetMesh::COMET)+1]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids 2.obj", *m_meshes[int(PlanetMesh::COMET)+2]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Debris/Barrel.obj", *m_meshes[int(PlanetMesh::COMET)+3]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Debris/Bottle.obj", *m_meshes[int(PlanetMesh::COMET)+4]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Debris/Box Container.obj", *m_meshes[int(PlanetMesh::COMET)+5]);
 	}
 }
 
@@ -530,7 +541,7 @@ void Universe::InitScene()
 		particleTemp->getEmitter()->init();
 		particles.push_back(particleTemp);
 		//Center Right - 1
-		particleTemp = new ParticleController(1, glm::vec3(playerPos.x + 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), BulletTex, MainPlayerID);
+		particleTemp = new ParticleController(1, glm::vec3(playerPos.x + 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), m_textures[m_textures.size() - 1], MainPlayerID);
 		//particleTemp->setRotation(glm::vec3(0, 180, 0));
 		particleTemp->getEmitter()->setRadius(0.3);
 		particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
@@ -724,6 +735,16 @@ void Universe::InitScene()
 			icePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), icePlanetEntity->GetID(), *m_meshes[int(PlanetMesh::KEMINTH)], nullptr);
 			icePlanetEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::KEMINTH)]->GetWidth() / 2));
 
+			for (int i = 0; i < 10; i++) {
+				auto kama = GameObject::Allocate();
+				kama->AttachComponent<Transform>();
+				kama->AttachComponent<KamakaziAI>(kama->GetID(), icePlanetEntity->GetID(), playerEntity->GetID());
+				kama->AttachComponent<EntityType>() = EntityType::KAMAKAZI;
+				kama->AttachComponent<StaticRenderer>(cameraEntity->GetID(), kama->GetID(), *m_meshes[int(EnemyMesh::KAMKAZI)], nullptr);
+				kama->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::KAMKAZI)]->GetWidth(), m_meshes[int(EnemyMesh::KAMKAZI)]->GetHeight(), m_meshes[int(EnemyMesh::KAMKAZI)]->GetDepth()));
+
+			}
+
 			// Home Planet Centerpoint
 			auto HPCEntity = GameObject::Allocate();
 			m_solarSystem.push_back(HPCEntity->GetID());
@@ -737,6 +758,55 @@ void Universe::InitScene()
 			rockPlanetEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SGC]);
 			icePlanetEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKEC]);
 			HPCEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKRC]);
+
+			for (int i = 0; i < 200; i++) {
+				auto debris = GameObject::Allocate();
+				
+				Transform refrence;
+
+				if (i % 2 == 0)
+				{
+					refrence = sunEntity->GetComponent<Transform>();
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().x,
+																			   Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().y,
+																			   Random::OutsideCircle2f(refrence.GetRadius()).y + refrence.GetLocalPos().z));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 1], nullptr);
+				}
+
+				else if (i % 3 == 0) {
+					refrence = lavaPlanetEntity->GetComponent<Transform>();
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().x,
+						Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().y,
+						Random::OutsideCircle2f(refrence.GetRadius()).y + refrence.GetLocalPos().z));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 2], nullptr);
+				}
+
+				else if (i % 5 == 0) {
+					refrence = desertPlanetEntity->GetComponent<Transform>();
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().x,
+						Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().y,
+						Random::OutsideCircle2f(refrence.GetRadius()).y + refrence.GetLocalPos().z));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 3], nullptr);
+				}
+
+				else if (i % 7 == 0) {
+					refrence = rockPlanetEntity->GetComponent<Transform>();
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().x,
+						Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().y,
+						Random::OutsideCircle2f(refrence.GetRadius()).y + refrence.GetLocalPos().z));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 4], nullptr);
+				}
+
+				else
+				{
+					refrence = homePlanetEntity->GetComponent<Transform>();
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().x,
+						Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().y,
+						Random::OutsideCircle2f(refrence.GetRadius()).y + refrence.GetLocalPos().z));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 5], nullptr);
+				}
+
+			}
 		}
 		else if (m_name == "Universe_27") {
 
@@ -786,6 +856,9 @@ void Universe::InitScene()
 		else if (m_name == "Universe_5") {
 			m_SceneResumeNo = int(ScenesNum::UNIVERSE_5);
 		}
+
+
+	
 
 		//Setting Parent/Childe
 		cameraEntity->GetComponent<Transform>().SetParent(new entt::entity(playerEntity->GetID()));
@@ -847,7 +920,7 @@ void Universe::Update(float deltaTime)
 
 			if (isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
 				AI.pop_back();
-				particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), new Texture("Resource Files/Textures/yellow.png"), enemy);
+				particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[m_textures.size()-1], enemy);
 				particleTemp->setSize(10);
 				particleTemp->getEmitter()->setLifetime(0.2, 0.2);
 				particleTemp->getEmitter()->setSpeed(100);
@@ -893,9 +966,9 @@ void Universe::Update(float deltaTime)
 					m_sceneReg->destroy(enemy);
 					AI.erase(AI.begin() + i);
 					m_score->GetComponent<ScoreHandler>().Add(1);
-				
-
+			
 					m_sceneReg->destroy(Bulletentity);
+					break;
 				}
 			}
 		}
