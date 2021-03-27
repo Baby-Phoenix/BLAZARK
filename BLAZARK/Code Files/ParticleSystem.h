@@ -90,5 +90,5 @@ private:
 	Texture* m_tex;
 	float m_size;
 
-	Projectile* m_next = nullptr;
+	ParticleController* m_next = nullptr;
 };
