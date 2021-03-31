@@ -16,7 +16,7 @@ public:
 	Skybox() = default;
 	~Skybox() = default;
 
-	static void Init();
+	static void Init(std::string scenename);
 
 	static void Draw(glm::mat4 camViewMatrix, glm::mat4 ProjectionMatrix);
 

@@ -77,6 +77,7 @@ public:
 	void setRotation(glm::vec3 rotation);
 	void setSize(float size);
 	void setColor(glm::vec4 startColor, glm::vec4 endColor);
+	void setModelMatrix(glm::mat4 matrix);
 
 	ParticleEmitter* getEmitter();
 

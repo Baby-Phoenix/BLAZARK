@@ -107,8 +107,8 @@ public:
 
 		do
 		{
-			x = Range1f(-radius - 1, radius + 1);
-			y = Range1f(-radius - 1, radius + 1);
+			x = Range1f(-radius - 25, radius + 25);
+			y = Range1f(-radius - 25, radius + 25);
 		} while ((x * x + y * y) < radius * radius);
 
 		return glm::vec2(x, y);
