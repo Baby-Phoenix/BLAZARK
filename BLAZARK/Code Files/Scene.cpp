@@ -759,6 +759,12 @@ void Universe::InitScene()
 			icePlanetEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKEC]);
 			HPCEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKRC]);
 
+			entt::entity* sunID = new entt::entity(sunEntity->GetID());
+			entt::entity* lavaID = new entt::entity(lavaPlanetEntity->GetID());
+			entt::entity* desertID = new entt::entity(desertPlanetEntity->GetID());
+			entt::entity* rockID = new entt::entity(rockPlanetEntity->GetID());
+			entt::entity* homeID = new entt::entity(homePlanetEntity->GetID());
+
 			for (int i = 0; i < 200; i++) {
 				auto debris = GameObject::Allocate();
 				
@@ -771,14 +777,16 @@ void Universe::InitScene()
 																			   Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().y,
 																			   Random::OutsideCircle2f(refrence.GetRadius()).y + refrence.GetLocalPos().z));
 					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 1], nullptr);
+					debris->GetComponent<Transform>().SetParent(sunID);
 				}
 
 				else if (i % 3 == 0) {
 					refrence = lavaPlanetEntity->GetComponent<Transform>();
 					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().x,
-						Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().y,
-						Random::OutsideCircle2f(refrence.GetRadius()).y + refrence.GetLocalPos().z));
+																			   Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().y,
+																			   Random::OutsideCircle2f(refrence.GetRadius()).y + refrence.GetLocalPos().z));
 					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 2], nullptr);
+					debris->GetComponent<Transform>().SetParent(lavaID);
 				}
 
 				else if (i % 5 == 0) {
@@ -787,6 +795,7 @@ void Universe::InitScene()
 						Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().y,
 						Random::OutsideCircle2f(refrence.GetRadius()).y + refrence.GetLocalPos().z));
 					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 3], nullptr);
+					debris->GetComponent<Transform>().SetParent(desertID);
 				}
 
 				else if (i % 7 == 0) {
@@ -795,6 +804,7 @@ void Universe::InitScene()
 						Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().y,
 						Random::OutsideCircle2f(refrence.GetRadius()).y + refrence.GetLocalPos().z));
 					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 4], nullptr);
+					debris->GetComponent<Transform>().SetParent(rockID);
 				}
 
 				else
@@ -804,6 +814,7 @@ void Universe::InitScene()
 						Random::OutsideCircle2f(refrence.GetRadius()).x + refrence.GetLocalPos().y,
 						Random::OutsideCircle2f(refrence.GetRadius()).y + refrence.GetLocalPos().z));
 					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 5], nullptr);
+					debris->GetComponent<Transform>().SetParent(homeID);
 				}
 
 			}
@@ -910,11 +921,13 @@ void Universe::Update(float deltaTime)
 	std::vector<BasicAI*> AI;
 	for (auto enemy : m_sceneReg->view<EntityType>()) {
 		int index = AI.size();
-		if (GameObject::GetComponent<EntityType>(enemy) == EntityType::NEROTIST) {
+		EntityType type = GameObject::GetComponent<EntityType>(enemy);
+
+		if (type == EntityType::NEROTIST) {
 			AI.push_back(&GameObject::GetComponent<BasicAI>(enemy));
 			AI[index]->Update(deltaTime);
 		}
-		else if (GameObject::GetComponent<EntityType>(enemy) == EntityType::KAMAKAZI) {
+		else if (type == EntityType::KAMAKAZI) {
 			AI.push_back(&GameObject::GetComponent<KamakaziAI>(enemy));
 			AI[index]->Update(deltaTime);
 
@@ -931,13 +944,31 @@ void Universe::Update(float deltaTime)
 				GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
 			}
 		}
-		else if (GameObject::GetComponent<EntityType>(enemy) == EntityType::SCAVENGER) {
+		else if (type == EntityType::SCAVENGER) {
 			AI.push_back(&GameObject::GetComponent<ScavengerAI>(enemy));
 			AI[index]->Update(deltaTime);
 		}
-		else if (GameObject::GetComponent<EntityType>(enemy) == EntityType::BOMBARDIER) {
+		else if (type == EntityType::BOMBARDIER) {
 			AI.push_back(&GameObject::GetComponent<BombardierAI>(enemy));
 			AI[index]->Update(deltaTime);
+		}
+
+		else if (type == EntityType::KAMABULLET) {
+			AI.push_back(&GameObject::GetComponent<KamakaziBullet>(enemy));
+			AI[index]->Update(deltaTime);
+
+			if (GameObject::GetComponent<KamakaziBullet>(enemy).GetDestroyed() || isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
+				AI.pop_back();
+				particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[m_textures.size() - 1], enemy);
+				particleTemp->setSize(10);
+				particleTemp->getEmitter()->setLifetime(0.2, 0.2);
+				particleTemp->getEmitter()->setSpeed(100);
+				particleTemp->getEmitter()->init();
+				particles.push_back(particleTemp);
+				m_sceneReg->destroy(enemy);
+				m_PlayerHealth -= m_PlayerHealth > 0 ? 1 : 0;
+				GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+			}
 		}
 	}
 
