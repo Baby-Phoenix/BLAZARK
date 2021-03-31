@@ -28,7 +28,6 @@ void BasicAI::Update(float deltaTime)
 	glm::vec3 curPoint;
 	glm::vec3 nextPoint;
 	glm::vec3 curPosOfEnemy;
-	bool rotate = false;
 
 	if (m_isPlayerinRange) {
 
@@ -48,7 +47,6 @@ void BasicAI::Update(float deltaTime)
 		if (t > 0.3)
 			enemyTrans.MoveLocalPosFixed(finalPos);
 
-		rotate = true;
 #pragma endregion
 
 #pragma region BulletShooting
@@ -86,7 +84,6 @@ void BasicAI::Update(float deltaTime)
 		enemyTrans.MoveLocalPosFixed(finalPos);
 
 		if (t > 1.0) {
-			rotate = true;
 			m_curPoint++;
 			if (m_curPoint > m_points.size() - 1)
 				m_curPoint = 0;
@@ -94,10 +91,10 @@ void BasicAI::Update(float deltaTime)
 	}
 
 
-	if (rotate) {
+	
 		glm::vec3 rotationvector = glm::degrees(glm::eulerAngles(glm::quat_cast(glm::transpose(glm::lookAt(curPosOfEnemy, nextPoint, glm::vec3(0, 1, 0))))));
 		enemyTrans.SetLocalRot(rotationvector);
-	}
+	
 }
 
 entt::entity BasicAI::GetID()
@@ -195,8 +192,7 @@ void KamakaziAI::Update(float deltaTime)
 	glm::vec3 curPoint;
 	glm::vec3 nextPoint;
 	glm::vec3 curPosOfEnemy;
-	bool rotate = false;
-
+	
 	if (m_isPlayerinRange) {
 
 		nextPoint = GameObject::GetComponent<Transform>(m_player).GetLocalPos(); //current position of the player
@@ -206,7 +202,6 @@ void KamakaziAI::Update(float deltaTime)
 
 		enemyTrans.MoveLocalPosFixed(finalPos);
 
-		rotate = true;
 	}
 	else
 	{
@@ -224,18 +219,15 @@ void KamakaziAI::Update(float deltaTime)
 		enemyTrans.MoveLocalPosFixed(finalPos);
 
 		if (t > 1.0) {
-			rotate = true;
 			m_curPoint++;
 			if (m_curPoint > m_points.size() - 1)
 				m_curPoint = 0;
 		}
 	}
 
-
-	if (rotate) {
 		glm::vec3 rotationvector = glm::degrees(glm::eulerAngles(glm::quat_cast(glm::transpose(glm::lookAt(curPosOfEnemy, nextPoint, glm::vec3(0, 1, 0))))));
 		enemyTrans.SetLocalRot(rotationvector);
-	}
+	
 }
 
 
@@ -253,7 +245,6 @@ void ScavengerAI::Update(float deltaTime)
 	glm::vec3 curPoint;
 	glm::vec3 nextPoint;
 	glm::vec3 curPosOfEnemy;
-	bool rotate = false;
 
 	if (m_isPlayerinRange) {
 
@@ -273,25 +264,150 @@ void ScavengerAI::Update(float deltaTime)
 		enemyTrans.MoveLocalPosFixed(finalPos);
 
 		if (t > 1.0) {
-			rotate = true;
 			m_curPoint++;
 			if (m_curPoint > m_points.size() - 1)
 				m_curPoint = 0;
 		}
 	
 
-
-	if (rotate) {
 		glm::vec3 rotationvector = glm::degrees(glm::eulerAngles(glm::quat_cast(glm::transpose(glm::lookAt(curPosOfEnemy, nextPoint, glm::vec3(0, 1, 0))))));
 		enemyTrans.SetLocalRot(rotationvector);
-	}
 }
 
 BombardierAI::BombardierAI(entt::entity enemy, entt::entity avoid, entt::entity player)
 	:BasicAI(enemy, avoid, player, 100)
 {
+	m_fireRate = 1.5f;
 }
 
 void BombardierAI::Update(float deltaTime)
 {
+
+	CheckForMainPlayer();
+
+	auto& enemyTrans = GameObject::GetComponent<Transform>(m_enemy);
+
+	glm::vec3 curPoint;
+	glm::vec3 nextPoint;
+	glm::vec3 curPosOfEnemy;
+
+	if (m_isPlayerinRange) {
+
+#pragma region movement
+		curPoint = m_points[m_curPoint];  //curpoint the enemy started from
+		nextPoint = GameObject::GetComponent<Transform>(m_player).GetLocalPos(); //current position of the player
+		curPosOfEnemy = enemyTrans.GetLocalPos(); //current position
+
+		float totalDist = glm::sqrt(((nextPoint.x - curPoint.x) * (nextPoint.x - curPoint.x)) + ((nextPoint.z - curPoint.z) * (nextPoint.z - curPoint.z)));
+		float curDist = glm::sqrt(((curPosOfEnemy.x - nextPoint.x) * (curPosOfEnemy.x - nextPoint.x)) + ((curPosOfEnemy.z - nextPoint.z) * (curPosOfEnemy.z - nextPoint.z)));
+
+		float t = curDist / totalDist; //0 - 1 interpolation paramenter 
+
+		glm::vec3 finalPos = glm::normalize(nextPoint - curPosOfEnemy) * (deltaTime * 50);
+
+
+		if (t > 0.5)
+			enemyTrans.MoveLocalPosFixed(finalPos);
+
+#pragma endregion
+
+#pragma region BulletShooting
+
+		if (glfwGetTime() - m_startTime >= m_fireRate) {
+			auto kamabullet = GameObject::Allocate();
+			kamabullet->AttachComponent<Transform>().SetLocalPos(GameObject::GetComponent<Transform>(m_enemy).GetLocalPos());
+			kamabullet->GetComponent<Transform>().SetLocalScale(glm::vec3(2));
+			kamabullet->AttachComponent<KamakaziBullet>(kamabullet->GetID(), m_player);
+			kamabullet->AttachComponent<EntityType>() = EntityType::KAMABULLET;
+			kamabullet->AttachComponent<StaticRenderer>(entt::entity(0), kamabullet->GetID(), *m_bulletMesh, nullptr);
+			kamabullet->GetComponent<Transform>().SetWHD(glm::vec3(m_bulletMesh->GetWidth() * 2, m_bulletMesh->GetHeight() * 2, m_bulletMesh->GetDepth() * 2));
+
+			m_resetTime = true;
+		}
+		if (m_resetTime) {
+			m_startTime = glfwGetTime();
+			m_resetTime = false;
+		}
+
+#pragma endregion
+	}
+	else
+	{
+
+		curPoint = m_points[m_curPoint];
+		nextPoint = m_points[m_curPoint == m_points.size() - 1 ? 0 : m_curPoint + 1];
+		curPosOfEnemy = enemyTrans.GetLocalPos();
+
+		float totalDist = glm::sqrt(((nextPoint.x - curPoint.x) * (nextPoint.x - curPoint.x)) + ((nextPoint.z - curPoint.z) * (nextPoint.z - curPoint.z)));
+		float curDist = glm::sqrt(((curPosOfEnemy.x - curPoint.x) * (curPosOfEnemy.x - curPoint.x)) + ((curPosOfEnemy.z - curPoint.z) * (curPosOfEnemy.z - curPoint.z)));
+
+		float t = curDist / totalDist; // 0 - 1 interpolation paramenter 
+
+		glm::vec3 finalPos = glm::normalize(nextPoint - curPosOfEnemy) * (deltaTime * 40);
+		enemyTrans.MoveLocalPosFixed(finalPos);
+
+		if (t > 1.0) {
+			m_curPoint++;
+			if (m_curPoint > m_points.size() - 1)
+				m_curPoint = 0;
+		}
+	}
+
+
+
+	glm::vec3 rotationvector = glm::degrees(glm::eulerAngles(glm::quat_cast(glm::transpose(glm::lookAt(curPosOfEnemy, nextPoint, glm::vec3(0, 1, 0))))));
+	enemyTrans.SetLocalRot(rotationvector);
+
+
+
+}
+
+KamakaziBullet::KamakaziBullet(entt::entity enemy, entt::entity player)
+{
+	m_enemy = enemy;
+	m_player = player;
+}
+
+void KamakaziBullet::Update(float deltaTime)
+{
+
+	if (!m_isDestroyed) {
+		auto& enemyTrans = GameObject::GetComponent<Transform>(m_enemy);
+
+		glm::vec3 curPoint;
+		glm::vec3 nextPoint;
+		glm::vec3 curPosOfEnemy;
+
+		nextPoint = GameObject::GetComponent<Transform>(m_player).GetLocalPos(); //current position of the player
+		curPosOfEnemy = enemyTrans.GetLocalPos(); //current position
+
+		glm::vec3 finalPos = glm::normalize(nextPoint - curPosOfEnemy) * (deltaTime * m_speed);
+
+		enemyTrans.MoveLocalPosFixed(finalPos);
+
+
+		glm::vec3 rotationvector = glm::degrees(glm::eulerAngles(glm::quat_cast(glm::transpose(glm::lookAt(curPosOfEnemy, nextPoint, glm::vec3(0, 1, 0))))));
+		enemyTrans.SetLocalRot(rotationvector);
+
+		m_lifetime -= deltaTime;
+
+		if (m_lifetime <= 0) {
+			m_isDestroyed = true;
+		}
+	}
+}
+
+bool KamakaziBullet::GetDestroyed()
+{
+	return m_isDestroyed;
+}
+
+void KamakaziBullet::SetSpeed(float speed)
+{
+	m_speed = speed;
+}
+
+void KamakaziBullet::SetDestroyed(bool destroyed)
+{
+	m_isDestroyed = destroyed;
 }

@@ -6,7 +6,7 @@
 #include <iostream>
 #include "Projectile.h"
 
-enum class EntityType { PLAYER, ENEMY, NEROTIST,KAMAKAZI, SCAVENGER, BOMBARDIER };
+enum class EntityType { PLAYER, ENEMY, NEROTIST, KAMAKAZI, SCAVENGER, BOMBARDIER, KAMABULLET };
 
 class BasicAI
 {
@@ -53,6 +53,20 @@ public:
 
 private:
 	
+};
+
+class KamakaziBullet : public BasicAI {
+
+public:
+	KamakaziBullet(entt::entity enemy, entt::entity player);
+	void Update(float deltaTime) override;
+	bool GetDestroyed();
+	void SetSpeed(float speed);
+	void SetDestroyed(bool destroyed);
+private:
+	bool m_isDestroyed = false;
+	float m_lifetime = 4.0f;
+	float m_speed = 50.0f;
 };
 
 class ScavengerAI : public BasicAI
