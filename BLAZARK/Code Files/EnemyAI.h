@@ -65,7 +65,7 @@ public:
 	void SetDestroyed(bool destroyed);
 private:
 	bool m_isDestroyed = false;
-	float m_lifetime = 4.0f;
+	float m_lifetime = 10.0f;
 	float m_speed = 50.0f;
 };
 

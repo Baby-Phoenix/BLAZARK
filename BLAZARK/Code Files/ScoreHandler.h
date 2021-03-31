@@ -15,6 +15,7 @@ public:
 
 	void SetTexture(Texture* tex);
 	void SetScorePos(glm::vec3 scorePos);
+	int GetScore();
 	void Add(int num);
 	int GetSize();
 	int GetNumberSize(int number);

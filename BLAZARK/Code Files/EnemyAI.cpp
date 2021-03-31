@@ -275,9 +275,9 @@ void ScavengerAI::Update(float deltaTime)
 }
 
 BombardierAI::BombardierAI(entt::entity enemy, entt::entity avoid, entt::entity player)
-	:BasicAI(enemy, avoid, player, 100)
+	:BasicAI(enemy, avoid, player, 300)
 {
-	m_fireRate = 1.5f;
+	m_fireRate = 2.5f;
 }
 
 void BombardierAI::Update(float deltaTime)
@@ -316,8 +316,8 @@ void BombardierAI::Update(float deltaTime)
 		if (glfwGetTime() - m_startTime >= m_fireRate) {
 			auto kamabullet = GameObject::Allocate();
 			kamabullet->AttachComponent<Transform>().SetLocalPos(GameObject::GetComponent<Transform>(m_enemy).GetLocalPos());
-			kamabullet->GetComponent<Transform>().SetLocalScale(glm::vec3(2));
-			kamabullet->AttachComponent<KamakaziBullet>(kamabullet->GetID(), m_player);
+			kamabullet->GetComponent<Transform>().SetLocalScale(glm::vec3(5));
+			kamabullet->AttachComponent<KamakaziBullet>(kamabullet->GetID(), m_player).SetSpeed(25);
 			kamabullet->AttachComponent<EntityType>() = EntityType::KAMABULLET;
 			kamabullet->AttachComponent<StaticRenderer>(entt::entity(0), kamabullet->GetID(), *m_bulletMesh, nullptr);
 			kamabullet->GetComponent<Transform>().SetWHD(glm::vec3(m_bulletMesh->GetWidth() * 2, m_bulletMesh->GetHeight() * 2, m_bulletMesh->GetDepth() * 2));
