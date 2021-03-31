@@ -95,7 +95,7 @@ Scene::Scene(std::string name)
 		loadOBJ("Resource Files/OBJFiles/Universe-19/EnemyShips/Bombardier.obj", *m_meshes[int(EnemyMesh::BOMBARDIER)]);
 
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/jellyfishBoss.obj", *m_meshes[int(EnemyMesh::JELLYFISH)]);
+		loadOBJ("Resource Files/OBJFiles/Universe-19/EnemyShips/jellyfishBoss.obj", *m_meshes[int(EnemyMesh::JELLYFISH)]);
 
 		/*for (int i = 1; i <= 26; i++) {
 			m_meshes.push_back(new Mesh());
@@ -739,7 +739,7 @@ void Universe::InitScene()
 			for (int i = 0; i < 15; i++) {
 				auto enemy = GameObject::Allocate();
 				enemy->AttachComponent<Transform>();
-				enemy->AttachComponent<KamakaziAI>(enemy->GetID(), icePlanetEntity->GetID(), playerEntity->GetID());
+				enemy->AttachComponent<KamakaziAI>(enemy->GetID(), icePlanetEntity->GetID(), playerEntity->GetID()).SetBulletMesh(m_meshes[int(PlayerMesh::PLAYERBULLET)]);;
 				enemy->AttachComponent<EntityType>() = EntityType::KAMAKAZI;
 				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::KAMAKAZI)], nullptr);
 				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::KAMAKAZI)]->GetWidth(), m_meshes[int(EnemyMesh::KAMAKAZI)]->GetHeight(), m_meshes[int(EnemyMesh::KAMAKAZI)]->GetDepth()));
@@ -1107,16 +1107,64 @@ void Universe::Update(float deltaTime)
 			}
 		}
 
-		if (m_score->GetComponent<ScoreHandler>().GetScore() >= 300)
+		if (m_score->GetComponent<ScoreHandler>().GetScore() >= 1 && !m_isBossSpawn)
 		{
 			// JELLYFIH BOSS
 			auto jellyEntity = GameObject::Allocate();
-			m_solarSystem.push_back(jellyEntity->GetID());
-			jellyEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().x + 100, 
-																			GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().y, 
-																			GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().z + 100));
+			
+			jellyEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+			auto& jellypos = jellyEntity->GetComponent<Transform>();
+
+			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], jellyEntity->GetID());
+			particleTemp->setRotation(glm::vec3(90, 0, 0));
+			particleTemp->getEmitter()->setRadius(1.0);
+			particleTemp->setSize(2);
+			particleTemp->getEmitter()->setAngleDeg(10);
+			particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+			particleTemp->getEmitter()->setSpeed(10);
+			particleTemp->getEmitter()->init();
+			particles.push_back(particleTemp);
+	
+			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], jellyEntity->GetID());
+			particleTemp->setRotation(glm::vec3(90, 0, 0));
+			particleTemp->getEmitter()->setRadius(1.0);
+			particleTemp->setSize(2);
+			particleTemp->getEmitter()->setAngleDeg(10);
+			particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+			particleTemp->getEmitter()->setSpeed(10);
+			particleTemp->getEmitter()->init();
+			particles.push_back(particleTemp);
+
+			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], jellyEntity->GetID());
+			particleTemp->setRotation(glm::vec3(90, 0, 0));
+			particleTemp->getEmitter()->setRadius(1.0);
+			particleTemp->setSize(2);
+			particleTemp->getEmitter()->setAngleDeg(10);
+			particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+			particleTemp->getEmitter()->setSpeed(10);
+			particleTemp->getEmitter()->init();
+			particles.push_back(particleTemp);
+			
+			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], jellyEntity->GetID());
+			particleTemp->setRotation(glm::vec3(90, 0, 0));
+			particleTemp->getEmitter()->setRadius(1.0);
+			particleTemp->setSize(2);
+			particleTemp->getEmitter()->setAngleDeg(10);
+			particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+			particleTemp->getEmitter()->setSpeed(10);
+			particleTemp->getEmitter()->init();
+			particles.push_back(particleTemp);
+
+			glm::vec3 temp = glm::vec3(GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().x + 100,
+				GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().y - 30,
+				GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().z + 100);
+
+			jellypos.MoveLocalPos(temp);
 			jellyEntity->AttachComponent<StaticRenderer>(CamID, jellyEntity->GetID(), *m_meshes[int(EnemyMesh::JELLYFISH)], nullptr, true);
 			jellyEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
+
+
+			m_isBossSpawn = true;
 		}
 	}
 

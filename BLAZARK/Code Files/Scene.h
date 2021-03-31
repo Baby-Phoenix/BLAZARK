@@ -141,6 +141,7 @@ private:
 	entt::entity MoonID;
 	entt::entity CamID;
 
+	bool m_isBossSpawn = false;
 	static entt::entity health;
 	static int m_PlayerHealth;
 };
