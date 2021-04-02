@@ -6,6 +6,7 @@
 #include "Sprite2D.h"
 #include "Random.h"
 #include "GamepadInput.h"
+#include "PixelationEffect.h"
 #include "ColorCorrection.h"
 #include "GreyscaleEffect.h"
 #include "SepiaEffect.h"

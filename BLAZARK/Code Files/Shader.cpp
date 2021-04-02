@@ -1,15 +1,21 @@
 #include "Shader.h"
 
-Shader::Shader(const char* vertexShader, const char* fragmentShader) {
+Shader::Shader(const char* vertexShader, const char* fragmentShader, const char* geometryShader) {
 	GLuint vert = 0;
+	GLuint geom = 0;
 	GLuint frag = 0;
 
 	vert = loadShader(GL_VERTEX_SHADER, vertexShader);
+
+	if (geometryShader != "")
+		geom = loadShader(GL_GEOMETRY_SHADER, geometryShader);
+
 	frag = loadShader(GL_FRAGMENT_SHADER, fragmentShader);
 
-	linkProgram(vert, frag);
+	linkProgram(vert, geom, frag);
 
 	glDeleteShader(vert);
+	glDeleteShader(geom);
 	glDeleteShader(frag);
 }
 
@@ -103,14 +109,19 @@ GLuint Shader::loadShader(GLenum type, const char* fileName) {
 	return shader;
 }
 
-void Shader::linkProgram(GLuint vertexShader, GLuint fragmentShader) {
+void Shader::linkProgram(GLuint vertexShader, GLuint geometryShader, GLuint fragmentShader) {
 	char infoLog[512];
 	GLint success;
 
 	m_id = glCreateProgram();
 
 	glAttachShader(m_id, vertexShader);
+
+	if (geometryShader)
+		glAttachShader(m_id, geometryShader);
+
 	glAttachShader(m_id, fragmentShader);
+
 	glLinkProgram(m_id);
 	glGetProgramiv(m_id, GL_LINK_STATUS, &success);
 

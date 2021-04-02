@@ -20,7 +20,7 @@ enum Universe5SS {};
 std::vector<Mesh*> Scene::m_meshes;
 std::vector<Texture*> Scene::m_textures;
 
-std::unique_ptr<GameObject> effect;
+std::unique_ptr<GameObject> BufferEntity;
 
 // Solar System Rotation
 glm::vec3 sunRotation = glm::vec3(0, -0.025, 0);
@@ -600,13 +600,14 @@ void Universe::InitScene()
 		m_score->AttachComponent<ScoreHandler>(scorePos, m_textures[int(TextureType::SCORENUM)], camentity);
 
 
-		//effects
-		/*effect = GameObject::Allocate();
-		effect->AttachComponent<PostEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());*/
-		/*effect->AttachComponent<GreyscaleEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
-		effect->AttachComponent<SepiaEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
-		effect->AttachComponent<ColorCorrectionEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
-		effect->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/NeutralLUT.cube");*/
+		// Effects
+		/*BufferEntity = GameObject::Allocate();
+		BufferEntity->AttachComponent<FrameBuffer>().AddDepthTarget();
+		BufferEntity->AttachComponent<FrameBuffer>().Init(4096, 4096);
+		BufferEntity->AttachComponent<PostEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
+		BufferEntity->AttachComponent<PixelationEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
+		BufferEntity->AttachComponent<ColorCorrectionEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
+		BufferEntity->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/NeutralLUT.cube");*/
 
 		if (m_name == "Universe_19") {
 
@@ -919,32 +920,47 @@ void Universe::Update(float deltaTime)
 	else if (m_name == "Universe_5") {
 
 	}
+
 #pragma endregion
 }
 
 void Universe::Render(float deltaTime)
 {
-	//effect->GetComponent<PostEffect>().Clear();
-	//effect->GetComponent<ColorCorrectionEffect>().Clear();
+	/*BufferEntity->GetComponent<FrameBuffer>().Clear();
+	BufferEntity->GetComponent<PostEffect>().Clear();
+	BufferEntity->GetComponent<PixelationEffect>().Clear();
+	BufferEntity->GetComponent<ColorCorrectionEffect>().Clear();
 
-	//effect->GetComponent<PostEffect>().BindBuffer(0);
+	// Shadow Buffer //
+	glViewport(0, 0, 4096, 4096);
+	BufferEntity->GetComponent<FrameBuffer>().Bind();
+	{
+		m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) { renderer.Draw(); });
+		m_sceneReg->view<DynamicRenderer>().each([=](DynamicRenderer& renderer) { renderer.Draw(); });
+	}
+	BufferEntity->GetComponent<FrameBuffer>().Unbind();
 
-	m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) { renderer.Draw(); });
-	m_sceneReg->view<DynamicRenderer>().each([=](DynamicRenderer& renderer) { renderer.Draw(); });
-	Skybox::Draw(camera->GetView(), camera->GetProj());
+	// Basic Effect //
+	glViewport(0, 0, Application::GetWindowWidth(), Application::GetWindowHeight());
+	BufferEntity->GetComponent<PostEffect>().BindBuffer(0);*/
+	{
+		m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) { renderer.Draw(); });
+		m_sceneReg->view<DynamicRenderer>().each([=](DynamicRenderer& renderer) { renderer.Draw(); });
 
-	//Particles
-	for (auto& i : this->particles)
-		i->draw();
+		Skybox::Draw(camera->GetView(), camera->GetProj());
 
-	m_sceneReg->view<Sprite2D>().each([=](Sprite2D& renderer) {renderer.Draw(camera); });
+		// Particles
+		{
+			for (auto& i : this->particles)
+				i->draw();
+		}
+
+		m_sceneReg->view<Sprite2D>().each([=](Sprite2D& renderer) {renderer.Draw(camera); });
+	}
+	/*BufferEntity->GetComponent<PostEffect>().UnbindBuffer();
 	
-	//effect->GetComponent<PostEffect>().UnbindBuffer();
-	
-	//effect->GetComponent<ColorCorrectionEffect>().ApplyEffect(&effect->GetComponent<PostEffect>());
-	//effect->GetComponent<ColorCorrectionEffect>().DrawToScreen();
-	//effect->GetComponent<PostEffect>().DrawToScreen();
-
+	// Framebuffer Draw //
+	BufferEntity->GetComponent<PostEffect>().DrawToScreen();*/
 }
 
 void Universe::KeyInput()
