@@ -139,8 +139,10 @@ private:
 	std::vector<Projectile*> m_bullets;
 	entt::entity MainPlayerID;
 	entt::entity BossID;
+	entt::entity MoonID;
 	entt::entity CamID;
 
+	bool m_isBossSpawn = false;
 	static entt::entity health;
 	static int m_PlayerHealth;
 };

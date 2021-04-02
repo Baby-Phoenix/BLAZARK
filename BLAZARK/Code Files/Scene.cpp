@@ -4,13 +4,13 @@
 int Universe::m_PlayerHealth = 0;
 entt::entity Universe::health = entt::entity(0);
 
-enum class TextureType { START = 3 , RESUME, CONTROLS, EXIT, BACKGROUND, CONTROLSMENU, SCORE, SCORENUM, COMET};
+enum class TextureType { START = 3 , RESUME, CONTROLS, EXIT, BACKGROUND, CONTROLSMENU, SCORE, SCORENUM, COMET, FIRE, BLINK, YELLOW};
 
 enum class PlayerMesh { PLAYERSHIPXWINGS, PLAYERSHIPXWINGE = 2, PLAYERSHIPPENCIL, PLAYERSHIPBAT, PLAYERBULLET };
 
-enum class EnemyMesh { SCAVENGERU1S = 6, SCAVENGERU1E = 8, NEROTISTU1, KAMKAZI, JELLYFISHS, JELLYFISHE = 32 };
+enum class EnemyMesh { SCAVENGERU1S = 6, SCAVENGERU1E = 8, NEROTISTU1, KAMAKAZI, BOMBARDIER, JELLYFISH/*JELLYFISHS, JELLYFISHE = 32*/ };
 
-enum class PlanetMesh { SOLARI = int(EnemyMesh::JELLYFISHE)+1, VERASTEN, YECHIN, KERANTIA, LUNARI, GUERISTIS, KEMINTH,
+enum class PlanetMesh { SOLARI = int(EnemyMesh::JELLYFISH)+1, VERASTEN, YECHIN, KERANTIA, LUNARI, GUERISTIS, KEMINTH,
 						LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MAGAANTU , COMET};
 
 enum Universe19SS { SVC, SYC, SKRC, SGC, SKEC, SOLARI, VERASTEN, YECHIN, KERANTIA, GUERISTIS, KEMINTH, HPC };
@@ -37,6 +37,9 @@ bool texTglPressed = false;
 bool isPlayerAnim = false;
 bool isWingOpen = false;
 bool isexplode = false;
+bool isDodge = false;
+float dodgeCount = 0.5;
+float tempDir = 1;
 
 Scene::Scene(std::string name)
 	:m_name(name)
@@ -59,7 +62,9 @@ Scene::Scene(std::string name)
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/ScoreAnim.png"));
 
 		m_textures.push_back(new Texture("Resource Files/Textures/CometTexture.png"));
-		
+		m_textures.push_back(new Texture("Resource Files/Textures/red.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/blink.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/yellow.png"));
 	}
 
 	if (m_meshes.size() < 1) {
@@ -84,12 +89,18 @@ Scene::Scene(std::string name)
 		loadOBJ("Resource Files/OBJFiles/Universe-19/EnemyShips/Nerotist.obj", *m_meshes[int(EnemyMesh::NEROTISTU1)]);
 
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/Universe-19/EnemyShips/Kamikaze.obj", *m_meshes[int(EnemyMesh::KAMKAZI)]);
+		loadOBJ("Resource Files/OBJFiles/Universe-19/EnemyShips/Kamikaze.obj", *m_meshes[int(EnemyMesh::KAMAKAZI)]);
 
-		for (int i = 1; i <= 26; i++) {
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Universe-19/EnemyShips/Bombardier.obj", *m_meshes[int(EnemyMesh::BOMBARDIER)]);
+
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Universe-19/EnemyShips/jellyfishBoss.obj", *m_meshes[int(EnemyMesh::JELLYFISH)]);
+
+		/*for (int i = 1; i <= 26; i++) {
 			m_meshes.push_back(new Mesh());
-			loadOBJ(("Resource Files/OBJFiles/Universe-19/EnemyShips/Morph/Boss/jellyfishBoss_" + std::to_string(i) + ".obj").c_str(), *m_meshes[i + int(EnemyMesh::KAMKAZI)]);
-		}
+			loadOBJ(("Resource Files/OBJFiles/Universe-19/EnemyShips/Morph/Boss/jellyfishBoss_" + std::to_string(i) + ".obj").c_str(), *m_meshes[i + int(EnemyMesh::BOMBARDIER)]);
+		}*/
 
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Universe-19/Planets/Solari.obj", *m_meshes[int(PlanetMesh::SOLARI)]);
@@ -124,6 +135,16 @@ Scene::Scene(std::string name)
 		loadOBJ("Resource Files/OBJFiles/Universe-27/Planets/Magaantu.obj", *m_meshes[int(PlanetMesh::MAGAANTU)]);
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Misc/Comet.obj", *m_meshes[int(PlanetMesh::COMET)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids 1.obj", *m_meshes[int(PlanetMesh::COMET)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids 2.obj", *m_meshes[int(PlanetMesh::COMET) + 1]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Debris/Barrel.obj", *m_meshes[int(PlanetMesh::COMET) + 2]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Debris/Bottle.obj", *m_meshes[int(PlanetMesh::COMET) + 3]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Debris/Box Container.obj", *m_meshes[int(PlanetMesh::COMET) + 4]);
 	}
 }
 
@@ -520,25 +541,35 @@ void Universe::InitScene()
 		//Player Thrusters
 		//Left - 0
 		glm::vec3 playerPos = GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos();
-		Texture* BulletTex = new Texture("Resource Files/Textures/yellow.png");
-		particleTemp = new ParticleController(1, glm::vec3(playerPos.x - 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), BulletTex, MainPlayerID);
-		//particleTemp->setRotation(glm::vec3(0, 180, 0));
+		Texture* sky2Tex = new Texture("Resource Files/Textures/sky3.png");
+		particleTemp = new ParticleController(1, glm::vec3(playerPos.x - 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), m_textures[int(TextureType::FIRE)], MainPlayerID);
 		particleTemp->getEmitter()->setRadius(0.3);
 		particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
 		particleTemp->getEmitter()->setSpeed(2);	
 		particleTemp->getEmitter()->init();
 		particles.push_back(particleTemp);
 		//Center Right - 1
-		particleTemp = new ParticleController(1, glm::vec3(playerPos.x + 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), BulletTex, MainPlayerID);
-		//particleTemp->setRotation(glm::vec3(0, 180, 0));
+		particleTemp = new ParticleController(1, glm::vec3(playerPos.x + 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), m_textures[int(TextureType::FIRE)], MainPlayerID);
 		particleTemp->getEmitter()->setRadius(0.3);
 		particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
 		particleTemp->getEmitter()->setSpeed(2);
 		particleTemp->getEmitter()->init();
 		particles.push_back(particleTemp);
+		glm::vec3 tempv3 = glm::vec3(120, 0, 2400);
+		GameObject::GetComponent<Transform>(MainPlayerID).MoveLocalPos(tempv3);
 		
-		
-		
+
+		//auto tempEnt = GameObject::Allocate();
+		//tempEnt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+		////TESTING PORTAL
+		//particleTemp = new ParticleController(3, playerEntity->GetComponent<Transform>().GetLocalPos(), sky2Tex, tempEnt->GetID());
+		////particleTemp->setRotation(glm::vec3(0, 180, 0));
+		//particleTemp->getEmitter()->setRadius(30);
+		//particleTemp->setSize(5);
+		//particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+		//particleTemp->getEmitter()->setSpeed(0.5);
+		//particleTemp->getEmitter()->init();
+		//particles.push_back(particleTemp);
 
 		//HUD
 		auto healthent = GameObject::Allocate();
@@ -638,36 +669,6 @@ void Universe::InitScene()
 			sunEntity->GetComponent<Transform>().SetRadius(3 * (m_meshes[int(PlanetMesh::SOLARI)]->GetWidth() / 2));
 			sunEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
 
-			//testing for ai
-			
-			auto enemy1 = GameObject::Allocate();
-			enemy1->AttachComponent<Transform>();
-			enemy1->AttachComponent<BasicAI>(enemy1->GetID(), sunEntity->GetID(), playerEntity->GetID()).SetBulletMesh(m_meshes[int(PlayerMesh::PLAYERBULLET)]);
-			enemy1->AttachComponent<EntityType>() = EntityType::NEROTIST;
-			enemy1->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy1->GetID(), *m_meshes[int(EnemyMesh::NEROTISTU1)], nullptr);
-			enemy1->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::NEROTISTU1)]->GetWidth(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetHeight(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetDepth()));
-			
-			auto enemy2 = GameObject::Allocate();
-			enemy2->AttachComponent<Transform>();
-			enemy2->AttachComponent<KamakaziAI>(enemy2->GetID(), sunEntity->GetID(), playerEntity->GetID());
-			enemy2->AttachComponent<EntityType>() = EntityType::KAMAKAZI;
-			enemy2->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy2->GetID(), *m_meshes[int(EnemyMesh::KAMKAZI)], nullptr);
-			enemy2->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::KAMKAZI)]->GetWidth(), m_meshes[int(EnemyMesh::KAMKAZI)]->GetHeight(), m_meshes[int(EnemyMesh::KAMKAZI)]->GetDepth()));
-
-			
-
-			//// Jellyfish
-			//auto jellyfishEntity = GameObject::Allocate();
-			//BossID = jellyfishEntity->GetID();
-			//jellyfishEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(700, -100, 0));
-			//jellyfishEntity->AttachComponent<DynamicRenderer>(cameraEntity->GetID(), BossID, *m_meshes[int(EnemyMesh::JELLYFISHS)], nullptr);
-			//jellyfishEntity->AttachComponent<EntityType>() = EntityType::ENEMY;
-			//jellyfishEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(10.0));
-			//jellyfishEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::JELLYFISHS)]->GetWidth(), m_meshes[int(EnemyMesh::JELLYFISHS)]->GetHeight(), m_meshes[int(EnemyMesh::JELLYFISHS)]->GetDepth()));
-
-			//jellyfishController = &jellyfishEntity->AttachComponent<MorphAnimController>(int(BossID));
-			//jellyfishController->SetFrames(m_meshes, int(EnemyMesh::JELLYFISHS), int(EnemyMesh::JELLYFISHE), false);
-
 			// Verasten
 			auto lavaPlanetEntity = GameObject::Allocate();
 			m_solarSystem.push_back(lavaPlanetEntity->GetID());
@@ -696,6 +697,7 @@ void Universe::InitScene()
 			
 			// Lunari
 			auto moonEntity = GameObject::Allocate();
+			MoonID = moonEntity->GetID();
 			moonEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 250));
 			moonEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), moonEntity->GetID(), *m_meshes[int(PlanetMesh::LUNARI)], nullptr);
 			moonEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::LUNARI)]->GetWidth() / 2));
@@ -727,6 +729,162 @@ void Universe::InitScene()
 			rockPlanetEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SGC]);
 			icePlanetEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKEC]);
 			HPCEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKRC]);
+
+			entt::entity* sunID = new entt::entity(sunEntity->GetID());
+			entt::entity* lavaID = new entt::entity(lavaPlanetEntity->GetID());
+			entt::entity* desertID = new entt::entity(desertPlanetEntity->GetID());
+			entt::entity* rockID = new entt::entity(rockPlanetEntity->GetID());
+			entt::entity* homeID = new entt::entity(homePlanetEntity->GetID());
+
+			//Ice planet enemies
+			for (int i = 0; i < 15; i++) {
+				auto enemy = GameObject::Allocate();
+				enemy->AttachComponent<Transform>();
+				enemy->AttachComponent<KamakaziAI>(enemy->GetID(), icePlanetEntity->GetID(), playerEntity->GetID()).SetBulletMesh(m_meshes[int(PlayerMesh::PLAYERBULLET)]);;
+				enemy->AttachComponent<EntityType>() = EntityType::KAMAKAZI;
+				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::KAMAKAZI)], nullptr);
+				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::KAMAKAZI)]->GetWidth(), m_meshes[int(EnemyMesh::KAMAKAZI)]->GetHeight(), m_meshes[int(EnemyMesh::KAMAKAZI)]->GetDepth()));
+
+			}
+			//Lava planet enemies
+			for (int i = 0; i < 10; i++) {
+				auto enemy = GameObject::Allocate();
+				enemy->AttachComponent<Transform>();
+				enemy->AttachComponent<BasicAI>(enemy->GetID(), lavaPlanetEntity->GetID(), playerEntity->GetID());
+				enemy->AttachComponent<EntityType>() = EntityType::NEROTIST;
+				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::NEROTISTU1)], nullptr);
+				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::NEROTISTU1)]->GetWidth(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetHeight(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetDepth()));
+
+			}
+			//Rockplanet enemies
+			for (int i = 0; i < 10; i++) {
+				auto enemy = GameObject::Allocate();
+				enemy->AttachComponent<Transform>();
+				enemy->AttachComponent<BasicAI>(enemy->GetID(), rockPlanetEntity->GetID(), playerEntity->GetID());
+				enemy->AttachComponent<EntityType>() = EntityType::NEROTIST;
+				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::NEROTISTU1)], nullptr);
+				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::NEROTISTU1)]->GetWidth(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetHeight(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetDepth()));
+			}
+			for (int i = 0; i < 10; i++) {
+				auto enemy = GameObject::Allocate();
+				enemy->AttachComponent<Transform>();
+				enemy->AttachComponent<KamakaziAI>(enemy->GetID(), rockPlanetEntity->GetID(), playerEntity->GetID());
+				enemy->AttachComponent<EntityType>() = EntityType::KAMAKAZI;
+				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::KAMAKAZI)], nullptr);
+				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::KAMAKAZI)]->GetWidth(), m_meshes[int(EnemyMesh::KAMAKAZI)]->GetHeight(), m_meshes[int(EnemyMesh::KAMAKAZI)]->GetDepth()));
+			}
+			//Kamikaze
+			for (int i = 0; i < 20; i++) {
+				auto enemy = GameObject::Allocate();
+				enemy->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(400, 900), 0, Random::Range1f(-800, -100)));
+				enemy->AttachComponent<KamakaziAI>(enemy->GetID(), enemy->GetID(), playerEntity->GetID());
+				enemy->AttachComponent<EntityType>() = EntityType::KAMAKAZI;
+				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::KAMAKAZI)], nullptr);
+				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::KAMAKAZI)]->GetWidth(), m_meshes[int(EnemyMesh::KAMAKAZI)]->GetHeight(), m_meshes[int(EnemyMesh::KAMAKAZI)]->GetDepth()));
+			}
+			//Bombaridier
+			for (int i = 0; i < 20; i++) {
+				auto enemy = GameObject::Allocate();
+				enemy->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-400, -900), 0, Random::Range1f(-500, 500)));
+				enemy->AttachComponent<BombardierAI>(enemy->GetID(), enemy->GetID(), playerEntity->GetID());
+				enemy->AttachComponent<EntityType>() = EntityType::BOMBARDIER;
+				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::BOMBARDIER)], nullptr);
+				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::BOMBARDIER)]->GetWidth(), m_meshes[int(EnemyMesh::BOMBARDIER)]->GetHeight(), m_meshes[int(EnemyMesh::BOMBARDIER)]->GetDepth()));
+			}
+			
+			//DEBRIS
+			for (int i = 0; i <= 450; i++) {
+				auto debris = GameObject::Allocate();
+				Transform refrence;
+				
+				if (i <= 75)
+				{
+					//Asteroid2 top
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-1800, 1800), Random::Range1f(10, 1000), Random::Range1f(-400, -1700)));
+					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(4, 4, 4));
+					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 1], nullptr);
+					debris->GetComponent<Transform>().SetParent(sunID);
+				}
+				else if (i > 75 && i <= 150)
+				{
+					//Asteroid2 bot
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-1800, 1800), Random::Range1f(-1000, -10), Random::Range1f(-400, -1700)));
+					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(4, 4, 4));
+					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 1], nullptr);
+				}
+				else if (i > 150 && i <= 225)
+				{
+					//Barrel top
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-2000, -500), Random::Range1f(10, 800), Random::Range1f(0, 2600)));
+					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(3, 3, 3));
+					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 2], nullptr);
+					debris->GetComponent<Transform>().SetParent(lavaID);
+				}
+				else if (i > 225 && i <= 300)
+				{
+					//Barrel bot
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-2000, -500), Random::Range1f(-800, -10), Random::Range1f(0, 2600)));
+					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(3, 3, 3));
+					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 2], nullptr);
+				}
+				else if (i > 300 && i <= 325)
+				{
+					//Bottle top
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-1500, 1500), Random::Range1f(10, 200), Random::Range1f(1100, 3800)));
+					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(2, 2, 2));
+					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 3], nullptr);
+					debris->GetComponent<Transform>().SetParent(desertID);
+				}
+				else if (i > 325 && i <= 350)
+				{
+					//Bottle bot
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-1500, 1500), Random::Range1f(-200, -10), Random::Range1f(1100, 3800)));
+					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(2, 2, 2));
+					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 3], nullptr);
+				}
+				else if (i > 350 && i <= 375)
+				{
+					//Box top
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-2000, 2000), Random::Range1f(10, 300), Random::Range1f(1200, 4000)));
+					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(4, 4, 4));
+					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 4], nullptr);
+					debris->GetComponent<Transform>().SetParent(rockID);
+				}
+				else if (i > 375 && i <= 400)
+				{
+					//Box bot
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-2000, 2000), Random::Range1f(-300, -10), Random::Range1f(1200, 4000)));
+					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(4, 4, 4));
+					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 4], nullptr);
+				}
+				else if (i > 400 && i <= 425)
+				{
+					//Asteroid1 top
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(350, 2000), Random::Range1f(10, 400), Random::Range1f(2200, -2000)));
+					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(4, 4, 4));
+					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET)], nullptr);
+				}
+				else if (i > 425 && i <= 450)
+				{
+					//Asteroid1 bot
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(350, 2000), Random::Range1f(-400, -10), Random::Range1f(2200, -2000)));
+					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(4, 4, 4));
+					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET)], nullptr);
+				}
+
+				
+			}
+
 		}
 		else if (m_name == "Universe_27") {
 
@@ -777,6 +935,9 @@ void Universe::InitScene()
 			m_SceneResumeNo = int(ScenesNum::UNIVERSE_5);
 		}
 
+
+	
+
 		//Setting Parent/Childe
 		cameraEntity->GetComponent<Transform>().SetParent(new entt::entity(playerEntity->GetID()));
 		healthent->GetComponent<Transform>().SetParent(camentity);
@@ -784,12 +945,16 @@ void Universe::InitScene()
 		powerUp->GetComponent<Transform>().SetParent(camentity);
 		score->GetComponent<Transform>().SetParent(camentity);
 
-		Skybox::Init();
+		
 	}
+
+	Skybox::Init(m_name);
 }
 
 void Universe::Update(float deltaTime)
 {
+	m_deltaTime = deltaTime;
+
 	// Key Input
 	KeyInput();
 	GamepadInput();
@@ -798,7 +963,6 @@ void Universe::Update(float deltaTime)
 	camera->Update();
 
 	playerController->Update(deltaTime);
-	//jellyfishController->Update(deltaTime);
 
 	// Solar System Rotation (IN-PROGRESS) 
 	SolarSystemUpdate();
@@ -827,34 +991,56 @@ void Universe::Update(float deltaTime)
 	std::vector<BasicAI*> AI;
 	for (auto enemy : m_sceneReg->view<EntityType>()) {
 		int index = AI.size();
-		if (GameObject::GetComponent<EntityType>(enemy) == EntityType::NEROTIST) {
+		EntityType type = GameObject::GetComponent<EntityType>(enemy);
+
+		if (type == EntityType::NEROTIST) {
 			AI.push_back(&GameObject::GetComponent<BasicAI>(enemy));
 			AI[index]->Update(deltaTime);
 		}
-		else if (GameObject::GetComponent<EntityType>(enemy) == EntityType::KAMAKAZI) {
+		else if (type == EntityType::KAMAKAZI) {
 			AI.push_back(&GameObject::GetComponent<KamakaziAI>(enemy));
 			AI[index]->Update(deltaTime);
 
 			if (isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
 				AI.pop_back();
-				particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), new Texture("Resource Files/Textures/yellow.png"), enemy);
+				particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
 				particleTemp->setSize(10);
 				particleTemp->getEmitter()->setLifetime(0.2, 0.2);
 				particleTemp->getEmitter()->setSpeed(100);
 				particleTemp->getEmitter()->init();
+				particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
 				particles.push_back(particleTemp);
 				m_sceneReg->destroy(enemy);
 				m_PlayerHealth -= m_PlayerHealth > 0 ? 1 : 0;
 				GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
 			}
 		}
-		else if (GameObject::GetComponent<EntityType>(enemy) == EntityType::SCAVENGER) {
+		else if (type == EntityType::SCAVENGER) {
 			AI.push_back(&GameObject::GetComponent<ScavengerAI>(enemy));
 			AI[index]->Update(deltaTime);
 		}
-		else if (GameObject::GetComponent<EntityType>(enemy) == EntityType::BOMBARDIER) {
+		else if (type == EntityType::BOMBARDIER) {
 			AI.push_back(&GameObject::GetComponent<BombardierAI>(enemy));
 			AI[index]->Update(deltaTime);
+		}
+
+		else if (type == EntityType::KAMABULLET) {
+			GameObject::GetComponent<KamakaziBullet>(enemy).Update(deltaTime);
+
+			if (GameObject::GetComponent<KamakaziBullet>(enemy).GetDestroyed() || isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
+				particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+				particleTemp->setSize(10);
+				particleTemp->getEmitter()->setLifetime(0.2, 0.2);
+				particleTemp->getEmitter()->setSpeed(100);
+				particleTemp->getEmitter()->init();
+				GameObject::GetComponent<Transform>(enemy).SetLocalScale(glm::vec3(1));
+				particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
+				GameObject::GetComponent<Transform>(enemy).SetLocalScale(glm::vec3(5))->UpdateGlobal();
+				particles.push_back(particleTemp);
+				m_sceneReg->destroy(enemy);
+				m_PlayerHealth -= m_PlayerHealth > 0 ? 1 : 0;
+				GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+			}
 		}
 	}
 
@@ -874,18 +1060,29 @@ void Universe::Update(float deltaTime)
 				entt::entity enemy = AI[i]->GetID();
 				if (isBoxCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(AI[i]->GetID())))
 				{
-					particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), new Texture("Resource Files/Textures/yellow.png"), enemy);
+					particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
 					particleTemp->setSize(10);
 					particleTemp->getEmitter()->setLifetime(0.2, 0.2);
 					particleTemp->getEmitter()->setSpeed(100);
 					particleTemp->getEmitter()->init();
+					particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
 					particles.push_back(particleTemp);
+
+					if (GameObject::GetComponent<EntityType>(enemy) == EntityType::KAMAKAZI)
+						m_score->GetComponent<ScoreHandler>().Add(1);
+					else if (GameObject::GetComponent<EntityType>(enemy) == EntityType::NEROTIST)
+						m_score->GetComponent<ScoreHandler>().Add(5);
+					else if (GameObject::GetComponent<EntityType>(enemy) == EntityType::BOMBARDIER)
+						m_score->GetComponent<ScoreHandler>().Add(10);
+
 					m_sceneReg->destroy(enemy);
 					AI.erase(AI.begin() + i);
-					m_score->GetComponent<ScoreHandler>().Add(1);
-				
-
+					
+					
+			
+					
 					m_sceneReg->destroy(Bulletentity);
+					break;
 				}
 			}
 		}
@@ -904,11 +1101,71 @@ void Universe::Update(float deltaTime)
 
 	if (m_name == "Universe_19") {
 		//collisions of player with planets
-		for (int i = Universe19SS::SOLARI; i <= Universe19SS::KEMINTH; i++) {
+		for (int i = Universe19SS::SOLARI + 1; i <= Universe19SS::KEMINTH; i++) {
 			if (isBoxCircleCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(m_solarSystem[i]))) {
 				m_PlayerHealth = 0;
 				GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
 			}
+		}
+
+		if (m_score->GetComponent<ScoreHandler>().GetScore() >= 1 && !m_isBossSpawn)
+		{
+			// JELLYFIH BOSS
+			auto jellyEntity = GameObject::Allocate();
+			
+			jellyEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+			auto& jellypos = jellyEntity->GetComponent<Transform>();
+
+			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], jellyEntity->GetID());
+			particleTemp->setRotation(glm::vec3(90, 0, 0));
+			particleTemp->getEmitter()->setRadius(1.0);
+			particleTemp->setSize(2);
+			particleTemp->getEmitter()->setAngleDeg(10);
+			particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+			particleTemp->getEmitter()->setSpeed(10);
+			particleTemp->getEmitter()->init();
+			particles.push_back(particleTemp);
+	
+			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], jellyEntity->GetID());
+			particleTemp->setRotation(glm::vec3(90, 0, 0));
+			particleTemp->getEmitter()->setRadius(1.0);
+			particleTemp->setSize(2);
+			particleTemp->getEmitter()->setAngleDeg(10);
+			particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+			particleTemp->getEmitter()->setSpeed(10);
+			particleTemp->getEmitter()->init();
+			particles.push_back(particleTemp);
+
+			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], jellyEntity->GetID());
+			particleTemp->setRotation(glm::vec3(90, 0, 0));
+			particleTemp->getEmitter()->setRadius(1.0);
+			particleTemp->setSize(2);
+			particleTemp->getEmitter()->setAngleDeg(10);
+			particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+			particleTemp->getEmitter()->setSpeed(10);
+			particleTemp->getEmitter()->init();
+			particles.push_back(particleTemp);
+			
+			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], jellyEntity->GetID());
+			particleTemp->setRotation(glm::vec3(90, 0, 0));
+			particleTemp->getEmitter()->setRadius(1.0);
+			particleTemp->setSize(2);
+			particleTemp->getEmitter()->setAngleDeg(10);
+			particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+			particleTemp->getEmitter()->setSpeed(10);
+			particleTemp->getEmitter()->init();
+			particles.push_back(particleTemp);
+
+			glm::vec3 temp = glm::vec3(GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().x + 100,
+				GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().y - 30,
+				GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().z + 100);
+
+			jellypos.MoveLocalPos(temp);
+			jellyEntity->AttachComponent<StaticRenderer>(CamID, jellyEntity->GetID(), *m_meshes[int(EnemyMesh::JELLYFISH)], nullptr, true);
+			jellyEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
+
+
+			m_isBossSpawn = true;
 		}
 	}
 
@@ -988,6 +1245,7 @@ void Universe::KeyInput()
 	// Player Movement //
 	auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
 	auto& camEnt = GameObject::GetComponent<Transform>(CamID);
+	auto& moonEnt = GameObject::GetComponent<Transform>(MoonID);
 
 	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
@@ -1013,22 +1271,22 @@ void Universe::KeyInput()
 	//CamMove
 	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0, 0, -0.5);
+		glm::vec3 temp = glm::vec3(0, 0, -1.5);
 		camEnt.MoveLocalPos(temp);
 	}
 	else if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0, 0, 0.5);
+		glm::vec3 temp = glm::vec3(0, 0, 1.5);
 		camEnt.MoveLocalPos(temp);
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0.0f, 0.5f, 0.0f);
+		glm::vec3 temp = glm::vec3(0.0f, .5f, 0.0f);
 		camEnt.RotateLocal(temp);
 	}
 	else if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0.0f, -0.5f, 0.0f);
+		glm::vec3 temp = glm::vec3(0.0f, -.5f, 0.0f);
 		camEnt.RotateLocal(temp);
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_Z) == GLFW_PRESS)
@@ -1043,12 +1301,12 @@ void Universe::KeyInput()
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(-0.5f, 0.0f, 0.0f);
+		glm::vec3 temp = glm::vec3(-1.0f, 0.0f, 0.0f);
 		camEnt.MoveLocalPos(temp);
 	}
 	else if (glfwGetKey(m_window, GLFW_KEY_E) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0.5f, 0.0f, 0.0f);
+		glm::vec3 temp = glm::vec3(1.0f, 0.0f, 0.0f);
 		camEnt.MoveLocalPos(temp);
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_F) == GLFW_PRESS && !isPlayerAnim) {
@@ -1061,10 +1319,10 @@ void Universe::KeyInput()
 
 	if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS && !isexplode) {
 		//explosion
-		particleTemp = new ParticleController(2, playerEnt.GetLocalPos(), new Texture("Resource Files/Textures/yellow.png"), MainPlayerID);
+		particleTemp = new ParticleController(2, moonEnt.GetLocalPos(), new Texture("Resource Files/Textures/red.png"), MoonID);
 		particleTemp->setSize(10);
-		particleTemp->getEmitter()->setLifetime(2.5, 2.5);
-		particleTemp->getEmitter()->setSpeed(200);
+		particleTemp->getEmitter()->setLifetime(.8, .8);
+		particleTemp->getEmitter()->setSpeed(100);
 		particleTemp->getEmitter()->init();
 		particles.push_back(particleTemp);
 		isexplode = true;
@@ -1125,8 +1383,7 @@ void Universe::GamepadInput()
 
 	if (gamepad.getGamepadInput()) {
 		auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
-		glm::vec3 temp;
-
+		glm::vec3 temp; 
 		
 
 		if (gamepad.getGamepadInput()) {
@@ -1138,181 +1395,217 @@ void Universe::GamepadInput()
 
 			}
 			else if (gamepad.buttons.X) {
-
+				if (gamepad.axes[Joystick::LEFT].X < -0.17f)
+				{
+					tempDir = -1;
+					isDodge = true;
+				}
+				if (gamepad.axes[Joystick::LEFT].X > 0.17f)
+				{
+					tempDir = 1;
+					isDodge = true;
+				}			
 			}
 			else if (gamepad.buttons.Y) {
 
 			}
 
-			//Left Trigger
-			{	
-
-				if (gamepad.trigger.LT > -1 && gamepad.trigger.LT < -0.8) {
-					temp = glm::vec3(0, 0, -0.2);
-					playerEnt.MoveLocalPos(temp);
-					
-				}
-				else if (gamepad.trigger.LT > -0.8 && gamepad.trigger.LT < -0.6) {
-					temp = glm::vec3(0, 0, -0.4);
-					playerEnt.MoveLocalPos(temp);
-				}
-				else if (gamepad.trigger.LT > -0.6 && gamepad.trigger.LT < -0.4) {
-					temp = glm::vec3(0, 0, -0.6);
-					playerEnt.MoveLocalPos(temp);
-				}
-				else if (gamepad.trigger.LT > -0.4 && gamepad.trigger.LT < -0.2) {
-					temp = glm::vec3(0, 0, -0.8);
-					playerEnt.MoveLocalPos(temp);
-				}
-				else if (gamepad.trigger.LT > -0.2 && gamepad.trigger.LT < 0) {
-					temp = glm::vec3(0, 0, -1.0);
-					playerEnt.MoveLocalPos(temp);
-				}
-				else if (gamepad.trigger.LT > 0 && gamepad.trigger.LT < 0.2) {
-					temp = glm::vec3(0, 0, -1.2);
-					playerEnt.MoveLocalPos(temp);
-				}
-				else if (gamepad.trigger.LT > 0.2 && gamepad.trigger.LT < 0.4) {
-					temp = glm::vec3(0, 0, -1.4);
-					playerEnt.MoveLocalPos(temp);
-				}
-				else if (gamepad.trigger.LT > 1 && gamepad.trigger.LT < 0.6) {
-					temp = glm::vec3(0, 0, -1.6);
-					playerEnt.MoveLocalPos(temp);
-				}
-				else if (gamepad.trigger.LT > 1 && gamepad.trigger.LT < 0.8) {
-					temp = glm::vec3(0, 0, -1.8);
-					playerEnt.MoveLocalPos(temp);
-				}
-				else if (gamepad.trigger.LT > 0.8 ) {
-					temp = glm::vec3(0, 0, -2);
-					playerEnt.MoveLocalPos(temp);
-				}	
-
-			}
-
-			//Right Trigger
+			if (!isDodge)
 			{
-			
-				if (gamepad.trigger.RT > -0.8) {
-					if (glfwGetTime() - m_startTime >= m_fireRate) {
-						// Shoot Bullet Right
-						auto RightBullet = GameObject::Allocate();
-						RightBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), RightBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(RightBullet->GetID());
-						RightBullet->GetComponent<Projectile>().SetSpeed(500);
-						RightBullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
-						RightBullet->AttachComponent<EntityType>() = EntityType::PLAYER;
-						glm::vec3 offset1 = glm::vec3(3, 0, -10);
-						RightBullet->GetComponent<Transform>().MoveLocalPos(offset1);
-						RightBullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3));
+				//Left Trigger
+				{
 
-						// Shoot Bullet Left
-						auto LeftBullet = GameObject::Allocate();
-						LeftBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), LeftBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(LeftBullet->GetID());
-						LeftBullet->GetComponent<Projectile>().SetSpeed(500);
-						LeftBullet->AttachComponent<EntityType>() = EntityType::PLAYER;
-						LeftBullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
-						glm::vec3 offset2 = glm::vec3(-3, 0, -10);
-						LeftBullet->GetComponent<Transform>().MoveLocalPos(offset2);
-						LeftBullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3));
+					if (gamepad.trigger.LT > -1 && gamepad.trigger.LT < -0.8) {
+						temp = glm::vec3(0, 0, -0.2);
+						playerEnt.MoveLocalPos(temp);
 
-						//Reset time to fire
-						m_resetTime = true;
+					}
+					else if (gamepad.trigger.LT > -0.8 && gamepad.trigger.LT < -0.6) {
+						temp = glm::vec3(0, 0, -0.4);
+						playerEnt.MoveLocalPos(temp);
+					}
+					else if (gamepad.trigger.LT > -0.6 && gamepad.trigger.LT < -0.4) {
+						temp = glm::vec3(0, 0, -0.6);
+						playerEnt.MoveLocalPos(temp);
+					}
+					else if (gamepad.trigger.LT > -0.4 && gamepad.trigger.LT < -0.2) {
+						temp = glm::vec3(0, 0, -0.8);
+						playerEnt.MoveLocalPos(temp);
+					}
+					else if (gamepad.trigger.LT > -0.2 && gamepad.trigger.LT < 0) {
+						temp = glm::vec3(0, 0, -1.0);
+						playerEnt.MoveLocalPos(temp);
+					}
+					else if (gamepad.trigger.LT > 0 && gamepad.trigger.LT < 0.2) {
+						temp = glm::vec3(0, 0, -1.2);
+						playerEnt.MoveLocalPos(temp);
+					}
+					else if (gamepad.trigger.LT > 0.2 && gamepad.trigger.LT < 0.4) {
+						temp = glm::vec3(0, 0, -1.4);
+						playerEnt.MoveLocalPos(temp);
+					}
+					else if (gamepad.trigger.LT > 1 && gamepad.trigger.LT < 0.6) {
+						temp = glm::vec3(0, 0, -1.6);
+						playerEnt.MoveLocalPos(temp);
+					}
+					else if (gamepad.trigger.LT > 1 && gamepad.trigger.LT < 0.8) {
+						temp = glm::vec3(0, 0, -1.8);
+						playerEnt.MoveLocalPos(temp);
+					}
+					else if (gamepad.trigger.LT > 0.8) {
+						temp = glm::vec3(0, 0, -2);
+						playerEnt.MoveLocalPos(temp);
 					}
 
-					if (m_resetTime) {
-						m_startTime = glfwGetTime();
-						m_resetTime = false;
+				}
+
+				//Right Trigger
+				{
+
+					if (gamepad.trigger.RT > -0.8) {
+						if (glfwGetTime() - m_startTime >= m_fireRate) {
+							// Shoot Bullet Right
+							auto RightBullet = GameObject::Allocate();
+							RightBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), RightBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(RightBullet->GetID());
+							RightBullet->GetComponent<Projectile>().SetSpeed(500);
+							RightBullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
+							RightBullet->AttachComponent<EntityType>() = EntityType::PLAYER;
+							glm::vec3 offset1 = glm::vec3(3, 0, -10);
+							RightBullet->GetComponent<Transform>().MoveLocalPos(offset1);
+							RightBullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3));
+
+							// Shoot Bullet Left
+							auto LeftBullet = GameObject::Allocate();
+							LeftBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), LeftBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(LeftBullet->GetID());
+							LeftBullet->GetComponent<Projectile>().SetSpeed(500);
+							LeftBullet->AttachComponent<EntityType>() = EntityType::PLAYER;
+							LeftBullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
+							glm::vec3 offset2 = glm::vec3(-3, 0, -10);
+							LeftBullet->GetComponent<Transform>().MoveLocalPos(offset2);
+							LeftBullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3));
+
+							//Reset time to fire
+							m_resetTime = true;
+						}
+
+						if (m_resetTime) {
+							m_startTime = glfwGetTime();
+							m_resetTime = false;
+						}
 					}
 				}
+
+				//Left Joystick
+				{
+					float tempSpeed = 0.0f;
+
+					//ROTATE LEFT
+					if (gamepad.axes[Joystick::LEFT].X < -0.17f && gamepad.axes[Joystick::LEFT].X > -0.33) {
+						temp = glm::vec3(0.0f, 0.25f, 0.0f);
+						playerEnt.RotateLocal(temp);
+					}
+					else if (gamepad.axes[Joystick::LEFT].X < -0.3 && gamepad.axes[Joystick::LEFT].X > -0.55f) {
+						temp = glm::vec3(0.0f, 0.5f, 0.0f);
+						playerEnt.RotateLocal(temp);
+					}
+					else if (gamepad.axes[Joystick::LEFT].X < -0.77) {
+						temp = glm::vec3(0.0f, 0.75f, 0.0f);
+						playerEnt.RotateLocal(temp);
+					}
+					else if (gamepad.axes[Joystick::LEFT].X < -0.99) {
+						temp = glm::vec3(0.0f, 1.0f, 0.0f);
+						playerEnt.RotateLocal(temp);
+					}
+					//ROTATE RIGHT
+					if (gamepad.axes[Joystick::LEFT].X > 0.17f && gamepad.axes[Joystick::LEFT].X < 0.33) {
+						temp = glm::vec3(0.0f, -0.25f, 0.0f);
+						playerEnt.RotateLocal(temp);
+					}
+					else if (gamepad.axes[Joystick::LEFT].X > 0.3 && gamepad.axes[Joystick::LEFT].X < 0.55f) {
+						temp = glm::vec3(0.0f, -0.5f, 0.0f);
+						playerEnt.RotateLocal(temp);
+					}
+					else if (gamepad.axes[Joystick::LEFT].X > 0.77) {
+						temp = glm::vec3(0.0f, -0.75f, 0.0f);
+						playerEnt.RotateLocal(temp);
+					}
+					else if (gamepad.axes[Joystick::LEFT].X > 0.99) {
+						temp = glm::vec3(0.0f, -1.0f, 0.0f);
+						playerEnt.RotateLocal(temp);
+					}
+					//MOVE FORWARD
+					if (gamepad.axes[Joystick::LEFT].Y > -0.17) {
+						if (isWingOpen && !playerController->getAnimate())
+						{
+							playerController->SetAnimate(true);
+							isPlayerAnim = true;
+							isWingOpen = false;
+						}
+					}
+					else if (gamepad.axes[Joystick::LEFT].Y < -0.17 && gamepad.axes[Joystick::LEFT].Y > -0.25) {
+						temp = glm::vec3(0, 0, -0.8);
+						playerEnt.MoveLocalPos(temp);
+						tempSpeed = 0.8f;
+					}
+					else if (gamepad.axes[Joystick::LEFT].Y < -0.25 && gamepad.axes[Joystick::LEFT].Y > -0.45) {
+						temp = glm::vec3(0, 0, -1.6);
+						playerEnt.MoveLocalPos(temp);
+						tempSpeed = 1.6f;
+					}
+					else if (gamepad.axes[Joystick::LEFT].Y < -0.45 && gamepad.axes[Joystick::LEFT].Y > -0.65) {
+						temp = glm::vec3(0, 0, -2.4);
+						playerEnt.MoveLocalPos(temp);
+						tempSpeed = 2.4f;
+					}
+					else if (gamepad.axes[Joystick::LEFT].Y < -0.65 && gamepad.axes[Joystick::LEFT].Y > -0.85) {
+						temp = glm::vec3(0, 0, -3.2);
+						playerEnt.MoveLocalPos(temp);
+						tempSpeed = 3.2f;
+					}
+					else if (gamepad.axes[Joystick::LEFT].Y < -0.85) {
+						temp = glm::vec3(0, 0, -4.0);
+						playerEnt.MoveLocalPos(temp);
+						tempSpeed = 4.0f;
+
+						if (!isWingOpen && !playerController->getAnimate())
+						{
+							playerController->SetAnimate(true);
+							isPlayerAnim = true;
+							isWingOpen = true;
+						}
+					}
+					 
+
+					particles[ParticleName::PLAYER_CENTER_LEFT]->getEmitter()->setSpeed(tempSpeed);
+					particles[ParticleName::PLAYER_CENTER_RIGHT]->getEmitter()->setSpeed(tempSpeed);
+				}
 			}
+			else if(isDodge)
+			{
+				if (dodgeCount == 0.5)
+				{
+					particleTemp = new ParticleController(4, playerEnt.GetLocalPos(), m_textures[int(TextureType::BLINK)], MainPlayerID);
+					particleTemp->setSize(5);
+					particleTemp->getEmitter()->setLifetime(1.0, 1.0);
+					particleTemp->getEmitter()->setSpeed(10);
+					particleTemp->getEmitter()->init();
+					particleTemp->setModelMatrix(playerEnt.UpdateGlobal());
+					particles.push_back(particleTemp);
+				}
+
+				dodgeCount -= m_deltaTime;
+				temp = glm::vec3(10 * tempDir, 0, 0);
+				playerEnt.MoveLocalPos(temp);
 
 				
-			//Left Joystick
-			{
-				float tempSpeed = 0.0f;
-
-				//ROTATE LEFT
-				if (gamepad.axes[Joystick::LEFT].X < -0.17f && gamepad.axes[Joystick::LEFT].X > -0.33) {
-					temp = glm::vec3(0.0f, 0.25f, 0.0f);
-					playerEnt.RotateLocal(temp);
-				}
-				else if (gamepad.axes[Joystick::LEFT].X < -0.3 && gamepad.axes[Joystick::LEFT].X > -0.55f) {
-					temp = glm::vec3(0.0f, 0.5f, 0.0f);
-					playerEnt.RotateLocal(temp);
-				}
-				else if (gamepad.axes[Joystick::LEFT].X < -0.77) {
-					temp = glm::vec3(0.0f, 0.75f, 0.0f);
-					playerEnt.RotateLocal(temp);
-				}
-				else if (gamepad.axes[Joystick::LEFT].X < -0.99) {
-					temp = glm::vec3(0.0f, 1.0f, 0.0f);
-					playerEnt.RotateLocal(temp);
-				}
-				//ROTATE RIGHT
-				if (gamepad.axes[Joystick::LEFT].X > 0.17f && gamepad.axes[Joystick::LEFT].X < 0.33) {
-					temp = glm::vec3(0.0f, -0.25f, 0.0f);
-					playerEnt.RotateLocal(temp);
-				}
-				else if (gamepad.axes[Joystick::LEFT].X > 0.3 && gamepad.axes[Joystick::LEFT].X < 0.55f) {
-					temp = glm::vec3(0.0f, -0.5f, 0.0f);
-					playerEnt.RotateLocal(temp);
-				}
-				else if (gamepad.axes[Joystick::LEFT].X > 0.77) {
-					temp = glm::vec3(0.0f, -0.75f, 0.0f);
-					playerEnt.RotateLocal(temp);
-				}
-				else if (gamepad.axes[Joystick::LEFT].X > 0.99) {
-					temp = glm::vec3(0.0f, -1.0f, 0.0f);
-					playerEnt.RotateLocal(temp);
-				}
-				//MOVE FORWARD
-				if (gamepad.axes[Joystick::LEFT].Y > -0.17) {
-					if (isWingOpen && !playerController->getAnimate())
-					{
-						playerController->SetAnimate(true);
-						isPlayerAnim = true;
-						isWingOpen = false;
-					}
-				}
-				else if (gamepad.axes[Joystick::LEFT].Y < -0.17 && gamepad.axes[Joystick::LEFT].Y > -0.25) {
-					temp = glm::vec3(0, 0, -0.4);
-					playerEnt.MoveLocalPos(temp);
-					tempSpeed = 0.8f;
-				}
-				else if (gamepad.axes[Joystick::LEFT].Y < -0.25 && gamepad.axes[Joystick::LEFT].Y > -0.45) {
-					temp = glm::vec3(0, 0, -0.8);
-					playerEnt.MoveLocalPos(temp);
-					tempSpeed = 1.6f;
-				}
-				else if (gamepad.axes[Joystick::LEFT].Y < -0.45 && gamepad.axes[Joystick::LEFT].Y > -0.65) {
-					temp = glm::vec3(0, 0, -1.2);
-					playerEnt.MoveLocalPos(temp);
-					tempSpeed = 2.4f;
-				}
-				else if (gamepad.axes[Joystick::LEFT].Y < -0.65 && gamepad.axes[Joystick::LEFT].Y > -0.85) {
-					temp = glm::vec3(0, 0, -1.6);
-					playerEnt.MoveLocalPos(temp);
-					tempSpeed = 3.2f;
-				}
-				else if (gamepad.axes[Joystick::LEFT].Y < -0.85) {
-					temp = glm::vec3(0, 0, -2.0);
-					playerEnt.MoveLocalPos(temp);
-					tempSpeed = 4.0f;
-
-					if (!isWingOpen && !playerController->getAnimate())
-					{
-						playerController->SetAnimate(true);
-						isPlayerAnim = true;
-						isWingOpen = true;
-					}
-				}
-
-
-				particles[ParticleName::PLAYER_CENTER_LEFT]->getEmitter()->setSpeed(tempSpeed);
-				particles[ParticleName::PLAYER_CENTER_RIGHT]->getEmitter()->setSpeed(tempSpeed);
+			
+				
 			}
-
+			if (dodgeCount < 0)
+			{
+				dodgeCount = 0.5;
+				isDodge = false;
+			}
 
 		}
 	}

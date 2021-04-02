@@ -2,7 +2,7 @@
 
 ParticleEmitter::ParticleEmitter(int emitterType)
 {
-	// create 100 particles
+	// create 200 particles
 	m_particles.resize(2000);
 
 	m_emitterType = emitterType;
@@ -95,6 +95,36 @@ void ParticleEmitter::init()
 			m_particles[i].m_lifetime = Random::Range1f(m_minLife, m_maxLife);
 
 		}
+		else if (m_emitterType == 3) //Portal EMITTER
+		{
+
+
+			float tanTheta = glm::tan(glm::radians(m_degrees));
+
+
+			glm::vec2 tempVec2 = Random::Circle2f(m_radius);
+
+			m_particles[i].m_velocity = m_speed * glm::normalize(glm::vec3(tanTheta * tempVec2.x, tanTheta * tempVec2.y, 1.0f));
+			m_particles[i].m_position = glm::vec3(tempVec2.x, tempVec2.y, 0);
+			m_particles[i].m_lifetime = Random::Range1f(m_minLife, m_maxLife);
+
+		}
+		else if (m_emitterType == 4) //Blink EMITTER
+		{
+
+
+
+			glm::vec3 pos = Random::Range3f(-0.1, 0.1);
+			pos += m_controllerPos;
+
+			m_particles[i].m_velocity = m_speed * glm::normalize(pos - m_controllerPos);
+
+			if (glm::sqrt((pos.x * pos.x) + (pos.y * pos.y) + (pos.z * pos.z)) < 1)
+				m_particles[i].m_position = pos;
+
+			m_particles[i].m_lifetime = Random::Range1f(m_minLife, m_maxLife);
+
+		}
 
 	}
 }
@@ -155,6 +185,47 @@ void ParticleEmitter::update(const float dt)
 			}
 
 			if(!m_particles.empty())
+				m_particles[i].m_position += dt * m_particles[i].m_velocity;
+		}
+		else if (m_emitterType == 3) //Portal EMITTER
+		{
+
+			float tanTheta = glm::tan(glm::radians(m_degrees));
+
+			if (m_particles[i].m_lifetime <= 0.0f)
+			{
+				glm::vec2 tempVec2 = Random::Circle2f(m_radius);
+
+				m_particles[i].m_velocity = m_speed * glm::normalize(glm::vec3(1.0f, tanTheta * tempVec2.y, 1.0f));
+				m_particles[i].m_position = glm::vec3(tempVec2.x, tempVec2.y, 0);
+				m_particles[i].m_lifetime = Random::Range1f(m_minLife, m_maxLife);
+			}
+
+			m_particles[i].m_position += dt * m_particles[i].m_velocity;
+
+		}
+		else if (m_emitterType == 4) //Blink Dodge EMITTER
+		{
+
+			if (m_particles[i].m_lifetime <= 0.0f)
+			{
+				m_particles.clear();
+
+				if (i == m_particles.size() - 1)
+					m_isDone = true;
+
+				/*glm::vec3 pos = Random::Range3f(-0.1, 0.1);
+
+
+				m_particles[i].m_velocity = m_speed * glm::normalize(pos - m_controllerPos);
+
+				if (glm::sqrt((pos.x * pos.x) + (pos.y * pos.y) + (pos.z * pos.z)) < 1)
+					m_particles[i].m_position = pos;
+
+				m_particles[i].m_lifetime = Random::Range1f(m_minLife, m_maxLife);*/
+			}
+
+			if (!m_particles.empty())
 				m_particles[i].m_position += dt * m_particles[i].m_velocity;
 		}
 
@@ -268,6 +339,11 @@ void ParticleController::setColor(glm::vec4 startColor, glm::vec4 endColor)
 	m_endColor = endColor;
 }
 
+void ParticleController::setModelMatrix(glm::mat4 matrix)
+{
+	m_modelMatrix = matrix;
+}
+
 ParticleEmitter* ParticleController::getEmitter()
 {
 	return m_emitter;
@@ -285,8 +361,11 @@ void ParticleController::update(const float dt, const glm::mat4 ProjectionMatrix
 	m_emitter->update(dt);
 
 	
-
-	if (m_emitter->getEmitterType() != 2)
+	if (m_emitter->getEmitterType() == 4)
+	{
+		m_modelMatrix = GameObject::GetComponent<Transform>(m_parentEntity).UpdateGlobal();
+	}
+	else if (m_emitter->getEmitterType() != 2)
 	{
 		m_modelMatrix = GameObject::GetComponent<Transform>(m_parentEntity).UpdateGlobal() * glm::mat4(glm::translate(glm::mat4(1.0f), m_position) *
 			glm::rotate(glm::mat4(1.0f), glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f)) *
@@ -294,6 +373,8 @@ void ParticleController::update(const float dt, const glm::mat4 ProjectionMatrix
 			glm::rotate(glm::mat4(1.0f), glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f)) *
 			glm::scale(glm::mat4(1.0f), m_scale));
 	}
+	
+		
 	m_shader->setMat4fv(ProjectionMatrix, "ProjectionMatrix");
 	m_shader->setMat4fv(ViewMatrix, "ViewMatrix");
 	m_shader->setMat4fv(m_modelMatrix, "ModelMatrix");

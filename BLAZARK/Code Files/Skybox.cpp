@@ -4,7 +4,7 @@ GLuint Skybox::m_skyboxVAO = NULL;
 GLuint Skybox::m_cubemapTexture = NULL;
 Shader* Skybox::m_shader = nullptr;
 
-void Skybox::Init()
+void Skybox::Init(std::string scenename)
 {
 	m_shader = new Shader("Resource Files/Shaders/skybox_vert_shader.glsl", "Resource Files/Shaders/skybox_frag_shader.glsl");
 
@@ -74,12 +74,34 @@ void Skybox::Init()
 
 	//Load images
 	std::vector<const GLchar*> faces;
-	faces.push_back("Resource Files/Textures/Universe-19/SkyBox/1.png");
-	faces.push_back("Resource Files/Textures/Universe-19/SkyBox/2.png");
-	faces.push_back("Resource Files/Textures/Universe-19/SkyBox/3.png");
-	faces.push_back("Resource Files/Textures/Universe-19/SkyBox/4.png");
-	faces.push_back("Resource Files/Textures/Universe-19/SkyBox/5.png");
-	faces.push_back("Resource Files/Textures/Universe-19/SkyBox/6.png");
+
+	if (scenename == "Universe_19")
+	{
+		faces.push_back("Resource Files/Textures/Universe-19/SkyBox/1.png");
+		faces.push_back("Resource Files/Textures/Universe-19/SkyBox/2.png");
+		faces.push_back("Resource Files/Textures/Universe-19/SkyBox/3.png");
+		faces.push_back("Resource Files/Textures/Universe-19/SkyBox/4.png");
+		faces.push_back("Resource Files/Textures/Universe-19/SkyBox/5.png");
+		faces.push_back("Resource Files/Textures/Universe-19/SkyBox/6.png");
+	}
+	else if (scenename == "Universe_27")
+	{
+		faces.push_back("Resource Files/Textures/Universe-27/SkyBox/1.png");
+		faces.push_back("Resource Files/Textures/Universe-27/SkyBox/2.png");
+		faces.push_back("Resource Files/Textures/Universe-27/SkyBox/3.png");
+		faces.push_back("Resource Files/Textures/Universe-27/SkyBox/4.png");
+		faces.push_back("Resource Files/Textures/Universe-27/SkyBox/5.png");
+		faces.push_back("Resource Files/Textures/Universe-27/SkyBox/6.png");
+	}
+	else if (scenename == "Universe_5")
+	{
+		faces.push_back("Resource Files/Textures/Universe-5/SkyBox/1.png");
+		faces.push_back("Resource Files/Textures/Universe-5/SkyBox/2.png");
+		faces.push_back("Resource Files/Textures/Universe-5/SkyBox/3.png");
+		faces.push_back("Resource Files/Textures/Universe-5/SkyBox/4.png");
+		faces.push_back("Resource Files/Textures/Universe-5/SkyBox/5.png");
+		faces.push_back("Resource Files/Textures/Universe-5/SkyBox/6.png");
+	}
 
 	m_cubemapTexture = LoadCubemap(faces);
 }

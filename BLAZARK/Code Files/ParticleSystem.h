@@ -50,6 +50,7 @@ private:
 	float m_maxLife = 7;
 	float m_degrees = 15;
 	bool m_isDone = false;
+	float m_waveIndex = 0;
 	glm::vec3 m_controllerPos;
 	GLuint m_vertexBuffer;
 	GLuint m_positionBuffer;
@@ -76,6 +77,7 @@ public:
 	void setRotation(glm::vec3 rotation);
 	void setSize(float size);
 	void setColor(glm::vec4 startColor, glm::vec4 endColor);
+	void setModelMatrix(glm::mat4 matrix);
 
 	ParticleEmitter* getEmitter();
 

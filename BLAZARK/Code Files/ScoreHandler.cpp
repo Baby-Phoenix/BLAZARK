@@ -25,6 +25,18 @@ void ScoreHandler::SetScorePos(glm::vec3 scorePos)
 	m_ScorePos = scorePos;
 }
 
+int ScoreHandler::GetScore()
+{  
+	int score = 0;
+
+	for (int i = 0; i < m_score.size(); i++) {
+		score += m_score[i] * std::pow(10, i);
+
+	}
+
+	return score;
+}
+
 void ScoreHandler::Add(int num) 
 {
 	int temp = num;
