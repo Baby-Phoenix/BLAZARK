@@ -41,6 +41,11 @@ unsigned& ColorCorrectionEffect::GetCurSlot()
 	return _cur_Slot;
 }
 
+void ColorCorrectionEffect::SetCurSlot(unsigned int LUTSlot)
+{
+	_cur_Slot = LUTSlot;
+}
+
 void ColorCorrectionEffect::AddLUT(std::string filename)
 {
 	_LUT.push_back(new LUT3D(filename));

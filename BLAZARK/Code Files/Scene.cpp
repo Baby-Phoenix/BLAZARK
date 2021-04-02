@@ -22,6 +22,9 @@ std::vector<Texture*> Scene::m_textures;
 
 std::unique_ptr<GameObject> BufferEntity;
 
+float dodgeCount = 0.5;
+float tempDir = 1;
+
 // Solar System Rotation
 glm::vec3 sunRotation = glm::vec3(0, -0.025, 0);
 glm::vec3 planetRotation = glm::vec3(0, 0.045583, 0);
@@ -34,12 +37,18 @@ glm::vec3 keminthOrbit = glm::vec3(0, 0.000543, 0);
 
 // Key Toggles
 bool texTglPressed = false;
+bool gscTglPressed = false;
+bool greyscaleDraw = false;
+bool sepTglPressed = false;
+bool sepiaDraw = false;
+bool wccTglPressed = false;
+bool warmCCDraw = false;
+bool cccTglPressed = false;
+bool coolCCDraw = false;
 bool isPlayerAnim = false;
 bool isWingOpen = false;
 bool isexplode = false;
 bool isDodge = false;
-float dodgeCount = 0.5;
-float tempDir = 1;
 
 Scene::Scene(std::string name)
 	:m_name(name)
@@ -220,9 +229,8 @@ void Menu::InitScene()
 
 		}
 		else if (m_name == "Pause_Menu") {
-			
 
-			//Resume
+			// Resume
 			{
 				m_StartOrResume[0] = GameObject::Allocate();
 				auto* tempAnim = &m_StartOrResume[0]->AttachComponent<AnimationHandler>();
@@ -245,7 +253,7 @@ void Menu::InitScene()
 				m_StartOrResume[0]->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 10, 10));
 			}
 
-			//Instructions
+			// Controls
 			{
 				m_StartOrResume[1] = GameObject::Allocate();
 				auto* tempAnim = &m_StartOrResume[1]->AttachComponent<AnimationHandler>();
@@ -267,12 +275,11 @@ void Menu::InitScene()
 				anim.AddAnimation(Twoclip);
 				anim.SetActiveAnim(0);
 
-
 				m_StartOrResume[1]->AttachComponent<Sprite2D>(m_textures[int(TextureType::CONTROLS)], m_StartOrResume[1]->GetID(), 25, 6, true, tempAnim);
 				m_StartOrResume[1]->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, -30, 10));
 			}
 
-			//Exit
+			// Exit
 			{
 				m_StartOrResume[2] = GameObject::Allocate();
 				auto* tempAnim = &m_StartOrResume[2]->AttachComponent<AnimationHandler>();
@@ -299,7 +306,7 @@ void Menu::InitScene()
 				m_StartOrResume[2]->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, -65, 10));
 			}
 
-			//instruction background
+			// Controls background
 			{
 				m_StartOrResume[3] = GameObject::Allocate();
 
@@ -310,8 +317,7 @@ void Menu::InitScene()
 			auto background = GameObject::Allocate();
 			background->AttachComponent<Sprite2D>(m_textures[int(TextureType::BACKGROUND)], background->GetID(), 100, 100);
 			background->AttachComponent<Transform>().SetLocalPos(0, 0, -5);
-
-			}
+		}
 	}
 }
 
@@ -630,15 +636,17 @@ void Universe::InitScene()
 		m_score = GameObject::Allocate();
 		m_score->AttachComponent<ScoreHandler>(scorePos, m_textures[int(TextureType::SCORENUM)], camentity);
 
-
 		// Effects
-		/*BufferEntity = GameObject::Allocate();
+		BufferEntity = GameObject::Allocate();
 		BufferEntity->AttachComponent<FrameBuffer>().AddDepthTarget();
-		BufferEntity->AttachComponent<FrameBuffer>().Init(4096, 4096);
+		BufferEntity->GetComponent<FrameBuffer>().Init(4096, 4096);
 		BufferEntity->AttachComponent<PostEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 		BufferEntity->AttachComponent<PixelationEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
+		BufferEntity->AttachComponent<GreyscaleEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
+		BufferEntity->AttachComponent<SepiaEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 		BufferEntity->AttachComponent<ColorCorrectionEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
-		BufferEntity->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/NeutralLUT.cube");*/
+		BufferEntity->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/WarmLUT.cube");
+		BufferEntity->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/CoolLUT.cube");
 
 		if (m_name == "Universe_19") {
 
@@ -881,10 +889,7 @@ void Universe::InitScene()
 					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
 					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET)], nullptr);
 				}
-
-				
 			}
-
 		}
 		else if (m_name == "Universe_27") {
 
@@ -935,17 +940,12 @@ void Universe::InitScene()
 			m_SceneResumeNo = int(ScenesNum::UNIVERSE_5);
 		}
 
-
-	
-
 		//Setting Parent/Childe
 		cameraEntity->GetComponent<Transform>().SetParent(new entt::entity(playerEntity->GetID()));
 		healthent->GetComponent<Transform>().SetParent(camentity);
 		abilities->GetComponent<Transform>().SetParent(camentity);
 		powerUp->GetComponent<Transform>().SetParent(camentity);
 		score->GetComponent<Transform>().SetParent(camentity);
-
-		
 	}
 
 	Skybox::Init(m_name);
@@ -1183,23 +1183,25 @@ void Universe::Update(float deltaTime)
 
 void Universe::Render(float deltaTime)
 {
-	/*BufferEntity->GetComponent<FrameBuffer>().Clear();
+	BufferEntity->GetComponent<FrameBuffer>().Clear();
 	BufferEntity->GetComponent<PostEffect>().Clear();
 	BufferEntity->GetComponent<PixelationEffect>().Clear();
+	BufferEntity->GetComponent<GreyscaleEffect>().Clear();
+	BufferEntity->GetComponent<SepiaEffect>().Clear();
 	BufferEntity->GetComponent<ColorCorrectionEffect>().Clear();
 
 	// Shadow Buffer //
+	/*
 	glViewport(0, 0, 4096, 4096);
 	BufferEntity->GetComponent<FrameBuffer>().Bind();
 	{
-		m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) { renderer.Draw(); });
-		m_sceneReg->view<DynamicRenderer>().each([=](DynamicRenderer& renderer) { renderer.Draw(); });
+		
 	}
 	BufferEntity->GetComponent<FrameBuffer>().Unbind();
-
+	*/
 	// Basic Effect //
-	glViewport(0, 0, Application::GetWindowWidth(), Application::GetWindowHeight());
-	BufferEntity->GetComponent<PostEffect>().BindBuffer(0);*/
+	//glViewport(0, 0, Application::GetWindowWidth(), Application::GetWindowHeight());
+	BufferEntity->GetComponent<PostEffect>().BindBuffer(0);
 	{
 		m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) { renderer.Draw(); });
 		m_sceneReg->view<DynamicRenderer>().each([=](DynamicRenderer& renderer) { renderer.Draw(); });
@@ -1214,10 +1216,30 @@ void Universe::Render(float deltaTime)
 
 		m_sceneReg->view<Sprite2D>().each([=](Sprite2D& renderer) {renderer.Draw(camera); });
 	}
-	/*BufferEntity->GetComponent<PostEffect>().UnbindBuffer();
+	BufferEntity->GetComponent<PostEffect>().UnbindBuffer();
 	
 	// Framebuffer Draw //
-	BufferEntity->GetComponent<PostEffect>().DrawToScreen();*/
+	if (greyscaleDraw) {
+		BufferEntity->GetComponent<GreyscaleEffect>().ApplyEffect(&BufferEntity->GetComponent<PostEffect>());
+		BufferEntity->GetComponent<GreyscaleEffect>().DrawToScreen();
+	}
+	else if (sepiaDraw) {
+		BufferEntity->GetComponent<SepiaEffect>().ApplyEffect(&BufferEntity->GetComponent<PostEffect>());
+		BufferEntity->GetComponent<SepiaEffect>().DrawToScreen();
+	}
+	else if (warmCCDraw) {
+		BufferEntity->GetComponent<ColorCorrectionEffect>().SetCurSlot(0);
+		BufferEntity->GetComponent<ColorCorrectionEffect>().ApplyEffect(&BufferEntity->GetComponent<PostEffect>());
+		BufferEntity->GetComponent<ColorCorrectionEffect>().DrawToScreen();
+	}
+	else if (coolCCDraw) {
+		BufferEntity->GetComponent<ColorCorrectionEffect>().SetCurSlot(1);
+		BufferEntity->GetComponent<ColorCorrectionEffect>().ApplyEffect(&BufferEntity->GetComponent<PostEffect>());
+		BufferEntity->GetComponent<ColorCorrectionEffect>().DrawToScreen();
+	}
+	else {
+		BufferEntity->GetComponent<PostEffect>().DrawToScreen();
+	}
 }
 
 void Universe::KeyInput()
@@ -1309,13 +1331,6 @@ void Universe::KeyInput()
 		glm::vec3 temp = glm::vec3(1.0f, 0.0f, 0.0f);
 		camEnt.MoveLocalPos(temp);
 	}
-	if (glfwGetKey(m_window, GLFW_KEY_F) == GLFW_PRESS && !isPlayerAnim) {
-		playerController->SetAnimate(true);
-		isPlayerAnim = true;
-	}
-	if (glfwGetKey(m_window, GLFW_KEY_F) == GLFW_RELEASE) {
-		isPlayerAnim = false;
-	}
 
 	if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS && !isexplode) {
 		//explosion
@@ -1375,6 +1390,36 @@ void Universe::KeyInput()
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_T) == GLFW_RELEASE) {
 		texTglPressed = false;
+	}
+
+	// Toggle Post-Effects //
+	if (glfwGetKey(m_window, GLFW_KEY_G) == GLFW_PRESS && !gscTglPressed) {
+		greyscaleDraw = !greyscaleDraw;
+		gscTglPressed = true;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_G) == GLFW_RELEASE) {
+		gscTglPressed = false;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_H) == GLFW_PRESS && !sepTglPressed) {
+		sepiaDraw = !sepiaDraw;
+		sepTglPressed = true;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_H) == GLFW_RELEASE) {
+		sepTglPressed = false;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_J) == GLFW_PRESS && !wccTglPressed) {
+		warmCCDraw = !warmCCDraw;
+		wccTglPressed = true;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_J) == GLFW_RELEASE) {
+		wccTglPressed = false;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_K) == GLFW_PRESS && !cccTglPressed) {
+		coolCCDraw = !coolCCDraw;
+		cccTglPressed = true;
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_K) == GLFW_RELEASE) {
+		cccTglPressed = false;
 	}
 }
 
