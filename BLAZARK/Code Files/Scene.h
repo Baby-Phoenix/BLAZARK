@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MorphAnimController.h"
+
 #include "btBulletDynamicsCommon.h"
 #include "Skybox.h"
 #include "Sprite2D.h"
@@ -12,7 +12,6 @@
 #include "SepiaEffect.h"
 #include "EnemyAI.h"
 #include "ScoreHandler.h"
-#include "ParticleSystem.h"
 
 enum class ScenesNum { START_SCREEN, MAIN_MENU, PAUSE_MENU, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
 
@@ -59,8 +58,6 @@ protected:
 	GamePad gamepad;
 
 	Camera* camera;
-	MorphAnimController* playerController;
-	MorphAnimController* jellyfishController;
 
 	static std::vector<Texture*> m_textures;
 	static std::vector<Mesh*> m_meshes;

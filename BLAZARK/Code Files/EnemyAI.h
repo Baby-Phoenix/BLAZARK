@@ -5,8 +5,10 @@
 #include "Random.h"
 #include <iostream>
 #include "Projectile.h"
+#include "ParticleSystem.h"
+#include "MorphAnimController.h"
 
-enum class EntityType { PLAYER, ENEMY, NEROTIST, KAMAKAZI, SCAVENGER, BOMBARDIER, KAMABULLET };
+enum class EntityType { PLAYER, ENEMY, NEROTIST, KAMIKAZI, SCAVENGER, BOMBARDIER, KAMIBULLET, JELLY, CENTIPEDE, HIVEMIND};
 
 class BasicAI
 {
@@ -23,7 +25,8 @@ public:
 	void SetEnemyTransform(entt::entity enemy);
 	void SetPlayerTransform(entt::entity player);
 
-	float m_health = 0.0;
+	int m_health = 0;
+	bool m_isImmune = true;
 
 protected:
 	void GeneratePoints(Transform avoidPlace);
@@ -43,11 +46,11 @@ protected:
 	static Mesh* m_bulletMesh;
 };
 
-class KamakaziAI : public BasicAI
+class KamikaziAI : public BasicAI
 {
 public:
-	KamakaziAI (entt::entity enemy, entt::entity avoid, entt::entity player);
-	~KamakaziAI () = default;
+	KamikaziAI (entt::entity enemy, entt::entity avoid, entt::entity player);
+	~KamikaziAI () = default;
 
 	void Update(float deltaTime) override;
 
@@ -86,5 +89,76 @@ public:
 	~BombardierAI() = default;
 
 	void Update(float deltaTime) override;
+
+};
+
+class JellyFishBoss : public BasicAI{
+
+public:
+	JellyFishBoss() = default;
+	~JellyFishBoss();
+
+	static void Init();
+	static void DeleteMeshes();
+
+	void Init(entt::entity jellyEntityID, entt::entity MainplayerID);
+	void Update(float deltaTime) override;
+
+	int m_MAX_ENEMIES_SPAWNED = 0;
+	float m_Enemy_SpawnRate = 1.0;
+	float m_startEnemyTime = 0.0f;
+	bool resetEnemyTime = false;
+	static std::vector<Mesh*> m_meshes;
+	Mesh* m_enemyMesh = nullptr;
+	std::vector<ParticleController*> m_particles;
+
+};
+
+class CentipedeBoss : public BasicAI{
+
+public:
+	CentipedeBoss() = default;
+	~CentipedeBoss() = default;
+
+	void Init(entt::entity jellyEntityID, entt::entity MainplayerID);
+
+	static void Init();
+	static void DeleteMeshes();
+	void Update(float deltaTime) override;
+
+	static std::vector<Mesh*> m_meshes;
+	
+private:
+	bool m_resetTimeShot[3] = { false,false, false };
+	float m_fireRatePerhead[3] = { 0.6f, 0.6f, 0.6f };
+	float m_startTimePerhead[3] = { 0.f, 0.f, 0.f };
+
+};
+
+class HiveMindBoss : public BasicAI {
+
+public:
+
+	HiveMindBoss()= default;
+	~HiveMindBoss();
+
+	int Phases();
+
+	void JellyFishDefeated();
+	void CentipedeDefeated();
+
+	static void Init();
+
+	static std::vector<Mesh*> m_meshes;
+
+private:
+	//the 3 phases for the final boss
+	int m_phases = 0;
+
+	//for jelly fish boss start and end
+	bool m_JellyDefeat = false;
+
+	//for the Centipede boss start and end
+	bool m_CentipedeDefeat = false;
 
 };

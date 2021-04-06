@@ -26,6 +26,7 @@ public:
 
 	float getEmitterType();
 	bool getDone();
+	void SetDone();
 	void draw();
 	
 

@@ -281,6 +281,11 @@ bool ParticleEmitter::getDone()
 	return m_isDone;
 }
 
+void ParticleEmitter::SetDone()
+{
+	m_isDone = true;
+}
+
 void ParticleEmitter::draw()
 {
 	//Bind and update data
@@ -301,6 +306,7 @@ void ParticleEmitter::draw()
 ParticleController::ParticleController(int emitterType, glm::vec3 position, Texture* texture, entt::entity parent)
 {
 	m_shader = new Shader("Resource Files/Shaders/particles_vertex_shader.glsl", "Resource Files/Shaders/particles_fragment_shader.glsl");
+
 	m_emitter = new ParticleEmitter(emitterType);
 	m_emitter->setControllerPos(position);
 	m_position = position;

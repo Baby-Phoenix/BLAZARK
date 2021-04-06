@@ -81,11 +81,6 @@ void ScoreHandler::Add(int num)
 
 	}
 
-	for (int i = m_score.size()-1; i >= 0; i--) {
-		std::cout << m_score[i];
-	}
-	std::cout << "\n";
-
 	UpdateAnimations();
 
 }
