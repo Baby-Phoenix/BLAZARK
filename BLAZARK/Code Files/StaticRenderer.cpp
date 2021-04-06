@@ -15,6 +15,7 @@ StaticRenderer::StaticRenderer(entt::entity camera, entt::entity entity, const M
 		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/textured_unlit.frag"));
 		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/textured_lit.frag"));
 		m_shader.push_back(new Shader("Resource Files/Shaders/dynamic_shader.vert", "Resource Files/Shaders/untextured_unlit.frag"));
+		m_shader.push_back(new Shader("Resource Files/Shaders/depth.vert", "Resource Files/Shaders/depth.frag", "Resource Files/Shaders/depth.geom"));
 	}
 
 	SetVAO(mesh);
@@ -52,35 +53,54 @@ void StaticRenderer::toggleTexture() {
 	m_textureToggle = !m_textureToggle;
 }
 
-void StaticRenderer::Draw() {
+void StaticRenderer::Draw(std::vector<glm::mat4> shadowTransformations, FrameBuffer* depthBuffer, bool depthRender) {
 	auto& transform = GameObject::GetComponent<Transform>(m_entity);
 
-	if (m_tex == nullptr || !m_textureToggle) {
-		if (!m_lightSource)
-			currShader = 0;
-		else
-			currShader = 1;
+	if (depthRender) {
+		currShader = 5;
 	}
-	else if (m_textureToggle && m_tex != nullptr) {
-		if (!m_lightSource)
-			currShader = 2;
-		else
-			currShader = 3;
+	else {
+		if (m_tex == nullptr || !m_textureToggle) {
+			if (!m_lightSource)
+				currShader = 0;
+			else
+				currShader = 1;
+		}
+		else if (m_textureToggle && m_tex != nullptr) {
+			if (!m_lightSource)
+				currShader = 2;
+			else
+				currShader = 3;
+		}
 	}
 
 	m_shader[currShader]->use();
 
-	if (m_tex != nullptr) {
-		m_shader[currShader]->set1i(0, "albedo");
-		m_tex->bind(0);
-	}
+	if (!depthRender) {
+		if (m_tex != nullptr) {
+			m_shader[currShader]->set1i(0, "albedo");
+			m_tex->bind(0);
+		}
 
-	m_shader[currShader]->setVec3f(GameObject::GetComponent<Transform>(m_camera).GetLocalPos(), "camPos");
-	m_shader[currShader]->setMat4fv(GameObject::GetComponent<Camera>(m_camera).GetViewProj(), "ViewProjection");
+		m_shader[currShader]->setVec3f(GameObject::GetComponent<Transform>(m_camera).GetLocalPos(), "camPos");
+		m_shader[currShader]->setMat4fv(GameObject::GetComponent<Camera>(m_camera).GetViewProj(), "ViewProjection");
+		m_shader[currShader]->setMat3fv(transform.GetNormal(), "NormalMatrix");
+		m_shader[currShader]->set1i(false, "Shadows");
+	}
+	else if (depthRender) {
+		for (int i = 0; i < 6; ++i)
+			m_shader[currShader]->setMat4fv(shadowTransformations[i], ("ShadowMatrices[" + std::to_string(i) + "]").c_str());
+	}
 	m_shader[currShader]->setMat4fv(transform.GetGlobal(), "ModelMatrix");
-	m_shader[currShader]->setMat3fv(transform.GetNormal(), "NormalMatrix");
+	m_shader[currShader]->set1f(1000.0f, "Far_Plane");
+
+	if (depthBuffer != nullptr)
+		//depthBuffer->BindDepthAsTexture(15);
 
 	m_vao->DrawArray();
+
+	if (depthBuffer != nullptr)
+		//depthBuffer->UnbindTexture(15);
 	m_shader[currShader]->unuse();
 	glBindVertexArray(GL_NONE);
 }

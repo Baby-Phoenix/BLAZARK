@@ -2,6 +2,9 @@
 
 bool BasicAI::initRandom = false;
 Mesh* BasicAI::m_bulletMesh = nullptr;
+std::vector<Mesh*> JellyFishBoss::m_meshes;
+std::vector<Mesh*> CentipedeBoss::m_meshes;
+std::vector<Mesh*> HiveMindBoss::m_meshes;
 
 glm::vec3 Lerp(glm::vec3 point1, glm::vec3 point2, float t) {
 	return ((float(1.0 - t) * point1) + (t * point2));
@@ -168,22 +171,19 @@ void BasicAI::CheckForMainPlayer()
 								  ((enemyPos.z - playerPos.z) * (enemyPos.z - playerPos.z)));
 
 	if (compareDist <= m_distance && !m_isPlayerinRange)
-	{
 		m_isPlayerinRange = true;
-		glm::vec3 rotationvector = glm::degrees(glm::eulerAngles(glm::quat_cast(glm::transpose(glm::lookAt(enemyPos, playerPos, glm::vec3(0, 1, 0))))));
-		enemyTrans.RotateLocal(rotationvector);
-	}
+	
 
 	else if(compareDist > m_distance && m_isPlayerinRange)
 		m_isPlayerinRange = false;
 }
 
-KamakaziAI::KamakaziAI(entt::entity enemy, entt::entity avoid, entt::entity player)
+KamikaziAI::KamikaziAI(entt::entity enemy, entt::entity avoid, entt::entity player)
 	:BasicAI(enemy,avoid, player, 300)
 {
 }
 
-void KamakaziAI::Update(float deltaTime)
+void KamikaziAI::Update(float deltaTime)
 {
 	CheckForMainPlayer();
 
@@ -318,7 +318,7 @@ void BombardierAI::Update(float deltaTime)
 			kamabullet->AttachComponent<Transform>().SetLocalPos(GameObject::GetComponent<Transform>(m_enemy).GetLocalPos());
 			kamabullet->GetComponent<Transform>().SetLocalScale(glm::vec3(5));
 			kamabullet->AttachComponent<KamakaziBullet>(kamabullet->GetID(), m_player).SetSpeed(25);
-			kamabullet->AttachComponent<EntityType>() = EntityType::KAMABULLET;
+			kamabullet->AttachComponent<EntityType>() = EntityType::KAMIBULLET;
 			kamabullet->AttachComponent<StaticRenderer>(entt::entity(0), kamabullet->GetID(), *m_bulletMesh, nullptr);
 			kamabullet->GetComponent<Transform>().SetWHD(glm::vec3(m_bulletMesh->GetWidth() * 2, m_bulletMesh->GetHeight() * 2, m_bulletMesh->GetDepth() * 2));
 
@@ -410,4 +410,246 @@ void KamakaziBullet::SetSpeed(float speed)
 void KamakaziBullet::SetDestroyed(bool destroyed)
 {
 	m_isDestroyed = destroyed;
+}
+
+
+JellyFishBoss::~JellyFishBoss()
+{
+	for (int i = 0; i < m_particles.size(); i++) {
+		m_particles[i]->getEmitter()->SetDone();
+	}
+}
+
+void JellyFishBoss::Init()
+{
+	for (int i = 0; i < 25; i++) {
+		m_meshes.push_back(new Mesh());
+		loadOBJ(("Resource Files/OBJFiles/Universe-19/EnemyShips/Morph/Boss/jellyfishBoss_" + std::to_string(i) + ".obj").c_str(), *m_meshes[i]);
+	}
+
+}
+
+void JellyFishBoss::DeleteMeshes()
+{
+	for (int i = 0; i < m_meshes.size(); i++) {
+		delete m_meshes[i];
+		m_meshes.erase(m_meshes.begin() + i);
+	}
+}
+
+void JellyFishBoss::Init(entt::entity jellyEntityID, entt::entity MainplayerID)
+{
+	m_enemy = jellyEntityID;
+	m_player = MainplayerID;
+	m_distance = 200;
+	m_health = 10;
+
+}
+
+
+void JellyFishBoss::Update(float deltaTime)
+{
+	CheckForMainPlayer();
+
+	if (m_isPlayerinRange) {
+		m_isImmune = false;
+		auto& enemyTrans = GameObject::GetComponent<Transform>(m_enemy);
+		glm::vec3 nextPoint;
+		glm::vec3 curPosOfEnemy;
+		glm::vec3 temp = glm::vec3(0, 30, 0);
+
+		nextPoint = GameObject::GetComponent<Transform>(m_player).GetLocalPos(); //current position of the player
+		curPosOfEnemy = enemyTrans.GetLocalPos(); //current position
+
+		if (glfwGetTime() - m_startTime >= m_fireRate) {
+			auto bullet = GameObject::Allocate();
+			bullet->AttachComponent<Projectile>(&m_enemy, entt::entity(0), bullet.get(), *m_bulletMesh).SetID(bullet->GetID());
+			bullet->GetComponent<Projectile>().SetSpeed(300);
+			bullet->AttachComponent<EntityType>() = EntityType::ENEMY;
+			bullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
+			glm::vec3 offset1 = glm::vec3(0, 30, -10);
+			bullet->GetComponent<Transform>().MoveLocalPos(offset1);
+		bullet->GetComponent<Transform>().SetLocalScale(glm::vec3(10));
+			m_resetTime = true;
+		}
+		if (m_resetTime) {
+			m_startTime = glfwGetTime();
+			m_resetTime = false;
+		}
+
+		if (m_MAX_ENEMIES_SPAWNED <= 3) {
+			if (glfwGetTime() - m_startEnemyTime >= m_Enemy_SpawnRate) {
+
+			
+
+				GameObject::GetComponent<Transform>(m_enemy).MoveLocalPosFixed(temp);
+				auto enemy = GameObject::Allocate();
+				enemy->AttachComponent<Transform>();
+				enemy->AttachComponent<BasicAI>(enemy->GetID(), m_enemy, m_player);
+				enemy->AttachComponent<EntityType>() = EntityType::NEROTIST;
+				enemy->AttachComponent<StaticRenderer>(entt::entity(0), enemy->GetID(), *m_enemyMesh, nullptr);
+				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_enemyMesh->GetWidth(), m_enemyMesh->GetHeight(), m_enemyMesh->GetDepth()));
+				resetEnemyTime = true;
+				m_MAX_ENEMIES_SPAWNED++;
+				temp = glm::vec3(0, -30, 0);
+				enemyTrans.MoveLocalPosFixed(temp);
+			}
+
+			if (resetEnemyTime) {
+				m_startEnemyTime = glfwGetTime();
+				resetEnemyTime = false;
+			}
+			
+		}
+		temp = glm::vec3(0, 30, 0);
+		enemyTrans.MoveLocalPosFixed(temp);
+		glm::vec3 rotationvector = glm::degrees(glm::eulerAngles(glm::quat_cast(glm::transpose(glm::lookAt(enemyTrans.GetLocalPos(), nextPoint, glm::vec3(0, 1, 0))))));
+		enemyTrans.SetLocalRot(rotationvector);
+		temp = glm::vec3(0, -30, 0);
+		enemyTrans.MoveLocalPosFixed(temp);
+	}
+
+	else {
+		m_isImmune = true;
+	}
+}
+
+void CentipedeBoss::Init(entt::entity jellyEntityID, entt::entity MainplayerID)
+{
+	m_enemy = jellyEntityID;
+	m_player = MainplayerID;
+	m_distance = 550;
+	m_health = 10;
+
+}
+
+void CentipedeBoss::Init()
+{
+	for (int i = 0; i < 5; i++) {
+		m_meshes.push_back(new Mesh());
+		loadOBJ(("Resource Files/OBJFiles/Universe-27/EnemyShips/Morph/Boss/CentipedeBoss_" + std::to_string(i) + ".obj").c_str(), *m_meshes[i]);
+	}
+}
+
+void CentipedeBoss::DeleteMeshes()
+{
+	for (int i = 0; i < m_meshes.size(); i++) {
+		delete m_meshes[i];
+		m_meshes.erase(m_meshes.begin() + i);
+	}
+}
+
+void CentipedeBoss::Update(float deltaTime)
+{
+	CheckForMainPlayer();
+
+	if (m_isPlayerinRange) {
+		m_isImmune = false;
+		auto& enemyTrans = GameObject::GetComponent<Transform>(m_enemy);
+		glm::vec3 nextPoint;
+		glm::vec3 curPosOfEnemy;
+
+		nextPoint = GameObject::GetComponent<Transform>(m_player).GetLocalPos(); //current position of the player
+		curPosOfEnemy = enemyTrans.GetLocalPos(); //current position
+
+
+		//main head
+		if (glfwGetTime() - m_startTimePerhead[0] >= m_fireRatePerhead[0]) {
+			auto bullet = GameObject::Allocate();
+			bullet->AttachComponent<Projectile>(&m_enemy, entt::entity(0), bullet.get(), *m_bulletMesh).SetID(bullet->GetID());
+			bullet->GetComponent<Projectile>().SetSpeed(250);
+			bullet->AttachComponent<EntityType>() = EntityType::ENEMY;
+			bullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
+			glm::vec3 offset1 = glm::vec3(0, 0, -10);
+			bullet->GetComponent<Transform>().MoveLocalPos(offset1);
+			bullet->GetComponent<Transform>().SetLocalScale(glm::vec3(10));
+			m_resetTimeShot[0] = true;
+			
+			if (m_resetTimeShot[0]) {
+				m_startTimePerhead[0] = glfwGetTime();
+				m_resetTimeShot[0] = false;
+			}
+		}
+
+
+		//Left head
+		if (glfwGetTime() - m_startTimePerhead[1] >= m_fireRatePerhead[1]) {
+		auto bullet = GameObject::Allocate();
+			bullet->AttachComponent<Projectile>(&m_enemy, entt::entity(0), bullet.get(), *m_bulletMesh).SetID(bullet->GetID());
+			bullet->GetComponent<Projectile>().SetSpeed(300);
+			bullet->AttachComponent<EntityType>() = EntityType::ENEMY;
+			bullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
+			glm::vec3 offset1 = glm::vec3(10, 0, 0);
+			bullet->GetComponent<Transform>().MoveLocalPos(offset1);
+			bullet->GetComponent<Transform>().SetLocalScale(glm::vec3(10));
+			auto& bulletTrans = bullet->GetComponent<Transform>();
+			bullet->GetComponent<Transform>().SetLocalRot(glm::vec3(bulletTrans.GetLocalRot().x, bulletTrans.GetLocalRot().y - 90, bulletTrans.GetLocalRot().z));
+			m_resetTimeShot[1] = true;
+
+			if (m_resetTimeShot[1]) {
+				m_startTimePerhead[1] = glfwGetTime();
+				m_resetTimeShot[1] = false;
+			}
+		}
+
+	//right head
+		if (glfwGetTime() - m_startTimePerhead[2] >= m_fireRatePerhead[2]) {
+			auto bullet = GameObject::Allocate();
+			bullet->AttachComponent<Projectile>(&m_enemy, entt::entity(0), bullet.get(), *m_bulletMesh).SetID(bullet->GetID());
+			bullet->GetComponent<Projectile>().SetSpeed(300);
+			bullet->AttachComponent<EntityType>() = EntityType::ENEMY;
+			bullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
+			glm::vec3 offset1 = glm::vec3(-10, 0, 0);
+			bullet->GetComponent<Transform>().MoveLocalPos(offset1);
+			bullet->GetComponent<Transform>().SetLocalScale(glm::vec3(10));
+			auto& bulletTrans = bullet->GetComponent<Transform>();
+			bullet->GetComponent<Transform>().SetLocalRot(glm::vec3(bulletTrans.GetLocalRot().x, bulletTrans.GetLocalRot().y + 90, bulletTrans.GetLocalRot().z));
+			m_resetTimeShot[2] = true;
+			
+			if (m_resetTimeShot[2]) {
+				m_startTimePerhead[2] = glfwGetTime();
+				m_resetTimeShot[2] = false;
+			}
+		}
+
+
+		glm::vec3 rotationvector = glm::vec3(0, 10, 0);
+		enemyTrans.RotateLocal(rotationvector);
+		
+		}
+
+	else {
+		m_isImmune = true;
+	}
+}
+
+
+HiveMindBoss::~HiveMindBoss()
+{
+	JellyFishBoss::DeleteMeshes();
+	CentipedeBoss::DeleteMeshes();
+
+	for (int i = 0; i < m_meshes.size(); i++) {
+		delete m_meshes[i];
+		m_meshes.erase(m_meshes.begin() + i);
+	}
+}
+
+int HiveMindBoss::Phases()
+{
+	return m_phases;
+}
+
+void HiveMindBoss::JellyFishDefeated()
+{
+	m_JellyDefeat = true;
+}
+
+void HiveMindBoss::CentipedeDefeated()
+{
+	m_CentipedeDefeat = true;
+}
+
+void HiveMindBoss::Init()
+{
 }

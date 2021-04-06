@@ -1,17 +1,17 @@
 #pragma once
 
-#include "MorphAnimController.h"
+
 #include "btBulletDynamicsCommon.h"
 #include "Skybox.h"
 #include "Sprite2D.h"
 #include "Random.h"
 #include "GamepadInput.h"
+#include "PixelationEffect.h"
 #include "ColorCorrection.h"
 #include "GreyscaleEffect.h"
 #include "SepiaEffect.h"
 #include "EnemyAI.h"
 #include "ScoreHandler.h"
-#include "ParticleSystem.h"
 
 enum class ScenesNum { START_SCREEN, MAIN_MENU, PAUSE_MENU, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
 
@@ -58,8 +58,6 @@ protected:
 	GamePad gamepad;
 
 	Camera* camera;
-	MorphAnimController* playerController;
-	MorphAnimController* jellyfishController;
 
 	static std::vector<Texture*> m_textures;
 	static std::vector<Mesh*> m_meshes;
@@ -94,9 +92,6 @@ private:
 	bool m_switchButton = false;
 	bool m_ControlsSelected = false;
 	float m_delay = 0.0f;
-	
-	
-
 };
 
 class Universe : public Scene
@@ -136,6 +131,10 @@ private:
 	std::vector<entt::entity> m_solarSystem;
 	std::unique_ptr<GameObject> m_score;
 	std::vector<Projectile*> m_bullets;
+
+	glm::mat4 shadowProjection = glm::mat4(0);
+	std::vector<glm::mat4> shadowTransformations;
+
 	entt::entity MainPlayerID;
 	entt::entity BossID;
 	entt::entity MoonID;

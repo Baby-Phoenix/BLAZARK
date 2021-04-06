@@ -31,14 +31,14 @@ struct ColorTarget
 class FrameBuffer
 {
 public:
-	FrameBuffer();
-	~FrameBuffer();
+	FrameBuffer() = default;
+	~FrameBuffer() { Unload(); }
 
 	//Unloads the framebuffer
 	void Unload();
 
 	//Initialize framebuffer with size
-	virtual void Init(unsigned width, unsigned height);
+	virtual void Init(unsigned width, unsigned height, bool isdepthBuffer = false);
 
 	//Initializes framebuffer
 	void Init();
@@ -92,6 +92,7 @@ public:
 	//Initial width and height is zero
 	unsigned int _width = 0;
 	unsigned int _height = 0;
+
 protected:
 	//OpenGL framebuffer handle
 	GLuint _FBO;
@@ -112,6 +113,8 @@ protected:
 	bool _isInit = false;
 	//Depth attachment?
 	bool _depthActive = false;
+	//Depth buffer?
+	bool _isDepthBuffer = false;
 
 	//Full screen quad VBO handle
 	static GLuint _fullscreenQuadVBO;

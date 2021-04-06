@@ -22,8 +22,7 @@ uniform mat4 ViewProjection;
 uniform mat4 ModelMatrix;
 uniform mat3 NormalMatrix;
 
-void main()
-{
+void main() {
 	vs_position = ModelMatrix * vert_position;
 	vs_normal = NormalMatrix * vert_normal;
 	vs_texcoord = vert_texcoord;

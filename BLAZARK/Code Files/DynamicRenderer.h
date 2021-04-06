@@ -11,15 +11,10 @@ public:
 		NORMAL1,
 		TEXCOORD,
 		SPECULARSHININESS0,
-		//SPECULARSHININESS1,
 		AMBIENTCOLOUR0,
-		//AMBIENTCOLOUR1,
 		DIFFUSECOLOUR0,
-		//DIFFUSECOLOUR1,
 		SPECULARCOLOUR0,
-		//SPECULARCOLOUR1,
 		DISSOLVE0,
-		//DISSOLVE1
 	};
 
 	DynamicRenderer() = default;
@@ -31,7 +26,7 @@ public:
 
 	void UpdateVAO(const Mesh& frameS, const Mesh& frameE, float t);
 
-	virtual void Draw();
+	virtual void Draw(std::vector<glm::mat4>);
 
 protected:
 	float m_t;

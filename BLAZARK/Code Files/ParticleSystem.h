@@ -27,6 +27,7 @@ public:
 
 	float getEmitterType();
 	bool getDone();
+	void SetDone();
 	float getOrigLifetime();
 	void draw();
 	

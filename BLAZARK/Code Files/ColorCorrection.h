@@ -38,11 +38,12 @@ public:
 	//Getters and setter
 	LUT3D& GetLUT();
 	unsigned& GetCurSlot();
+	void SetCurSlot(unsigned int);
 
 	void AddLUT(std::string filename);
 	void Unload();
-private:
 
+private:
 	unsigned int _cur_Slot = 0;
 	std::vector<LUT3D*> _LUT;
 

@@ -6,6 +6,7 @@ Shader* Skybox::m_shader = nullptr;
 
 void Skybox::Init(std::string scenename)
 {
+	if (m_shader == nullptr)
 	m_shader = new Shader("Resource Files/Shaders/skybox_vert_shader.glsl", "Resource Files/Shaders/skybox_frag_shader.glsl");
 
 	GLfloat skyboxVertices[108] = {

@@ -6,6 +6,7 @@
 #include "Texture.h"
 #include "Camera.h"
 #include "GLTFLoader.h"
+#include "FrameBuffer.h"
 
 class StaticRenderer {
 public:
@@ -20,7 +21,7 @@ public:
 
 	void toggleTexture();
 
-	virtual void Draw();
+	virtual void Draw(std::vector<glm::mat4>, FrameBuffer* = nullptr, bool depthRender = false);
 
 protected:
 	entt::entity m_camera;

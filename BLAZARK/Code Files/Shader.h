@@ -11,7 +11,7 @@ class Shader {
 public:
 	GLuint m_id;
 
-	Shader(const char* vertexShader, const char* fragmentShader);
+	Shader(const char* vertexShader, const char* fragmentShader, const char* geometryShader = "");
 	~Shader();
 
 	void use();
@@ -37,5 +37,5 @@ private:
 
 	GLuint loadShader(GLenum type, const char* fileName);
 
-	void linkProgram(GLuint vertexShader, GLuint fragmentShader);
+	void linkProgram(GLuint vertexShader, GLuint geometryShader, GLuint fragmentShader);
 };
