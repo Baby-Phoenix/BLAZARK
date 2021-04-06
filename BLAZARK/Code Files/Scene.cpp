@@ -4,7 +4,7 @@
 int Universe::m_PlayerHealth = 0;
 entt::entity Universe::health = entt::entity(0);
 
-enum class TextureType { START = 3 , RESUME, CONTROLS, EXIT, BACKGROUND, CONTROLSMENU, SCORE, SCORENUM, COMET, FIRE, BLINK, YELLOW};
+enum class TextureType { START = 3 , RESUME, CONTROLS, EXIT, BACKGROUND, CONTROLSMENU, SCORE, SCORENUM, COMET, FIRE, BLINK, YELLOW, ORANGE};
 
 enum class PlayerMesh { PLAYERSHIPXWINGS, PLAYERSHIPXWINGE = 2, PLAYERSHIPPENCIL, PLAYERSHIPBAT, PLAYERBULLET };
 
@@ -13,8 +13,8 @@ enum class EnemyMesh { SCAVENGERU1S = 6, SCAVENGERU1E = 8, NEROTISTU1, KAMAKAZI,
 enum class PlanetMesh { SOLARI = int(EnemyMesh::JELLYFISH)+1, VERASTEN, YECHIN, KERANTIA, LUNARI, GUERISTIS, KEMINTH,
 						LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MAGAANTU , COMET};
 
-enum Universe19SS { SVC, SYC, SKRC, SGC, SKEC, SOLARI, VERASTEN, YECHIN, KERANTIA, GUERISTIS, KEMINTH, HPC };
-enum Universe27SS {};
+enum Universe19SS { SVC, SYC, SKRC, SGC, SKEC, SOLARI, VERASTEN, YECHIN, KERANTIA, GUERISTIS, KEMINTH, KEMINTHRING, HPC };
+enum Universe27SS { LDMC = int(Universe19SS::HPC) + 1, LTC, LKC, LPC, LDRC, LRC, LMC, LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MEGAANTU};
 enum Universe5SS {};
 
 std::vector<Mesh*> Scene::m_meshes;
@@ -31,6 +31,8 @@ glm::vec3 yechinOrbit = glm::vec3(0, 0.003502, 0);
 glm::vec3 kerantiaOrbit = glm::vec3(0, 0.002978, 0);
 glm::vec3 gueristisOrbit = glm::vec3(0, 0.0024077, 0);
 glm::vec3 keminthOrbit = glm::vec3(0, 0.000543, 0);
+glm::vec3 asteroidOrbit = glm::vec3(0, 0.00543, 0);
+glm::vec3 cometVelocity = glm::vec3(1, 0, 0);
 
 // Key Toggles
 bool texTglPressed = false;
@@ -61,10 +63,11 @@ Scene::Scene(std::string name)
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/SCORE_LABEL.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/ScoreAnim.png"));
 
-		m_textures.push_back(new Texture("Resource Files/Textures/CometTexture.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/CometTexture2.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/red.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/blink.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/yellow.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/orange.png")); 
 	}
 
 	if (m_meshes.size() < 1) {
@@ -134,17 +137,33 @@ Scene::Scene(std::string name)
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Universe-27/Planets/Magaantu.obj", *m_meshes[int(PlanetMesh::MAGAANTU)]);
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/Misc/Comet.obj", *m_meshes[int(PlanetMesh::COMET)]);
+		loadOBJ("Resource Files/OBJFiles/Misc/Comet2.obj", *m_meshes[int(PlanetMesh::COMET)]);
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids 1.obj", *m_meshes[int(PlanetMesh::COMET)]);
+		loadOBJ("Resource Files/OBJFiles/Misc/Debris/Barrel.obj", *m_meshes[int(PlanetMesh::COMET) + 1]);
+		m_meshes.push_back(new Mesh()); 
+		loadOBJ("Resource Files/OBJFiles/Misc/Debris/Bottle.obj", *m_meshes[int(PlanetMesh::COMET) + 2]);
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids 2.obj", *m_meshes[int(PlanetMesh::COMET) + 1]);
+		loadOBJ("Resource Files/OBJFiles/Misc/Debris/BoxContainer.obj", *m_meshes[int(PlanetMesh::COMET) + 3]);
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/Misc/Debris/Barrel.obj", *m_meshes[int(PlanetMesh::COMET) + 2]);
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids_RING_2.obj", *m_meshes[int(PlanetMesh::COMET) + 4]);
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/Misc/Debris/Bottle.obj", *m_meshes[int(PlanetMesh::COMET) + 3]);
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids_Cluster_1.obj", *m_meshes[int(PlanetMesh::COMET) + 5]);
 		m_meshes.push_back(new Mesh());
-		loadOBJ("Resource Files/OBJFiles/Misc/Debris/Box Container.obj", *m_meshes[int(PlanetMesh::COMET) + 4]);
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids_Cluster_2.obj", *m_meshes[int(PlanetMesh::COMET) + 6]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids_Cluster_3.obj", *m_meshes[int(PlanetMesh::COMET) + 7]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids_Cluster_4.obj", *m_meshes[int(PlanetMesh::COMET) + 8]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids_Cluster_5.obj", *m_meshes[int(PlanetMesh::COMET) + 9]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids_Cluster_6.obj", *m_meshes[int(PlanetMesh::COMET) + 10]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids_Cluster_7.obj", *m_meshes[int(PlanetMesh::COMET) + 11]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/Asteroids_Cluster_8.obj", *m_meshes[int(PlanetMesh::COMET) + 12]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Universe-19/Planets/KeminthRing.obj", *m_meshes[int(PlanetMesh::COMET) + 13]);
 	}
 }
 
@@ -675,10 +694,24 @@ void Universe::InitScene()
 			lavaPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), lavaPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::VERASTEN)], nullptr);
 			lavaPlanetEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::VERASTEN)]->GetWidth() / 2));
 			
+			//Comet
 			auto Cometent = GameObject::Allocate();
-			Cometent->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 1000));
-			Cometent->AttachComponent<StaticRenderer>(cameraEntity->GetID(), Cometent->GetID(), *m_meshes[int(PlanetMesh::COMET)], m_textures[int(TextureType::COMET)]);
-			Cometent->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::COMET)]->GetWidth() / 2));
+			CometID = Cometent->GetID();
+			//Cometent->AttachComponent<Transform>().SetLocalPos(glm::vec3(-12000, 2500, 6000));
+			Cometent->AttachComponent<Transform>().SetLocalScale(glm::vec3(40, 40, 40));
+			Cometent->AttachComponent<StaticRenderer>(cameraEntity->GetID(), Cometent->GetID(), *m_meshes[int(PlanetMesh::COMET)], m_textures[int(TextureType::COMET)], true);
+			auto& cometPos = Cometent->GetComponent<Transform>().GetLocalPos();
+			particleTemp = new ParticleController(1, glm::vec3(cometPos.x - 5, cometPos.y, cometPos.z), m_textures[int(TextureType::ORANGE)], m_textures[int(TextureType::FIRE)], CometID);
+			particleTemp->setRotation(glm::vec3(0, -90, 0));
+			particleTemp->getEmitter()->setRadius(3);
+			particleTemp->setSize(50);
+			particleTemp->getEmitter()->setAngleDeg(2);
+			particleTemp->getEmitter()->setLifetime(1.5f, 5.0f);
+			particleTemp->getEmitter()->setSpeed(5);
+			particleTemp->getEmitter()->init();
+			particles.push_back(particleTemp);
+			glm::vec3 tempv3 = glm::vec3(-12000, 2500, 8000);
+			Cometent->GetComponent<Transform>().MoveLocalPos(tempv3);
 
 			// Yechin
 			auto desertPlanetEntity = GameObject::Allocate();
@@ -714,6 +747,10 @@ void Universe::InitScene()
 			icePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 3500));
 			icePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), icePlanetEntity->GetID(), *m_meshes[int(PlanetMesh::KEMINTH)], nullptr);
 			icePlanetEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::KEMINTH)]->GetWidth() / 2));
+			auto icePlanetRingEntity = GameObject::Allocate();
+			m_solarSystem.push_back(icePlanetRingEntity->GetID());
+			icePlanetRingEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 3500));
+			icePlanetRingEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), icePlanetRingEntity->GetID(), *m_meshes[int(PlanetMesh::COMET) + 13], nullptr);
 
 			// Home Planet Centerpoint
 			auto HPCEntity = GameObject::Allocate();
@@ -727,6 +764,7 @@ void Universe::InitScene()
 			moonEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::HPC]);
 			rockPlanetEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SGC]);
 			icePlanetEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKEC]);
+			icePlanetRingEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKEC]);
 			HPCEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKRC]);
 
 			entt::entity* sunID = new entt::entity(sunEntity->GetID());
@@ -791,105 +829,141 @@ void Universe::InitScene()
 				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::BOMBARDIER)]->GetWidth(), m_meshes[int(EnemyMesh::BOMBARDIER)]->GetHeight(), m_meshes[int(EnemyMesh::BOMBARDIER)]->GetDepth()));
 			}
 			
+			//Asteroids
+			{
+				//Asteroid belt
+				auto asteroidBelt = GameObject::Allocate();
+				AsteroidBeltID = asteroidBelt->GetID();
+				asteroidBelt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				asteroidBelt->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				//asteroidBelt->GetComponent<Transform>();
+				asteroidBelt->AttachComponent<StaticRenderer>(cameraEntity->GetID(), asteroidBelt->GetID(), *m_meshes[int(PlanetMesh::COMET) + 4], nullptr);
+				asteroidBelt->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SVC]);
+					
+				//Asteroid Clusters
+				auto cluster1 = GameObject::Allocate();
+				cluster1->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster1->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster1->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster1->GetID(), *m_meshes[int(PlanetMesh::COMET) + 5], nullptr);
+				cluster1->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKRC]);
+
+				auto cluster2 = GameObject::Allocate();
+				cluster2->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster2->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster2->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster2->GetID(), *m_meshes[int(PlanetMesh::COMET) + 6], nullptr);
+				cluster2->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKRC]);
+
+				auto cluster3 = GameObject::Allocate();
+				cluster3->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster3->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster3->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster3->GetID(), *m_meshes[int(PlanetMesh::COMET) + 7], nullptr);
+				cluster3->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKRC]);
+
+				auto cluster4 = GameObject::Allocate();
+				cluster4->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster4->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster4->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster4->GetID(), *m_meshes[int(PlanetMesh::COMET) + 8], nullptr);
+				cluster4->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKRC]);
+
+				auto cluster5 = GameObject::Allocate();
+				cluster5->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster5->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster5->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster5->GetID(), *m_meshes[int(PlanetMesh::COMET) + 9], nullptr);
+				cluster5->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKRC]);
+
+				auto cluster6 = GameObject::Allocate();
+				cluster6->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster6->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster6->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster6->GetID(), *m_meshes[int(PlanetMesh::COMET) + 10], nullptr);
+				cluster6->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKRC]);
+
+				auto cluster7 = GameObject::Allocate();
+				cluster7->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster7->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster7->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster7->GetID(), *m_meshes[int(PlanetMesh::COMET) + 11], nullptr);
+				cluster7->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKRC]);
+
+				auto cluster8 = GameObject::Allocate();
+				cluster8->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster8->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster8->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster8->GetID(), *m_meshes[int(PlanetMesh::COMET) + 12], nullptr);
+				cluster8->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SKRC]);
+			}
+
 			//DEBRIS
-			for (int i = 0; i <= 450; i++) {
+			for (int i = 0; i <= 50; i++) {
 				auto debris = GameObject::Allocate();
 				Transform refrence;
 				
-				if (i <= 75)
-				{
-					//Asteroid2 top
-					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-1800, 1800), Random::Range1f(10, 1000), Random::Range1f(-400, -1700)));
-					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(4, 4, 4));
-					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
-					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 1], nullptr);
-					debris->GetComponent<Transform>().SetParent(sunID);
-				}
-				else if (i > 75 && i <= 150)
-				{
-					//Asteroid2 bot
-					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-1800, 1800), Random::Range1f(-1000, -10), Random::Range1f(-400, -1700)));
-					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(4, 4, 4));
-					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
-					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 1], nullptr);
-				}
-				else if (i > 150 && i <= 225)
+				if (i <= 10)
 				{
 					//Barrel top
-					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-2000, -500), Random::Range1f(10, 800), Random::Range1f(0, 2600)));
-					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(3, 3, 3));
-					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
-					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 2], nullptr);
-					debris->GetComponent<Transform>().SetParent(lavaID);
-				}
-				else if (i > 225 && i <= 300)
-				{
-					//Barrel bot
-					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-2000, -500), Random::Range1f(-800, -10), Random::Range1f(0, 2600)));
-					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(3, 3, 3));
-					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
-					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 2], nullptr);
-				}
-				else if (i > 300 && i <= 325)
-				{
-					//Bottle top
 					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-1500, 1500), Random::Range1f(10, 200), Random::Range1f(1100, 3800)));
 					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(2, 2, 2));
 					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
-					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 3], nullptr);
-					debris->GetComponent<Transform>().SetParent(desertID);
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 1], nullptr);
+					debris->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SVC]);
 				}
-				else if (i > 325 && i <= 350)
+				else if (i > 10 && i <= 20)
 				{
-					//Bottle bot
+					//Barrel bot
 					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-1500, 1500), Random::Range1f(-200, -10), Random::Range1f(1100, 3800)));
 					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(2, 2, 2));
 					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
-					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 3], nullptr);
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 1], nullptr);
+					debris->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SVC]);
 				}
-				else if (i > 350 && i <= 375)
+				else if (i > 20 && i <= 30)
 				{
-					//Box top
+					//Bottle top
 					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-2000, 2000), Random::Range1f(10, 300), Random::Range1f(1200, 4000)));
 					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(4, 4, 4));
 					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
-					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 4], nullptr);
-					debris->GetComponent<Transform>().SetParent(rockID);
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 2], nullptr);
+					debris->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SVC]);
 				}
-				else if (i > 375 && i <= 400)
+				else if (i > 30 && i <= 50)
 				{
 					//Box bot
 					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-2000, 2000), Random::Range1f(-300, -10), Random::Range1f(1200, 4000)));
 					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(4, 4, 4));
 					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
-					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 4], nullptr);
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 3], nullptr);
+					debris->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SVC]);
 				}
-				else if (i > 400 && i <= 425)
-				{
-					//Asteroid1 top
-					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(350, 2000), Random::Range1f(10, 400), Random::Range1f(2200, -2000)));
-					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(4, 4, 4));
-					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
-					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET)], nullptr);
-				}
-				else if (i > 425 && i <= 450)
-				{
-					//Asteroid1 bot
-					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(350, 2000), Random::Range1f(-400, -10), Random::Range1f(2200, -2000)));
-					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(4, 4, 4));
-					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
-					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET)], nullptr);
-				}
-
-				
 			}
 
 		}
 		else if (m_name == "Universe_27") {
 
 			m_SceneResumeNo = int(ScenesNum::UNIVERSE_27);
+
+			// Solar System Centerpoint
+			auto LDmCEntity = GameObject::Allocate();
+			m_solarSystem.push_back(LDmCEntity->GetID());
+			LDmCEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+			auto LTCEntity = GameObject::Allocate();
+			m_solarSystem.push_back(LTCEntity->GetID());
+			LTCEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+			auto LKCEntity = GameObject::Allocate();
+			m_solarSystem.push_back(LKCEntity->GetID());
+			LKCEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+			auto LPCEntity = GameObject::Allocate();
+			m_solarSystem.push_back(LPCEntity->GetID());
+			LPCEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+			auto LDrCEntity = GameObject::Allocate();
+			m_solarSystem.push_back(LDrCEntity->GetID());
+			LDrCEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+			auto LRCEntity = GameObject::Allocate();
+			m_solarSystem.push_back(LRCEntity->GetID());
+			LRCEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+			auto LMCEntity = GameObject::Allocate();
+			m_solarSystem.push_back(LMCEntity->GetID());
+			LMCEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+
 			// Lutero
 			auto sunEntity = GameObject::Allocate();
+			m_solarSystem.push_back(sunEntity->GetID());
 			sunEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
 			sunEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), sunEntity->GetID(), *m_meshes[int(PlanetMesh::LUTERO)], nullptr, true);
 			sunEntity->GetComponent<Transform>().SetRadius(3 * (m_meshes[int(PlanetMesh::LUTERO)]->GetWidth() / 2));
@@ -897,36 +971,43 @@ void Universe::InitScene()
 
 			// Dedmos
 			auto nullPlanetOneEntity = GameObject::Allocate();
+			m_solarSystem.push_back(nullPlanetOneEntity->GetID());
 			nullPlanetOneEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 750));
 			nullPlanetOneEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), nullPlanetOneEntity->GetID(), *m_meshes[int(PlanetMesh::DEDMOS)], nullptr);
 
 			// Titanius
 			auto nullPlanetTwoEntity = GameObject::Allocate();
+			m_solarSystem.push_back(nullPlanetTwoEntity->GetID());
 			nullPlanetTwoEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(1500, 0, 0));
 			nullPlanetTwoEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), nullPlanetTwoEntity->GetID(), *m_meshes[int(PlanetMesh::TITANIUS)], nullptr);
 
 			// Kreillo
 			auto nullPlanetThreeEntity = GameObject::Allocate();
+			m_solarSystem.push_back(nullPlanetThreeEntity->GetID());
 			nullPlanetThreeEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -2250));
 			nullPlanetThreeEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), nullPlanetThreeEntity->GetID(), *m_meshes[int(PlanetMesh::KREILLO)], nullptr);
 
 			// Paxallus
 			auto citadelEntity = GameObject::Allocate();
+			m_solarSystem.push_back(citadelEntity->GetID());
 			citadelEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(-2875, 0, 0));
 			citadelEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), citadelEntity->GetID(), *m_meshes[int(PlanetMesh::PAXALLUS)], nullptr);
 
 			// Derangi
 			auto mushroomPlanetEntity = GameObject::Allocate();
+			m_solarSystem.push_back(mushroomPlanetEntity->GetID());
 			mushroomPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 3500));
 			mushroomPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), mushroomPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::DERANGI)], nullptr);
 
 			// Rhetoid
 			auto gasPlanetOneEntity = GameObject::Allocate();
+			m_solarSystem.push_back(gasPlanetOneEntity->GetID());
 			gasPlanetOneEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(4250, 0, 0));
 			gasPlanetOneEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), gasPlanetOneEntity->GetID(), *m_meshes[int(PlanetMesh::RHETOID)], nullptr);
 
 			// Magaantu
 			auto gasPlanetTwoEntity = GameObject::Allocate();
+			m_solarSystem.push_back(gasPlanetTwoEntity->GetID());
 			gasPlanetTwoEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -5000));
 			gasPlanetTwoEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), gasPlanetTwoEntity->GetID(), *m_meshes[int(PlanetMesh::MAGAANTU)], nullptr);
 		}
@@ -1002,7 +1083,7 @@ void Universe::Update(float deltaTime)
 
 			if (isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
 				AI.pop_back();
-				particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+				particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::ORANGE)], enemy);
 				particleTemp->setSize(10);
 				particleTemp->getEmitter()->setLifetime(0.2, 0.2);
 				particleTemp->getEmitter()->setSpeed(100);
@@ -1027,7 +1108,7 @@ void Universe::Update(float deltaTime)
 			GameObject::GetComponent<KamakaziBullet>(enemy).Update(deltaTime);
 
 			if (GameObject::GetComponent<KamakaziBullet>(enemy).GetDestroyed() || isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
-				particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+				particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::ORANGE)], enemy);
 				particleTemp->setSize(10);
 				particleTemp->getEmitter()->setLifetime(0.2, 0.2);
 				particleTemp->getEmitter()->setSpeed(100);
@@ -1059,7 +1140,7 @@ void Universe::Update(float deltaTime)
 				entt::entity enemy = AI[i]->GetID();
 				if (isBoxCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(AI[i]->GetID())))
 				{
-					particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+					particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::ORANGE)], enemy);
 					particleTemp->setSize(10);
 					particleTemp->getEmitter()->setLifetime(0.2, 0.2);
 					particleTemp->getEmitter()->setSpeed(100);
@@ -1107,7 +1188,7 @@ void Universe::Update(float deltaTime)
 			}
 		}
 
-		if (m_score->GetComponent<ScoreHandler>().GetScore() >= 1 && !m_isBossSpawn)
+		if (m_score->GetComponent<ScoreHandler>().GetScore() >= 100 && !m_isBossSpawn)
 		{
 			// JELLYFIH BOSS
 			auto jellyEntity = GameObject::Allocate();
@@ -1115,7 +1196,7 @@ void Universe::Update(float deltaTime)
 			jellyEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
 			auto& jellypos = jellyEntity->GetComponent<Transform>();
 
-			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], jellyEntity->GetID());
+			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::ORANGE)], jellyEntity->GetID());
 			particleTemp->setRotation(glm::vec3(90, 0, 0));
 			particleTemp->getEmitter()->setRadius(1.0);
 			particleTemp->setSize(2);
@@ -1125,7 +1206,7 @@ void Universe::Update(float deltaTime)
 			particleTemp->getEmitter()->init();
 			particles.push_back(particleTemp);
 	
-			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], jellyEntity->GetID());
+			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::ORANGE)], jellyEntity->GetID());
 			particleTemp->setRotation(glm::vec3(90, 0, 0));
 			particleTemp->getEmitter()->setRadius(1.0);
 			particleTemp->setSize(2);
@@ -1135,7 +1216,7 @@ void Universe::Update(float deltaTime)
 			particleTemp->getEmitter()->init();
 			particles.push_back(particleTemp);
 
-			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], jellyEntity->GetID());
+			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::ORANGE)], jellyEntity->GetID());
 			particleTemp->setRotation(glm::vec3(90, 0, 0));
 			particleTemp->getEmitter()->setRadius(1.0);
 			particleTemp->setSize(2);
@@ -1145,7 +1226,7 @@ void Universe::Update(float deltaTime)
 			particleTemp->getEmitter()->init();
 			particles.push_back(particleTemp);
 			
-			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], jellyEntity->GetID());
+			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::ORANGE)], jellyEntity->GetID());
 			particleTemp->setRotation(glm::vec3(90, 0, 0));
 			particleTemp->getEmitter()->setRadius(1.0);
 			particleTemp->setSize(2);
@@ -1233,12 +1314,12 @@ void Universe::KeyInput()
 
 	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0, 0, -2);
+		glm::vec3 temp = glm::vec3(0, 0, -6);
 		playerEnt.MoveLocalPos(temp);
 	}
 	else if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0, 0, 2);
+		glm::vec3 temp = glm::vec3(0, 0, 6);
 		playerEnt.MoveLocalPos(temp);
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
@@ -1275,12 +1356,12 @@ void Universe::KeyInput()
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_Z) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0.0f, 0.5f, 0.0f);
+		glm::vec3 temp = glm::vec3(0.0f, 2.5f, 0.0f);
 		camEnt.MoveLocalPos(temp);
 	}
 	else if (glfwGetKey(m_window, GLFW_KEY_C) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0.0f, -0.5f, 0.0f);
+		glm::vec3 temp = glm::vec3(0.0f, -2.5f, 0.0f);
 		camEnt.MoveLocalPos(temp);
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS)
@@ -1485,36 +1566,36 @@ void Universe::GamepadInput()
 
 					//ROTATE LEFT
 					if (gamepad.axes[Joystick::LEFT].X < -0.17f && gamepad.axes[Joystick::LEFT].X > -0.33) {
-						temp = glm::vec3(0.0f, 0.25f, 0.0f);
-						playerEnt.RotateLocal(temp);
-					}
-					else if (gamepad.axes[Joystick::LEFT].X < -0.3 && gamepad.axes[Joystick::LEFT].X > -0.55f) {
 						temp = glm::vec3(0.0f, 0.5f, 0.0f);
 						playerEnt.RotateLocal(temp);
 					}
+					else if (gamepad.axes[Joystick::LEFT].X < -0.3 && gamepad.axes[Joystick::LEFT].X > -0.55f) {
+						temp = glm::vec3(0.0f, 1.0f, 0.0f);
+						playerEnt.RotateLocal(temp);
+					}
 					else if (gamepad.axes[Joystick::LEFT].X < -0.77) {
-						temp = glm::vec3(0.0f, 0.75f, 0.0f);
+						temp = glm::vec3(0.0f, 1.25f, 0.0f);
 						playerEnt.RotateLocal(temp);
 					}
 					else if (gamepad.axes[Joystick::LEFT].X < -0.99) {
-						temp = glm::vec3(0.0f, 1.0f, 0.0f);
+						temp = glm::vec3(0.0f, 2.0f, 0.0f);
 						playerEnt.RotateLocal(temp);
 					}
 					//ROTATE RIGHT
 					if (gamepad.axes[Joystick::LEFT].X > 0.17f && gamepad.axes[Joystick::LEFT].X < 0.33) {
-						temp = glm::vec3(0.0f, -0.25f, 0.0f);
-						playerEnt.RotateLocal(temp);
-					}
-					else if (gamepad.axes[Joystick::LEFT].X > 0.3 && gamepad.axes[Joystick::LEFT].X < 0.55f) {
 						temp = glm::vec3(0.0f, -0.5f, 0.0f);
 						playerEnt.RotateLocal(temp);
 					}
+					else if (gamepad.axes[Joystick::LEFT].X > 0.3 && gamepad.axes[Joystick::LEFT].X < 0.55f) {
+						temp = glm::vec3(0.0f, -1.0f, 0.0f);
+						playerEnt.RotateLocal(temp);
+					}
 					else if (gamepad.axes[Joystick::LEFT].X > 0.77) {
-						temp = glm::vec3(0.0f, -0.75f, 0.0f);
+						temp = glm::vec3(0.0f, -1.25f, 0.0f);
 						playerEnt.RotateLocal(temp);
 					}
 					else if (gamepad.axes[Joystick::LEFT].X > 0.99) {
-						temp = glm::vec3(0.0f, -1.0f, 0.0f);
+						temp = glm::vec3(0.0f, -2.0f, 0.0f);
 						playerEnt.RotateLocal(temp);
 					}
 					//MOVE FORWARD
@@ -1575,6 +1656,7 @@ void Universe::GamepadInput()
 					particleTemp->getEmitter()->init();
 					particleTemp->setModelMatrix(playerEnt.UpdateGlobal());
 					particles.push_back(particleTemp);
+
 				}
 
 				dodgeCount -= m_deltaTime;
@@ -1612,8 +1694,12 @@ void Universe::SolarSystemUpdate() {
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe19SS::SVC]).RotateLocal(verastenOrbit);
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe19SS::SYC]).RotateLocal(yechinOrbit);
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe19SS::SKRC]).RotateLocal(kerantiaOrbit);
-		GameObject::GetComponent<Transform>(m_solarSystem[Universe19SS::SGC]).RotateLocal(gueristisOrbit);
+		GameObject::GetComponent<Transform>(m_solarSystem[Universe19SS::SGC]).RotateLocal(gueristisOrbit); 
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe19SS::SKEC]).RotateLocal(keminthOrbit);
+
+		GameObject::GetComponent<Transform>(AsteroidBeltID).RotateLocal(asteroidOrbit);
+		GameObject::GetComponent<Transform>(CometID).MoveLocalPos(cometVelocity);
+		
 	}
 	else if (m_name == "Universe_27") {
 

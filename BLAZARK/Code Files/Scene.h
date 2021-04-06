@@ -140,7 +140,9 @@ private:
 	entt::entity BossID;
 	entt::entity MoonID;
 	entt::entity CamID;
-
+	entt::entity CometID;
+	entt::entity AsteroidBeltID;
+	Shader* m_shader;
 	bool m_isBossSpawn = false;
 	static entt::entity health;
 	static int m_PlayerHealth;

@@ -1,6 +1,6 @@
 # Blender v2.90.1 OBJ File: 'Universe 1 Models.blend'
 # www.blender.org
-mtllib Box Container.mtl
+mtllib BoxContainer.mtl
 o Cube_Debris_Cube.008
 v 0.597107 0.873742 -0.597107
 v -0.597107 0.873742 -0.597107

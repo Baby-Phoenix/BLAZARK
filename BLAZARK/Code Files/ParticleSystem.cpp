@@ -3,7 +3,7 @@
 ParticleEmitter::ParticleEmitter(int emitterType)
 {
 	// create 200 particles
-	m_particles.resize(2000);
+	m_particles.resize(1000);
 
 	m_emitterType = emitterType;
 
@@ -77,7 +77,7 @@ void ParticleEmitter::init()
 			m_particles[i].m_position = glm::vec3(tempVec2.x, tempVec2.y, 0);
 			m_particles[i].m_lifetime = Random::Range1f(m_minLife, m_maxLife);
 
-
+			m_originalLifetime = m_particles[i].m_lifetime;
 		}
 		else if (m_emitterType == 2) //Explosion EMITTER
 		{
@@ -94,6 +94,8 @@ void ParticleEmitter::init()
 
 			m_particles[i].m_lifetime = Random::Range1f(m_minLife, m_maxLife);
 
+			m_originalLifetime = m_particles[i].m_lifetime;
+
 		}
 		else if (m_emitterType == 3) //Portal EMITTER
 		{
@@ -108,6 +110,7 @@ void ParticleEmitter::init()
 			m_particles[i].m_position = glm::vec3(tempVec2.x, tempVec2.y, 0);
 			m_particles[i].m_lifetime = Random::Range1f(m_minLife, m_maxLife);
 
+			m_originalLifetime = m_particles[i].m_lifetime;
 		}
 		else if (m_emitterType == 4) //Blink EMITTER
 		{
@@ -124,6 +127,7 @@ void ParticleEmitter::init()
 
 			m_particles[i].m_lifetime = Random::Range1f(m_minLife, m_maxLife);
 
+			m_originalLifetime = m_particles[i].m_lifetime;
 		}
 
 	}
@@ -281,6 +285,11 @@ bool ParticleEmitter::getDone()
 	return m_isDone;
 }
 
+float ParticleEmitter::getOrigLifetime()
+{
+	return m_originalLifetime;
+}
+
 void ParticleEmitter::draw()
 {
 	//Bind and update data
@@ -308,6 +317,23 @@ ParticleController::ParticleController(int emitterType, glm::vec3 position, Text
 	m_scale = glm::vec3(1.0);
 	m_size = 0.1;
 	m_tex = texture;
+	m_mix = 0;
+	m_parentEntity = parent;
+	m_modelMatrix = GameObject::GetComponent<Transform>(parent).UpdateGlobal();
+}
+
+ParticleController::ParticleController(int emitterType, glm::vec3 position, Texture* texStart, Texture* texEnd, entt::entity parent)
+{
+	m_shader = new Shader("Resource Files/Shaders/particles_vertex_shader.glsl", "Resource Files/Shaders/particles_fragment_shader.glsl");
+	m_emitter = new ParticleEmitter(emitterType);
+	m_emitter->setControllerPos(position);
+	m_position = position;
+	m_rotation = glm::vec3(0.0);
+	m_scale = glm::vec3(1.0);
+	m_size = 0.1;
+	m_tex = texStart;
+	m_tex2 = texEnd;
+	m_mix = 1;
 	m_parentEntity = parent;
 	m_modelMatrix = GameObject::GetComponent<Transform>(parent).UpdateGlobal();
 }
@@ -381,15 +407,32 @@ void ParticleController::update(const float dt, const glm::mat4 ProjectionMatrix
 	m_shader->setVec4f(m_startColor, "sParticleColor");
 	m_shader->setVec4f(m_endColor, "eParticleColor");
 	m_shader->set1f(m_size, "particleSize");
-	
+
+	if (m_mix != 0)
+	{
+		m_shader->set1f(m_mix, "texMix");
+		m_shader->set1f(m_emitter->getOrigLifetime(), "maxLifetime");
+	}
 }
 
 void ParticleController::draw()
 {
 	glDepthMask(GL_FALSE);
-	m_shader->use();
-	m_tex->bind(10);
-	m_emitter->draw();
-	m_tex->unbind();
+	if (m_tex2 == nullptr)
+	{
+		m_shader->use();
+		m_tex->bind(10);
+		m_emitter->draw();
+		m_tex->unbind();
+	}
+	else
+	{
+		m_shader->use();
+		m_tex->bind(10);
+		m_tex2->bind(11);
+		m_emitter->draw();
+		m_tex->unbind();
+		m_tex2->unbind();
+	}
 	glDepthMask(GL_TRUE);
 }

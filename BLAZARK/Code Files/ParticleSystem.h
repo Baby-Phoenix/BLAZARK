@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <queue>
 #include "Shader.h"
 #include "Random.h"
 #include "Texture.h";
@@ -26,6 +27,7 @@ public:
 
 	float getEmitterType();
 	bool getDone();
+	float getOrigLifetime();
 	void draw();
 	
 
@@ -39,15 +41,17 @@ private:
 	};
 
 	std::vector<Particle> m_particles;
+	std::queue<Particle> m_particlesQ;
 
 	std::vector< float > m_vertices;
 
 	float m_emitterType;
 	float m_radius = 1;
-	float m_positions[8000];
+	float m_positions[4000];
 	float m_speed = 1.0f;
 	float m_minLife = 1;
 	float m_maxLife = 7;
+	float m_originalLifetime = 0;
 	float m_degrees = 15;
 	bool m_isDone = false;
 	float m_waveIndex = 0;
@@ -71,6 +75,7 @@ public:
 
 
 	ParticleController(int emitterType, glm::vec3 position, Texture* texture, entt::entity parent);
+	ParticleController(int emitterType, glm::vec3 position, Texture* texStart, Texture* texEnd, entt::entity parent);
 	~ParticleController();
 
 	void setPosition(glm::vec3 position);
@@ -96,7 +101,9 @@ private:
 	glm::vec3 m_scale;
 	glm::vec4 m_startColor;
 	glm::vec4 m_endColor;
-	Texture* m_tex;
+	Texture* m_tex = nullptr;
+	Texture* m_tex2 = nullptr;
+	int m_mix = 0;
 	float m_size;
 
 	//Projectile* m_next = nullptr;
