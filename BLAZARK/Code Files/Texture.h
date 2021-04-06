@@ -11,16 +11,13 @@ class Texture
 {
 public:
 	Texture(const char* fileName);
-	Texture() { width = 0; height = 0; id = GL_NONE; }
-
 	Texture(std::vector<const GLchar*> faces);
-
-
+	Texture() { width = 0; height = 0; id = GL_NONE; }
 	~Texture();
 
 	GLuint& getID();
 
-	void bind(const GLint texture_unit) const;
+	void bind(const GLint texture_unit, bool isCubemap = false) const;
 
 	glm::vec2 GetWidthAndHeight();
 
@@ -29,7 +26,6 @@ public:
 	void loadFromFile(const char* fileName);
 
 	static GLuint LoadCubemap(std::vector<const GLchar* > faces);
-
 
 private:
 	GLuint id;

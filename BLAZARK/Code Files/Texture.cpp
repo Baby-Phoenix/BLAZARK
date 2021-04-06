@@ -63,10 +63,14 @@ Texture::~Texture()
 	return id;
 }
 
-void Texture::bind(const GLint texture_unit) const
+void Texture::bind(const GLint texture_unit, bool isCubemap) const
 {
 	glActiveTexture(GL_TEXTURE0 + texture_unit); //Dynamically choose which texture unit to use
-	glBindTexture(GL_TEXTURE_2D, id);
+
+	if (isCubemap)
+		glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+	else
+		glBindTexture(GL_TEXTURE_2D, id);
 }
 
 glm::vec2 Texture::GetWidthAndHeight()

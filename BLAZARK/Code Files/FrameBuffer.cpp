@@ -29,15 +29,6 @@ void ColorTarget::Unload()
 	glDeleteTextures(_numAttachments, &_textures[0].getID());
 }
 
-FrameBuffer::FrameBuffer()
-{
-}
-
-FrameBuffer::~FrameBuffer()
-{
-	Unload();
-}
-
 void FrameBuffer::Unload()
 {
 	//Deletes the framebuffer
@@ -46,10 +37,12 @@ void FrameBuffer::Unload()
 	_isInit = false;
 }
 
-void FrameBuffer::Init(unsigned width, unsigned height)
+void FrameBuffer::Init(unsigned width, unsigned height, bool isDepthBuffer)
 {
 	//Sets the size to width and height
 	SetSize(width, height);
+
+	_isDepthBuffer = isDepthBuffer;
 
 	//Inits framebuffer
 	Init();
@@ -64,26 +57,53 @@ void FrameBuffer::Init()
 
 	if (_depthActive)
 	{
-		//because we have depth we need to clear our depth bit
-		_clearFlag |= GL_DEPTH_BUFFER_BIT;
+		if (_isDepthBuffer) {
+			_clearFlag |= GL_DEPTH_BUFFER_BIT;
 
-		//Generate the texture
-		glGenTextures(1, &_depth._texture.getID());
-		//Binds the texture
-		glBindTexture(GL_TEXTURE_2D, _depth._texture.getID());
-		//Sets the texture data
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT24, _width, _height);
+			glGenTextures(1, &_depth._texture.getID());
 
-		//Set texture parameters
-		glTextureParameteri(_depth._texture.getID(), GL_TEXTURE_MIN_FILTER, _filter);
-		glTextureParameteri(_depth._texture.getID(), GL_TEXTURE_MAG_FILTER, _filter);
-		glTextureParameteri(_depth._texture.getID(), GL_TEXTURE_WRAP_S, _wrap);
-		glTextureParameteri(_depth._texture.getID(), GL_TEXTURE_WRAP_T, _wrap);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, _depth._texture.getID());
+			for (unsigned int i = 0; i < 6; i++)
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, _width, _height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+				//glTexStorage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 1, GL_DEPTH_COMPONENT24, _width, _height);
 
-		//Sets up as a framebuffer texture
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depth._texture.getID(), 0);
+			glTextureParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, _filter);
+			glTextureParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, _filter);
+			glTextureParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, _wrap);
+			glTextureParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, _wrap);
+			glTextureParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, _wrap);
+			/*glTextureParameteri(_depth._texture.getID(), GL_TEXTURE_MIN_FILTER, _filter);
+			glTextureParameteri(_depth._texture.getID(), GL_TEXTURE_MAG_FILTER, _filter);
+			glTextureParameteri(_depth._texture.getID(), GL_TEXTURE_WRAP_S, _wrap);
+			glTextureParameteri(_depth._texture.getID(), GL_TEXTURE_WRAP_T, _wrap);
+			glTextureParameteri(_depth._texture.getID(), GL_TEXTURE_WRAP_R, _wrap);*/
 
-		glBindTexture(GL_TEXTURE_2D, GL_NONE);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _depth._texture.getID(), 0);
+
+			glBindTexture(GL_TEXTURE_CUBE_MAP, GL_NONE);
+		}
+		else {
+			//Because we have depth we need to clear our depth bit
+			_clearFlag |= GL_DEPTH_BUFFER_BIT;
+
+			//Generate the texture
+			glGenTextures(1, &_depth._texture.getID());
+			//Binds the texture
+			glBindTexture(GL_TEXTURE_2D, _depth._texture.getID());
+			//Sets the texture data
+			glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT24, _width, _height);
+
+			//Set texture parameters
+			glTextureParameteri(_depth._texture.getID(), GL_TEXTURE_MIN_FILTER, _filter);
+			glTextureParameteri(_depth._texture.getID(), GL_TEXTURE_MAG_FILTER, _filter);
+			glTextureParameteri(_depth._texture.getID(), GL_TEXTURE_WRAP_S, _wrap);
+			glTextureParameteri(_depth._texture.getID(), GL_TEXTURE_WRAP_T, _wrap);
+
+			//Sets up as a framebuffer texture
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depth._texture.getID(), 0);
+
+			glBindTexture(GL_TEXTURE_2D, GL_NONE);
+		}
 	}
 
 	//If there is more than zero color attachments
@@ -201,6 +221,11 @@ void FrameBuffer::Bind() const
 	if (_color._numAttachments)
 	{
 		glDrawBuffers(_color._numAttachments, &_color._buffers[0]);
+	}
+
+	if (_isDepthBuffer) {
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
 	}
 }
 

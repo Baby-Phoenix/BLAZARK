@@ -346,7 +346,6 @@ void Menu::SetSceneResumeNo(unsigned int sceneno)
 	m_SceneResumeNo = sceneno;
 }
 
-
 void Menu::KeyInput()
 {
 	// Scene Switching //
@@ -501,6 +500,7 @@ Universe::Universe(std::string name, unsigned int* num, bool* change)
 {
 	SceneNo = num;
 	switchIt = change;
+	shadowTransformations.resize(6);
 }
 
 unsigned int Universe::GetSceneResumeNumber()
@@ -563,7 +563,6 @@ void Universe::InitScene()
 		particles.push_back(particleTemp);
 		glm::vec3 tempv3 = glm::vec3(120, 0, 2400);
 		GameObject::GetComponent<Transform>(MainPlayerID).MoveLocalPos(tempv3);
-		
 
 		//auto tempEnt = GameObject::Allocate();
 		//tempEnt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
@@ -625,7 +624,6 @@ void Universe::InitScene()
 		powerUp->AttachComponent<Sprite2D>(m_textures[2], powerUp->GetID(), 6, 45);
 		powerUp->AttachComponent<Transform>().SetLocalPos(glm::vec3(-90, 10, -10));
 
-
 		glm::vec3 scorePos;
 		auto score = GameObject::Allocate();
 		score->AttachComponent<Sprite2D>(m_textures[int(TextureType::SCORE)], score->GetID(), 10, 5);
@@ -639,7 +637,7 @@ void Universe::InitScene()
 		// Effects
 		BufferEntity = GameObject::Allocate();
 		BufferEntity->AttachComponent<FrameBuffer>().AddDepthTarget();
-		BufferEntity->GetComponent<FrameBuffer>().Init(4096, 4096);
+		BufferEntity->GetComponent<FrameBuffer>().Init(4096, 4096, true);
 		BufferEntity->AttachComponent<PostEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 		BufferEntity->AttachComponent<PixelationEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 		BufferEntity->AttachComponent<GreyscaleEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
@@ -1179,6 +1177,16 @@ void Universe::Update(float deltaTime)
 	}
 
 #pragma endregion
+
+#pragma region Shadows
+	shadowProjection = glm::perspective(glm::radians(90.0f), Application::GetWindowWidth() / Application::GetWindowHeight(), 0.1f, 1000.0f);
+	shadowTransformations[0] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
+	shadowTransformations[1] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
+	shadowTransformations[2] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0));
+	shadowTransformations[3] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0));
+	shadowTransformations[4] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0));
+	shadowTransformations[5] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0));
+#pragma endregion
 }
 
 void Universe::Render(float deltaTime)
@@ -1191,20 +1199,21 @@ void Universe::Render(float deltaTime)
 	BufferEntity->GetComponent<ColorCorrectionEffect>().Clear();
 
 	// Shadow Buffer //
-	/*
 	glViewport(0, 0, 4096, 4096);
 	BufferEntity->GetComponent<FrameBuffer>().Bind();
 	{
-		
+		m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) { renderer.Draw(shadowTransformations, nullptr, true); });
 	}
 	BufferEntity->GetComponent<FrameBuffer>().Unbind();
-	*/
+	
 	// Basic Effect //
-	//glViewport(0, 0, Application::GetWindowWidth(), Application::GetWindowHeight());
+	glViewport(0, 0, Application::GetWindowWidth(), Application::GetWindowHeight());
 	BufferEntity->GetComponent<PostEffect>().BindBuffer(0);
 	{
-		m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) { renderer.Draw(); });
-		m_sceneReg->view<DynamicRenderer>().each([=](DynamicRenderer& renderer) { renderer.Draw(); });
+		m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) {
+			renderer.Draw(shadowTransformations, &BufferEntity->GetComponent<FrameBuffer>());
+		});
+		m_sceneReg->view<DynamicRenderer>().each([=](DynamicRenderer& renderer) { renderer.Draw(shadowTransformations); });
 
 		Skybox::Draw(camera->GetView(), camera->GetProj());
 
@@ -1214,7 +1223,7 @@ void Universe::Render(float deltaTime)
 				i->draw();
 		}
 
-		m_sceneReg->view<Sprite2D>().each([=](Sprite2D& renderer) {renderer.Draw(camera); });
+		m_sceneReg->view<Sprite2D>().each([=](Sprite2D& renderer) {	renderer.Draw(camera); });
 	}
 	BufferEntity->GetComponent<PostEffect>().UnbindBuffer();
 	
