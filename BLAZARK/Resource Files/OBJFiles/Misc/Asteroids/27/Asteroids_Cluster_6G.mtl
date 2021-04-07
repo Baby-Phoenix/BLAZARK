@@ -1,4 +1,4 @@
-# Blender MTL File: 'Asteroids_RING (1).blend'
+# Blender MTL File: 'None'
 # Material Count: 2
 
 newmtl Material.001
@@ -14,7 +14,7 @@ illum 1
 newmtl seshawns_extra_colours_that_he_wanted
 Ns 79.855119
 Ka 1.000000 1.000000 1.000000
-Kd 0.220255 0.094836 0.044693
+Kd 0.063010 0.080220 0.049707
 Ks 0.000000 0.000000 0.000000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000

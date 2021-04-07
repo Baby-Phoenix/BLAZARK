@@ -386,9 +386,6 @@ void ParticleController::update(const float dt, const glm::mat4 ProjectionMatrix
 {
 	m_shader->use();
 	
-	//glUniform1i(10, 0);
-	//m_shader->set1i(0, "myTexture");
-	
 
 	m_emitter->update(dt);
 

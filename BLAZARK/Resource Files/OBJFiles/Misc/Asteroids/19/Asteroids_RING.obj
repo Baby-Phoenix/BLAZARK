@@ -1,6 +1,6 @@
 # Blender v2.90.0 OBJ File: 'Asteroids_RING_2.blend'
 # www.blender.org
-mtllib Asteroids_RING_2.mtl
+mtllib Asteroids_RING.mtl
 o Asteroid_2.003_Icosphere_cell.011
 v -24.709969 11.589918 9.034152
 v -25.834934 10.966754 8.773129
