@@ -1,7 +1,7 @@
-# Blender MTL File: 'Bombardier2.blend'
+# Blender MTL File: 'None'
 # Material Count: 4
 
-newmtl Material
+newmtl Material.001
 Ns 323.999994
 Ka 1.000000 1.000000 1.000000
 Kd 0.016807 0.015209 0.109462
@@ -11,7 +11,7 @@ Ni 1.450000
 d 1.000000
 illum 2
 
-newmtl Material.001
+newmtl Material.002
 Ns 225.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.896270 0.084376 0.045186
@@ -21,7 +21,7 @@ Ni 1.450000
 d 1.000000
 illum 2
 
-newmtl Material.002
+newmtl Material.003
 Ns 225.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.799103 0.376262 0.040915
@@ -31,7 +31,7 @@ Ni 1.450000
 d 1.000000
 illum 2
 
-newmtl Material.003
+newmtl Material.004
 Ns 225.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.296138 0.296138 0.296138

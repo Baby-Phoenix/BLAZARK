@@ -8,7 +8,7 @@
 #include "ParticleSystem.h"
 #include "MorphAnimController.h"
 
-enum class EntityType { PLAYER, ENEMY, NEROTIST, KAMIKAZI, SCAVENGER, BOMBARDIER, KAMIBULLET, JELLY, CENTIPEDE, HIVEMIND};
+enum class EntityType { PLAYER, ENEMY, NEROTIST, KAMIKAZI, SCAVENGER, BOMBARDIER, KAMIBULLET, JELLY, CENTIPEDE, HIVEMIND, PORTAL};
 
 class BasicAI
 {

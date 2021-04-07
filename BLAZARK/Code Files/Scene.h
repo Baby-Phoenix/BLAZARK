@@ -13,7 +13,7 @@
 #include "EnemyAI.h"
 #include "ScoreHandler.h"
 
-enum class ScenesNum { START_SCREEN, MAIN_MENU, PAUSE_MENU, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
+enum class ScenesNum { START_SCREEN, MAIN_MENU, PAUSE_MENU, GAME_OVER_LOSE, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
 
 class Scene {
 
@@ -141,8 +141,11 @@ private:
 	entt::entity CamID;
 	entt::entity CometID;
 	entt::entity AsteroidBeltID;
+	entt::entity PortalID;
+
 	Shader* m_shader;
 	bool m_isBossSpawn = false;
+	bool m_isBossDead = false;
 	static entt::entity health;
 	static int m_PlayerHealth;
 };
