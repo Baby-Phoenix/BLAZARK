@@ -52,6 +52,12 @@ bool isWingOpen = false;
 bool isexplode = false;
 bool isDodge = false;
 
+// Pixelation Transition
+bool isTransitionActive = false;
+bool wasTransitionActive = false;
+bool wasSceneSwitched = false;
+float intensity = 0.0;
+
 Scene::Scene(std::string name)
 	:m_name(name)
 {
@@ -185,7 +191,6 @@ Scene::Scene(std::string name)
 		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/27/Asteroids_Cluster_7G.obj", *m_meshes[int(PlanetMesh::COMET) + 21]);
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/27/Asteroids_Cluster_8G.obj", *m_meshes[int(PlanetMesh::COMET) + 22]);
-
 	}
 }
 
@@ -196,7 +201,6 @@ std::string Scene::GetName()
 
 void Scene::InitScene()
 {
-	
 	//creating a new registry for the scene when initialised
 	if (m_sceneReg == nullptr)
 	m_sceneReg = new entt::registry();
@@ -966,11 +970,9 @@ void Universe::InitScene()
 					debris->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SVC]);
 				}
 			}
-
-
 		}
 		else if (m_name == "Universe_27") {
-		CentipedeBoss::Init();
+			CentipedeBoss::Init();
 			m_SceneResumeNo = int(ScenesNum::UNIVERSE_27);
 
 			//m_meshes.push_back(new Mesh());
@@ -1244,394 +1246,414 @@ void Universe::InitScene()
 
 void Universe::Update(float deltaTime)
 {
-	m_deltaTime = deltaTime;
+	if (isTransitionActive) {
+		intensity += 0.01;
 
-	// Key Input
-	KeyInput();
-	GamepadInput();
+		if (intensity >= 1.0) {
+			*switchIt = true;
+			*SceneNo = int(ScenesNum::UNIVERSE_27);
 
-	// Camera Update 
-	camera->Update();
+			isTransitionActive = false;
+			wasSceneSwitched = true;
+		}
+	}
+	else if (wasTransitionActive) {
+		intensity -= 0.01;
 
-	// Solar System Rotation (IN-PROGRESS) 
-	SolarSystemUpdate();
+		if (intensity <= 0.0) {
+			intensity = 0.0;
+			wasTransitionActive = false;
+			wasSceneSwitched = false;
+		}
+	}
+	else {
+		m_deltaTime = deltaTime;
 
-	
-	//playerController->Update(deltaTime);
+		// Key Input
+		KeyInput();
+		GamepadInput();
 
-	//Particle
-	for (int i = 0; i <= particles.size() - 1; i++)
-	{
-		if (particles[i]->getEmitter()->getDone())
+		// Camera Update 
+		camera->Update();
+
+		// Solar System Rotation (IN-PROGRESS) 
+		SolarSystemUpdate();
+
+
+		//playerController->Update(deltaTime);
+
+		//Particle
+		for (int i = 0; i <= particles.size() - 1; i++)
 		{
-			delete particles[i];
-			particles.erase(particles.begin() + i);
+			if (particles[i]->getEmitter()->getDone())
+			{
+				delete particles[i];
+				particles.erase(particles.begin() + i);
+			}
+			else
+				particles[i]->update(deltaTime, camera->GetProj(), camera->GetView());
 		}
-		else
-			particles[i]->update(deltaTime, camera->GetProj(), camera->GetView());
-	}
 
-	// Transform Update
-	m_sceneReg->view<Transform>().each([=](Transform& transform) { transform.UpdateGlobal(); });
-	m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) { anim.Update(deltaTime); });
-	m_sceneReg->view<MorphAnimController>().each([=](MorphAnimController& anim) { anim.Update(deltaTime); });
+		// Transform Update
+		m_sceneReg->view<Transform>().each([=](Transform& transform) { transform.UpdateGlobal(); });
+		m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) { anim.Update(deltaTime); });
+		m_sceneReg->view<MorphAnimController>().each([=](MorphAnimController& anim) { anim.Update(deltaTime); });
 
-	//particles[2]->update(deltaTime, camera->GetProj(), camera->GetView(), glm::mat4(1));
+		//particles[2]->update(deltaTime, camera->GetProj(), camera->GetView(), glm::mat4(1));
 
-#pragma region Collision
+		#pragma region Collision
 
-	//Enemy collisions with the player as well as bullets
-	std::vector<BasicAI*> AI;
-	for (auto enemy : m_sceneReg->view<EntityType>()) {
-		int index = AI.size();
-		EntityType type = GameObject::GetComponent<EntityType>(enemy);
+		//Enemy collisions with the player as well as bullets
+		std::vector<BasicAI*> AI;
+		for (auto enemy : m_sceneReg->view<EntityType>()) {
+			int index = AI.size();
+			EntityType type = GameObject::GetComponent<EntityType>(enemy);
 
-		if (type == EntityType::NEROTIST) {
-			AI.push_back(&GameObject::GetComponent<BasicAI>(enemy));
-			AI[index]->Update(deltaTime);
-		}
-		else if (type == EntityType::KAMIKAZI) {
-			AI.push_back(&GameObject::GetComponent<KamikaziAI>(enemy));
-			AI[index]->Update(deltaTime);
+			if (type == EntityType::NEROTIST) {
+				AI.push_back(&GameObject::GetComponent<BasicAI>(enemy));
+				AI[index]->Update(deltaTime);
+			}
+			else if (type == EntityType::KAMIKAZI) {
+				AI.push_back(&GameObject::GetComponent<KamikaziAI>(enemy));
+				AI[index]->Update(deltaTime);
 
-			if (isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
-				AI.pop_back();
-				particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
-				particleTemp->setSize(10);
-				particleTemp->getEmitter()->setLifetime(0.2, 0.2);
-				particleTemp->getEmitter()->setSpeed(100);
-				particleTemp->getEmitter()->init();
-				particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
-				particles.push_back(particleTemp);
-				m_sceneReg->destroy(enemy);
-				m_PlayerHealth -= m_PlayerHealth > 0 ? 1 : 0;
-				GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+				if (isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
+					AI.pop_back();
+					particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+					particleTemp->setSize(10);
+					particleTemp->getEmitter()->setLifetime(0.2, 0.2);
+					particleTemp->getEmitter()->setSpeed(100);
+					particleTemp->getEmitter()->init();
+					particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
+					particles.push_back(particleTemp);
+					m_sceneReg->destroy(enemy);
+					m_PlayerHealth -= m_PlayerHealth > 0 ? 1 : 0;
+					GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+				}
+			}
+			else if (type == EntityType::SCAVENGER) {
+				AI.push_back(&GameObject::GetComponent<ScavengerAI>(enemy));
+				AI[index]->Update(deltaTime);
+			}
+			else if (type == EntityType::BOMBARDIER) {
+				AI.push_back(&GameObject::GetComponent<BombardierAI>(enemy));
+				AI[index]->Update(deltaTime);
+			}
+
+			else if (type == EntityType::KAMIBULLET) {
+				GameObject::GetComponent<KamakaziBullet>(enemy).Update(deltaTime);
+
+				if (GameObject::GetComponent<KamakaziBullet>(enemy).GetDestroyed() || isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
+					particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+					particleTemp->setSize(10);
+					particleTemp->getEmitter()->setLifetime(0.2, 0.2);
+					particleTemp->getEmitter()->setSpeed(100);
+					particleTemp->getEmitter()->init();
+					GameObject::GetComponent<Transform>(enemy).SetLocalScale(glm::vec3(1));
+					particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
+					GameObject::GetComponent<Transform>(enemy).SetLocalScale(glm::vec3(5))->UpdateGlobal();
+					particles.push_back(particleTemp);
+					m_sceneReg->destroy(enemy);
+					m_PlayerHealth -= m_PlayerHealth > 0 ? 1 : 0;
+					GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+				}
+			}
+
+			else if (type == EntityType::JELLY) {
+				AI.push_back(&GameObject::GetComponent<JellyFishBoss>(enemy));
+				AI[index]->Update(deltaTime);
+			}
+
+			else if (type == EntityType::CENTIPEDE) {
+				AI.push_back(&GameObject::GetComponent<CentipedeBoss>(enemy));
+				AI[index]->Update(deltaTime);
+			}
+
+			else if (type == EntityType::HIVEMIND) {
+				AI.push_back(&GameObject::GetComponent<HiveMindBoss>(enemy));
+				AI[index]->Update(deltaTime);
 			}
 		}
-		else if (type == EntityType::SCAVENGER) {
-			AI.push_back(&GameObject::GetComponent<ScavengerAI>(enemy));
-			AI[index]->Update(deltaTime);
-		}
-		else if (type == EntityType::BOMBARDIER) {
-			AI.push_back(&GameObject::GetComponent<BombardierAI>(enemy));
-			AI[index]->Update(deltaTime);
-		}
 
-		else if (type == EntityType::KAMIBULLET) {
-			GameObject::GetComponent<KamakaziBullet>(enemy).Update(deltaTime);
+		/*if (m_PlayerHealth <= 0) {
+			*switchIt = true;
+			*SceneNo = int(ScenesNum::GAME_OVER_LOSE);
+		}*/
 
-			if (GameObject::GetComponent<KamakaziBullet>(enemy).GetDestroyed() || isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
-				particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
-				particleTemp->setSize(10);
-				particleTemp->getEmitter()->setLifetime(0.2, 0.2);
-				particleTemp->getEmitter()->setSpeed(100);
-				particleTemp->getEmitter()->init();
-				GameObject::GetComponent<Transform>(enemy).SetLocalScale(glm::vec3(1));
-				particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
-				GameObject::GetComponent<Transform>(enemy).SetLocalScale(glm::vec3(5))->UpdateGlobal();
-				particles.push_back(particleTemp);
-				m_sceneReg->destroy(enemy);
-				m_PlayerHealth -= m_PlayerHealth > 0 ? 1 : 0;
-				GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+		//Bullet and enemy collision update
+		for (auto Bulletentity : m_sceneReg->view<Projectile>()) {
+
+
+			GameObject::GetComponent<Projectile>(Bulletentity).Update(deltaTime);
+
+			if (GameObject::GetComponent<Projectile>(Bulletentity).GetDestroyed()) {
+				m_sceneReg->destroy(Bulletentity);
+				continue;
 			}
-		}
 
-		else if (type == EntityType::JELLY) {
-			AI.push_back(&GameObject::GetComponent<JellyFishBoss>(enemy));
-			AI[index]->Update(deltaTime);
-		}
-
-		else if (type == EntityType::CENTIPEDE) {
-			AI.push_back(&GameObject::GetComponent<CentipedeBoss>(enemy));
-			AI[index]->Update(deltaTime);
-		}
-
-		else if (type == EntityType::HIVEMIND) {
-			AI.push_back(&GameObject::GetComponent<HiveMindBoss>(enemy));
-			AI[index]->Update(deltaTime);
-		}
-	}
-
-	if (m_PlayerHealth <= 0) {
-		*switchIt = true;
-		*SceneNo = int(ScenesNum::GAME_OVER_LOSE);
-	}
-
-	//Bullet and enemy collision update
-	for (auto Bulletentity : m_sceneReg->view<Projectile>()) {
-		
-
-		GameObject::GetComponent<Projectile>(Bulletentity).Update(deltaTime);
-
-		if (GameObject::GetComponent<Projectile>(Bulletentity).GetDestroyed()) {
-			m_sceneReg->destroy(Bulletentity);
-			continue;
-		}
-
-		if (GameObject::GetComponent<EntityType>(Bulletentity) == EntityType::PLAYER) {
-			for (int i = 0; i < AI.size(); i++) {
-				entt::entity enemy = AI[i]->GetID();
-				EntityType type = GameObject::GetComponent<EntityType>(enemy);
-				if (isBoxCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(AI[i]->GetID())))
-				{
-					
-
-					if (type == EntityType::KAMIKAZI) 
+			if (GameObject::GetComponent<EntityType>(Bulletentity) == EntityType::PLAYER) {
+				for (int i = 0; i < AI.size(); i++) {
+					entt::entity enemy = AI[i]->GetID();
+					EntityType type = GameObject::GetComponent<EntityType>(enemy);
+					if (isBoxCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(AI[i]->GetID())))
 					{
-						particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
-						particleTemp->setSize(10);
-						particleTemp->getEmitter()->setLifetime(0.2, 0.2);
-						particleTemp->getEmitter()->setSpeed(100);
-						particleTemp->getEmitter()->init();
-						particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
-						particles.push_back(particleTemp);
 
-						m_score->GetComponent<ScoreHandler>().Add(1);
-						m_sceneReg->destroy(enemy);
-						AI.erase(AI.begin() + i);
-
-					}
-					else if (type == EntityType::NEROTIST) {
-						particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
-						particleTemp->setSize(10);
-						particleTemp->getEmitter()->setLifetime(0.2, 0.2);
-						particleTemp->getEmitter()->setSpeed(100);
-						particleTemp->getEmitter()->init();
-						particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
-						particles.push_back(particleTemp);
-
-						m_score->GetComponent<ScoreHandler>().Add(5);
-						m_sceneReg->destroy(enemy);
-						AI.erase(AI.begin() + i);
-					}
-					else if (type == EntityType::BOMBARDIER)
-					{
-						particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
-						particleTemp->setSize(10);
-						particleTemp->getEmitter()->setLifetime(0.2, 0.2);
-						particleTemp->getEmitter()->setSpeed(100);
-						particleTemp->getEmitter()->init();
-						particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
-						particles.push_back(particleTemp);
-
-						m_score->GetComponent<ScoreHandler>().Add(10);
- 						m_sceneReg->destroy(enemy);
-						AI.erase(AI.begin() + i);
-					}
-					
-
-					if (type == EntityType::JELLY) {
-						if (!GameObject::GetComponent<JellyFishBoss>(enemy).m_isImmune) {
-							GameObject::GetComponent<JellyFishBoss>(enemy).m_health--;
-
-							glm::vec3 temp = glm::vec3(0, 30, 0);
-
-							GameObject::GetComponent<Transform>(enemy).MoveLocalPosFixed(temp);
-							GameObject::GetComponent<Transform>(enemy).SetLocalScale(glm::vec3(1.0));
-							particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos() + glm::vec3(0, 30, 0), m_textures[int(TextureType::YELLOW)], enemy);
+						if (type == EntityType::KAMIKAZI)
+						{
+							particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
 							particleTemp->setSize(10);
 							particleTemp->getEmitter()->setLifetime(0.2, 0.2);
 							particleTemp->getEmitter()->setSpeed(100);
 							particleTemp->getEmitter()->init();
 							particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
-							GameObject::GetComponent<Transform>(enemy).SetLocalScale(glm::vec3(3.0));
-							temp = glm::vec3(0, -30, 0);
-							GameObject::GetComponent<Transform>(enemy).MoveLocalPosFixed(temp);
 							particles.push_back(particleTemp);
-						}
-						if (GameObject::GetComponent<JellyFishBoss>(enemy).m_health <= 0) {
-							auto tempEnt = GameObject::Allocate();
-							tempEnt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
-							tempEnt->GetComponent<Transform>().SetWHD(glm::vec3(10, 30, 5));
-							tempEnt->AttachComponent<EntityType>() = EntityType::PORTAL;
-							PortalID = tempEnt->GetID();
 
-							//PORTAL
-							particleTemp = new ParticleController(3, glm::vec3(0, 0, 0), m_textures[int(TextureType::SKY27)], tempEnt->GetID());
-							particleTemp->getEmitter()->setRadius(30);
-							particleTemp->setSize(5);
-							particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
-							particleTemp->getEmitter()->setSpeed(0.5);
+							m_score->GetComponent<ScoreHandler>().Add(1);
+							m_sceneReg->destroy(enemy);
+							AI.erase(AI.begin() + i);
+
+						}
+						else if (type == EntityType::NEROTIST) {
+							particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+							particleTemp->setSize(10);
+							particleTemp->getEmitter()->setLifetime(0.2, 0.2);
+							particleTemp->getEmitter()->setSpeed(100);
 							particleTemp->getEmitter()->init();
+							particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
 							particles.push_back(particleTemp);
-							glm::vec3 tempv3 = GameObject::GetComponent<Transform>(enemy).GetLocalPos() + glm::vec3(0, 30, 0);
-							GameObject::GetComponent<Transform>(PortalID).MoveLocalPos(tempv3);
 
-							m_isBossDead = true;
-
-							m_sceneReg->destroy(enemy);
-							AI.erase(AI.begin() + i);					
-						}
-					}
-					else if (type == EntityType::CENTIPEDE) {
-						GameObject::GetComponent<CentipedeBoss>(enemy).m_health--;
-
-						if (GameObject::GetComponent<CentipedeBoss>(enemy).m_health <= 0) {
+							m_score->GetComponent<ScoreHandler>().Add(5);
 							m_sceneReg->destroy(enemy);
 							AI.erase(AI.begin() + i);
 						}
-					} 
-					
-					else if (type == EntityType::HIVEMIND) {
-						GameObject::GetComponent<HiveMindBoss>(enemy).m_health--;
-						
-						if (GameObject::GetComponent<HiveMindBoss>(enemy).m_health <= 0) {
+						else if (type == EntityType::BOMBARDIER)
+						{
+							particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+							particleTemp->setSize(10);
+							particleTemp->getEmitter()->setLifetime(0.2, 0.2);
+							particleTemp->getEmitter()->setSpeed(100);
+							particleTemp->getEmitter()->init();
+							particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
+							particles.push_back(particleTemp);
+
+							m_score->GetComponent<ScoreHandler>().Add(10);
 							m_sceneReg->destroy(enemy);
 							AI.erase(AI.begin() + i);
 						}
-					}
 
-										
-					m_sceneReg->destroy(Bulletentity);
-					break;
+						if (type == EntityType::JELLY) {
+							if (!GameObject::GetComponent<JellyFishBoss>(enemy).m_isImmune) {
+								GameObject::GetComponent<JellyFishBoss>(enemy).m_health--;
+
+								glm::vec3 temp = glm::vec3(0, 30, 0);
+
+								GameObject::GetComponent<Transform>(enemy).MoveLocalPosFixed(temp);
+								GameObject::GetComponent<Transform>(enemy).SetLocalScale(glm::vec3(1.0));
+								particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos() + glm::vec3(0, 30, 0), m_textures[int(TextureType::YELLOW)], enemy);
+								particleTemp->setSize(10);
+								particleTemp->getEmitter()->setLifetime(0.2, 0.2);
+								particleTemp->getEmitter()->setSpeed(100);
+								particleTemp->getEmitter()->init();
+								particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
+								GameObject::GetComponent<Transform>(enemy).SetLocalScale(glm::vec3(3.0));
+								temp = glm::vec3(0, -30, 0);
+								GameObject::GetComponent<Transform>(enemy).MoveLocalPosFixed(temp);
+								particles.push_back(particleTemp);
+							}
+							if (GameObject::GetComponent<JellyFishBoss>(enemy).m_health <= 0) {
+								auto tempEnt = GameObject::Allocate();
+								tempEnt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+								tempEnt->GetComponent<Transform>().SetWHD(glm::vec3(10, 30, 5));
+								tempEnt->AttachComponent<EntityType>() = EntityType::PORTAL;
+								PortalID = tempEnt->GetID();
+
+								//PORTAL
+								particleTemp = new ParticleController(3, glm::vec3(0, 0, 0), m_textures[int(TextureType::SKY27)], tempEnt->GetID());
+								particleTemp->getEmitter()->setRadius(30);
+								particleTemp->setSize(5);
+								particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+								particleTemp->getEmitter()->setSpeed(0.5);
+								particleTemp->getEmitter()->init();
+								particles.push_back(particleTemp);
+								glm::vec3 tempv3 = GameObject::GetComponent<Transform>(enemy).GetLocalPos() + glm::vec3(0, 30, 0);
+								GameObject::GetComponent<Transform>(PortalID).MoveLocalPos(tempv3);
+
+								m_isBossDead = true;
+
+								m_sceneReg->destroy(enemy);
+								AI.erase(AI.begin() + i);
+							}
+						}
+						else if (type == EntityType::CENTIPEDE) {
+							GameObject::GetComponent<CentipedeBoss>(enemy).m_health--;
+
+							if (GameObject::GetComponent<CentipedeBoss>(enemy).m_health <= 0) {
+								m_sceneReg->destroy(enemy);
+								AI.erase(AI.begin() + i);
+							}
+						}
+
+						else if (type == EntityType::HIVEMIND) {
+							GameObject::GetComponent<HiveMindBoss>(enemy).m_health--;
+
+							if (GameObject::GetComponent<HiveMindBoss>(enemy).m_health <= 0) {
+								m_sceneReg->destroy(enemy);
+								AI.erase(AI.begin() + i);
+							}
+						}
+
+						m_sceneReg->destroy(Bulletentity);
+						break;
+					}
 				}
 			}
+
+			else if (GameObject::GetComponent<EntityType>(Bulletentity) == EntityType::ENEMY) {
+				if (isBoxCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(MainPlayerID)))
+				{
+					m_sceneReg->destroy(Bulletentity);
+					m_PlayerHealth -= m_PlayerHealth > 0 ? 1 : 0;
+					GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+				}
+			}
+
 		}
 
-		else if (GameObject::GetComponent<EntityType>(Bulletentity) == EntityType::ENEMY) {
-			if (isBoxCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(MainPlayerID)))
+		if (m_name == "Universe_19") {
+			//collisions of player with planets
+			for (int i = Universe19SS::SOLARI + 1; i <= Universe19SS::KEMINTH; i++) {
+				if (isBoxCircleCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(m_solarSystem[i]))) {
+					m_PlayerHealth = 0;
+					GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+				}
+			}
+
+			if (m_isBossDead)
 			{
-				m_sceneReg->destroy(Bulletentity);
-				m_PlayerHealth -= m_PlayerHealth > 0 ? 1 : 0;
-				GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+				if (isBoxCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(PortalID)))
+				{
+					isTransitionActive = true;
+				}
 			}
-		}
-		
-	}
 
-
-	if (m_name == "Universe_19") {
-		//collisions of player with planets
-		for (int i = Universe19SS::SOLARI + 1; i <= Universe19SS::KEMINTH; i++) {
-			if (isBoxCircleCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(m_solarSystem[i]))) {
-				m_PlayerHealth = 0;
-				GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
-			}
-		}
-
-		if (m_isBossDead)
-		{
-			if (isBoxCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(PortalID)))
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 100 && !m_isBossSpawn)
 			{
-				*switchIt = true;
-				*SceneNo = int(ScenesNum::UNIVERSE_27);
+				//// JELLYFIH BOSS
+
+				auto jellyEntity = GameObject::Allocate();
+				jellyEntity->AttachComponent<JellyFishBoss>().m_enemyMesh = m_meshes[int(EnemyMesh::NEROTISTU1)];
+				jellyEntity->GetComponent<JellyFishBoss>().Init(jellyEntity->GetID(), MainPlayerID);
+
+				jellyEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				auto& jellypos = jellyEntity->GetComponent<Transform>();
+
+				particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
+				particleTemp->setRotation(glm::vec3(90, 0, 0));
+				particleTemp->getEmitter()->setRadius(1.0);
+				particleTemp->setSize(2);
+				particleTemp->getEmitter()->setAngleDeg(10);
+				particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+				particleTemp->getEmitter()->setSpeed(10);
+				particleTemp->getEmitter()->init();
+				particles.push_back(particleTemp);
+				jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+
+				particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
+				particleTemp->setRotation(glm::vec3(90, 0, 0));
+				particleTemp->getEmitter()->setRadius(1.0);
+				particleTemp->setSize(2);
+				particleTemp->getEmitter()->setAngleDeg(10);
+				particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+				particleTemp->getEmitter()->setSpeed(10);
+				particleTemp->getEmitter()->init();
+				particles.push_back(particleTemp);
+				jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+
+				particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
+				particleTemp->setRotation(glm::vec3(90, 0, 0));
+				particleTemp->getEmitter()->setRadius(1.0);
+				particleTemp->setSize(2);
+				particleTemp->getEmitter()->setAngleDeg(10);
+				particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+				particleTemp->getEmitter()->setSpeed(10);
+				particleTemp->getEmitter()->init();
+				particles.push_back(particleTemp);
+				jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+
+				particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
+				particleTemp->setRotation(glm::vec3(90, 0, 0));
+				particleTemp->getEmitter()->setRadius(1.0);
+				particleTemp->setSize(2);
+				particleTemp->getEmitter()->setAngleDeg(10);
+				particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+				particleTemp->getEmitter()->setSpeed(10);
+				particleTemp->getEmitter()->init();
+				particles.push_back(particleTemp);
+				jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+
+				glm::vec3 temp = glm::vec3(0, -30, 2500);
+				jellypos.MoveLocalPos(temp);
+
+				jellyEntity->AttachComponent<DynamicRenderer>(CamID, jellyEntity->GetID(), *jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0], nullptr, false);
+				jellyEntity->AttachComponent<MorphAnimController>(int(jellyEntity->GetID())).SetFrames(jellyEntity->GetComponent<JellyFishBoss>().m_meshes, 0, 24);
+				jellyEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
+				jellyEntity->GetComponent<Transform>().SetWHD(glm::vec3(jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetWidth(), jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetHeight() * 3, jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetDepth()));
+				jellyEntity->GetComponent<Transform>().SetRadius((jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetWidth() * 3) / 2);
+				jellyEntity->AttachComponent<EntityType>() = EntityType::JELLY;
+
+				m_isBossSpawn = true;
 			}
 		}
 
-		if (m_score->GetComponent<ScoreHandler>().GetScore() >= 100 && !m_isBossSpawn)
+		else if (m_name == "Universe_27")
 		{
-			//// JELLYFIH BOSS
-			
-			auto jellyEntity = GameObject::Allocate();
-			jellyEntity->AttachComponent<JellyFishBoss>().m_enemyMesh = m_meshes[int(EnemyMesh::NEROTISTU1)];
-			jellyEntity->GetComponent<JellyFishBoss>().Init(jellyEntity->GetID(), MainPlayerID);
-			
-			jellyEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
-			auto& jellypos = jellyEntity->GetComponent<Transform>();
+			if (wasSceneSwitched)
+				wasTransitionActive = true;
 
-			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
-			particleTemp->setRotation(glm::vec3(90, 0, 0));
-			particleTemp->getEmitter()->setRadius(1.0);
-			particleTemp->setSize(2);
-			particleTemp->getEmitter()->setAngleDeg(10);
-			particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
-			particleTemp->getEmitter()->setSpeed(10);
-			particleTemp->getEmitter()->init();
-			particles.push_back(particleTemp);
-			jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 0 && !m_isBossSpawn)
+			{
+				////BOSS
 
-			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
-			particleTemp->setRotation(glm::vec3(90, 0, 0));
-			particleTemp->getEmitter()->setRadius(1.0);
-			particleTemp->setSize(2);
-			particleTemp->getEmitter()->setAngleDeg(10);
-			particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
-			particleTemp->getEmitter()->setSpeed(10);
-			particleTemp->getEmitter()->init();
-			particles.push_back(particleTemp);
-			jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+				auto Centipede = GameObject::Allocate();
+				Centipede->AttachComponent<CentipedeBoss>().SetBulletMesh(m_meshes[int(PlayerMesh::PLAYERBULLET)]);
+				Centipede->GetComponent<CentipedeBoss>().Init(Centipede->GetID(), MainPlayerID);
 
-			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
-			particleTemp->setRotation(glm::vec3(90, 0, 0));
-			particleTemp->getEmitter()->setRadius(1.0);
-			particleTemp->setSize(2);
-			particleTemp->getEmitter()->setAngleDeg(10);
-			particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
-			particleTemp->getEmitter()->setSpeed(10);
-			particleTemp->getEmitter()->init();
-			particles.push_back(particleTemp);
-			jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+				Centipede->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				auto& Centipedeypos = Centipede->GetComponent<Transform>();
 
-			particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
-			particleTemp->setRotation(glm::vec3(90, 0, 0));
-			particleTemp->getEmitter()->setRadius(1.0);
-			particleTemp->setSize(2);
-			particleTemp->getEmitter()->setAngleDeg(10);
-			particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
-			particleTemp->getEmitter()->setSpeed(10);
-			particleTemp->getEmitter()->init();
-			particles.push_back(particleTemp);
-			jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+				glm::vec3 temp = glm::vec3(GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().x + 700,
+					GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().y,
+					GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().z + 700);
 
-			glm::vec3 temp = glm::vec3(0, -30, 2500);
-			jellypos.MoveLocalPos(temp);
+				Centipedeypos.MoveLocalPos(temp);
 
-			jellyEntity->AttachComponent<DynamicRenderer>(CamID, jellyEntity->GetID(), *jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0], nullptr, false);
-			jellyEntity->AttachComponent<MorphAnimController>(int(jellyEntity->GetID())).SetFrames(jellyEntity->GetComponent<JellyFishBoss>().m_meshes, 0, 24);
-			jellyEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
-			jellyEntity->GetComponent<Transform>().SetWHD(glm::vec3(jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetWidth(), jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetHeight() * 3, jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetDepth()));
-			jellyEntity->GetComponent<Transform>().SetRadius((jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetWidth()* 3) / 2);
-			jellyEntity->AttachComponent<EntityType>() = EntityType::JELLY;
-			
-			m_isBossSpawn = true;
+				Centipede->AttachComponent<DynamicRenderer>(CamID, Centipede->GetID(), *Centipede->GetComponent<CentipedeBoss>().m_meshes[0], nullptr, false);
+				Centipede->AttachComponent<MorphAnimController>(int(Centipede->GetID())).SetFrames(Centipede->GetComponent<CentipedeBoss>().m_meshes, 0, 4);
+				Centipede->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
+				Centipede->GetComponent<Transform>().SetWHD(glm::vec3(Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetWidth(), Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetHeight() * 3, Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetDepth()));
+				Centipede->GetComponent<Transform>().SetRadius((Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetWidth() * 3) / 2);
+				Centipede->AttachComponent<EntityType>() = EntityType::CENTIPEDE;
+
+				m_isBossSpawn = true;
+			}
 		}
-	}
 
-	else if(m_name == "Universe_27")
-	{
-		if (m_score->GetComponent<ScoreHandler>().GetScore() >= 0 && !m_isBossSpawn)
-		{
-			////BOSS
+		else if (m_name == "Universe_5") {
 
-			auto Centipede = GameObject::Allocate();
-			Centipede->AttachComponent<CentipedeBoss>().SetBulletMesh(m_meshes[int(PlayerMesh::PLAYERBULLET)]);
-			Centipede->GetComponent<CentipedeBoss>().Init(Centipede->GetID(), MainPlayerID);
-
-			Centipede->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
-			auto& Centipedeypos = Centipede->GetComponent<Transform>();
-
-			glm::vec3 temp = glm::vec3(GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().x + 700,
-				GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().y,
-				GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().z + 700);
-
-			Centipedeypos.MoveLocalPos(temp);
-
-			Centipede->AttachComponent<DynamicRenderer>(CamID, Centipede->GetID(), *Centipede->GetComponent<CentipedeBoss>().m_meshes[0], nullptr, false);
-			Centipede->AttachComponent<MorphAnimController>(int(Centipede->GetID())).SetFrames(Centipede->GetComponent<CentipedeBoss>().m_meshes, 0, 4);
-			Centipede->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
-			Centipede->GetComponent<Transform>().SetWHD(glm::vec3(Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetWidth(), Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetHeight() * 3, Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetDepth()));
-			Centipede->GetComponent<Transform>().SetRadius((Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetWidth() * 3) / 2);
-			Centipede->AttachComponent<EntityType>() = EntityType::CENTIPEDE;
-
-			m_isBossSpawn = true;
 		}
+
+		#pragma endregion
+
+		#pragma region Shadows
+		shadowProjection = glm::perspective(glm::radians(90.0f), Application::GetWindowWidth() / Application::GetWindowHeight(), 0.1f, 1000.0f);
+		shadowTransformations[0] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
+		shadowTransformations[1] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
+		shadowTransformations[2] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0));
+		shadowTransformations[3] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0));
+		shadowTransformations[4] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0));
+		shadowTransformations[5] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0));
+		#pragma endregion
 	}
-
-	else if (m_name == "Universe_5") {
-
-	}
-
-#pragma endregion
-
-#pragma region Shadows
-	shadowProjection = glm::perspective(glm::radians(90.0f), Application::GetWindowWidth() / Application::GetWindowHeight(), 0.1f, 1000.0f);
-	shadowTransformations[0] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
-	shadowTransformations[1] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
-	shadowTransformations[2] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0));
-	shadowTransformations[3] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0));
-	shadowTransformations[4] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0));
-	shadowTransformations[5] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0));
-#pragma endregion
 }
 
 void Universe::Render(float deltaTime)
@@ -1690,6 +1712,11 @@ void Universe::Render(float deltaTime)
 		BufferEntity->GetComponent<ColorCorrectionEffect>().SetCurSlot(1);
 		BufferEntity->GetComponent<ColorCorrectionEffect>().ApplyEffect(&BufferEntity->GetComponent<PostEffect>());
 		BufferEntity->GetComponent<ColorCorrectionEffect>().DrawToScreen();
+	}
+	else if (isTransitionActive) {
+		BufferEntity->GetComponent<PixelationEffect>().SetIntensity(intensity);
+		BufferEntity->GetComponent<PixelationEffect>().ApplyEffect(&BufferEntity->GetComponent<PostEffect>());
+		BufferEntity->GetComponent<PixelationEffect>().DrawToScreen();
 	}
 	else {
 		BufferEntity->GetComponent<PostEffect>().DrawToScreen();
