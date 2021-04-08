@@ -129,6 +129,9 @@ public:
 	static std::vector<Mesh*> m_meshes;
 	
 private:
+	float m_speed = 0.1f;
+	bool m_flip = false;
+
 	bool m_resetTimeShot[3] = { false,false, false };
 	float m_fireRatePerhead[3] = { 0.6f, 0.6f, 0.6f };
 	float m_startTimePerhead[3] = { 0.f, 0.f, 0.f };
@@ -147,6 +150,8 @@ public:
 	void JellyFishDefeated();
 	void CentipedeDefeated();
 
+	void Update(float deltaTime) override;
+
 	static void Init();
 
 	static std::vector<Mesh*> m_meshes;
@@ -154,6 +159,10 @@ public:
 private:
 	//the 3 phases for the final boss
 	int m_phases = 0;
+
+	float m_startTimeBetweenBoss = 0.0f;
+	float m_DelayBetweenBoss = 1.5f;
+	bool m_allowNewBoss = false;
 
 	//for jelly fish boss start and end
 	bool m_JellyDefeat = false;

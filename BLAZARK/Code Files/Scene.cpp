@@ -1611,7 +1611,7 @@ void Universe::Update(float deltaTime)
 			if (wasSceneSwitched)
 				wasTransitionActive = true;
 
-			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 100 && !m_isBossSpawn)
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 0 && !m_isBossSpawn)
 			{
 				////BOSS
 
