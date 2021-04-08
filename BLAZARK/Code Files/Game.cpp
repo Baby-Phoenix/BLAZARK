@@ -21,7 +21,11 @@ void Game::InitGame()
 	m_scenes.push_back(new Universe("Universe_5", &m_SceneNo, &m_isSceneSwitch));
 
 	//setting the first scene
+<<<<<<< HEAD
 	m_curScene = m_scenes[int(ScenesNum::UNIVERSE_5)];
+=======
+	m_curScene = m_scenes[int(ScenesNum::UNIVERSE_27)];
+>>>>>>> main
 	m_curScene->InitScene();
 	m_curScene->SetWindow(m_window);// giving the current scene the window
 }
