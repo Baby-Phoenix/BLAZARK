@@ -1055,42 +1055,50 @@ void Universe::InitScene()
 			m_solarSystem.push_back(nullPlanetOneEntity->GetID());
 			nullPlanetOneEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 750));
 			nullPlanetOneEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), nullPlanetOneEntity->GetID(), *m_meshes[int(PlanetMesh::DEDMOS)], nullptr);
+			nullPlanetOneEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::DEDMOS)]->GetWidth() / 2));
 
 			// Titanius
 			auto nullPlanetTwoEntity = GameObject::Allocate();
 			m_solarSystem.push_back(nullPlanetTwoEntity->GetID());
 			nullPlanetTwoEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(1500, 0, 0));
 			nullPlanetTwoEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), nullPlanetTwoEntity->GetID(), *m_meshes[int(PlanetMesh::TITANIUS)], nullptr);
+			nullPlanetTwoEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::TITANIUS)]->GetWidth() / 2));
 
 			// Kreillo
 			auto nullPlanetThreeEntity = GameObject::Allocate();
 			m_solarSystem.push_back(nullPlanetThreeEntity->GetID());
 			nullPlanetThreeEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -2250));
 			nullPlanetThreeEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), nullPlanetThreeEntity->GetID(), *m_meshes[int(PlanetMesh::KREILLO)], nullptr);
+			nullPlanetThreeEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::KREILLO)]->GetWidth() / 2));
 
 			// Paxallus
 			auto citadelEntity = GameObject::Allocate();
 			m_solarSystem.push_back(citadelEntity->GetID());
 			citadelEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(-2875, 0, 0));
 			citadelEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), citadelEntity->GetID(), *m_meshes[int(PlanetMesh::PAXALLUS)], nullptr);
+			citadelEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::PAXALLUS)]->GetWidth() / 2));
+			citadelEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(2));
 
 			// Derangi
 			auto mushroomPlanetEntity = GameObject::Allocate();
 			m_solarSystem.push_back(mushroomPlanetEntity->GetID());
 			mushroomPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 3500));
 			mushroomPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), mushroomPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::DERANGI)], nullptr);
+			mushroomPlanetEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::DERANGI)]->GetWidth() / 2));
 
 			// Rhetoid
 			auto gasPlanetOneEntity = GameObject::Allocate();
 			m_solarSystem.push_back(gasPlanetOneEntity->GetID());
 			gasPlanetOneEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(4250, 0, 0));
 			gasPlanetOneEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), gasPlanetOneEntity->GetID(), *m_meshes[int(PlanetMesh::RHETOID)], nullptr);
+			gasPlanetOneEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::RHETOID)]->GetWidth() / 2));
 
 			// Magaantu
 			auto gasPlanetTwoEntity = GameObject::Allocate();
 			m_solarSystem.push_back(gasPlanetTwoEntity->GetID());
 			gasPlanetTwoEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -5000));
 			gasPlanetTwoEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), gasPlanetTwoEntity->GetID(), *m_meshes[int(PlanetMesh::MAGAANTU)], nullptr);
+			gasPlanetTwoEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::MAGAANTU)]->GetWidth() / 2));
 
 			//Setting Solar System Parent/Childe	
 			nullPlanetOneEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe27SS::LDMC]);
@@ -1305,30 +1313,35 @@ void Universe::InitScene()
 			m_solarSystem.push_back(darkPEntity->GetID());
 			darkPEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 1750));
 			darkPEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), darkPEntity->GetID(), *m_meshes[int(PlanetMesh::DARKP)], nullptr);
+			darkPEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::DARKP)]->GetWidth() / 2));
 
 			// Dual planet
 			auto dualPEntity = GameObject::Allocate();
 			m_solarSystem.push_back(dualPEntity->GetID());
 			dualPEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(1500, 0, 0));
 			dualPEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), dualPEntity->GetID(), *m_meshes[int(PlanetMesh::DUALP)], nullptr);
+			dualPEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::DUALP)]->GetWidth() / 2));
 
 			// Pink planet
 			auto pinkPEntity = GameObject::Allocate();
 			m_solarSystem.push_back(pinkPEntity->GetID());
 			pinkPEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -2250));
 			pinkPEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), pinkPEntity->GetID(), *m_meshes[int(PlanetMesh::PINKP)], nullptr);
+			pinkPEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::PINKP)]->GetWidth() / 2));
 
 			// Spike planet
 			auto spikePEntity = GameObject::Allocate();
 			m_solarSystem.push_back(spikePEntity->GetID());
 			spikePEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(-2875, 0, 0));
 			spikePEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), spikePEntity->GetID(), *m_meshes[int(PlanetMesh::SPIKEP)], nullptr);
+			spikePEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::SPIKEP)]->GetWidth() / 2));
 
 			// White planet
 			auto whitePEntity = GameObject::Allocate();
 			m_solarSystem.push_back(whitePEntity->GetID());
 			whitePEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(-2875, 0, 0));
 			whitePEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), whitePEntity->GetID(), *m_meshes[int(PlanetMesh::WHITEP)], nullptr);
+			whitePEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::WHITEP)]->GetWidth() / 2));
 
 			//Setting Solar System Parent/Childe	
 			darkPEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RDKC]);
@@ -1787,13 +1800,13 @@ void Universe::Update(float deltaTime)
 		}
 
 		if (m_name == "Universe_19") {
-			//collisions of player with planets
-			for (int i = Universe19SS::SOLARI + 1; i <= Universe19SS::KEMINTH; i++) {
-				if (isBoxCircleCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(m_solarSystem[i]))) {
-					m_PlayerHealth = 0;
-					GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
-				}
-			}
+			////collisions of player with planets
+			//for (int i = Universe19SS::SOLARI; i <= Universe19SS::KEMINTH; i++) {
+			//	if (isBoxCircleCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(m_solarSystem[i]))) {
+			//		m_PlayerHealth = 0;
+			//		GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+			//	}
+			//}
 
 			if (m_isBossDead)
 			{
@@ -1803,7 +1816,7 @@ void Universe::Update(float deltaTime)
 				}
 			}
 
-			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 100 && !m_isBossSpawn)
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 200 && !m_isBossSpawn)
 			{
 				//// JELLYFIH BOSS
 
@@ -1874,10 +1887,18 @@ void Universe::Update(float deltaTime)
 
 		else if (m_name == "Universe_27")
 		{
+			////collisions of player with planets
+			//for (int i = Universe27SS::LUTERO; i <= Universe27SS::MEGAANTU; i++) {
+			//	if (isBoxCircleCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(m_solarSystem[i]))) {
+			//		m_PlayerHealth = 0;
+			//		GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+			//	}
+			//}
+
 			if (wasSceneSwitched)
 				wasTransitionActive = true;
 
-			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 0 && !m_isBossSpawn)
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 200 && !m_isBossSpawn)
 			{
 				////BOSS
 
@@ -1905,8 +1926,15 @@ void Universe::Update(float deltaTime)
 			}
 		}
 
-		else if (m_name == "Universe_5") {
-
+		else if (m_name == "Universe_5") 
+		{
+			////collisions of player with planets
+			//for (int i = Universe5SS::RALEI; i <= Universe5SS::WHITEP; i++) {
+			//	if (isBoxCircleCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(m_solarSystem[i]))) {
+			//		m_PlayerHealth = 0;
+			//		GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+			//	}
+			//}	
 		}
 
 		#pragma endregion
@@ -2517,6 +2545,8 @@ void Universe::SolarSystemUpdate() {
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe27SS::LPC]).RotateLocal(gueristisOrbit);
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe27SS::LRC]).RotateLocal(keminthOrbit);
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe27SS::LTC]).RotateLocal(keminthOrbit);
+
+		GameObject::GetComponent<Transform>(AsteroidBeltID).RotateLocal(asteroidOrbit);
 	}
 	else if (m_name == "Universe_5") {
 		// Rotation
@@ -2533,6 +2563,8 @@ void Universe::SolarSystemUpdate() {
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe5SS::RPC]).RotateLocal(yechinOrbit);
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe5SS::RSC]).RotateLocal(kerantiaOrbit);
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe5SS::RWC]).RotateLocal(gueristisOrbit);
+
+		GameObject::GetComponent<Transform>(AsteroidBeltID).RotateLocal(asteroidOrbit);
 	}
 }
 
