@@ -568,6 +568,7 @@ void CentipedeBoss::Update(float deltaTime)
 			if (m_resetTimeShot[0]) {
 				m_startTimePerhead[0] = glfwGetTime();
 				m_resetTimeShot[0] = false;
+				m_fireRatePerhead[0] = m_fireRatePerhead[0] - ((m_speed * 0.001) * ((m_speed) / glm::abs(m_speed)));
 			}
 		}
 
@@ -589,6 +590,7 @@ void CentipedeBoss::Update(float deltaTime)
 			if (m_resetTimeShot[1]) {
 				m_startTimePerhead[1] = glfwGetTime();
 				m_resetTimeShot[1] = false;
+				m_fireRatePerhead[1] = m_fireRatePerhead[1] - ((m_speed * 0.001) * ((m_speed) / glm::abs(m_speed)));
 			}
 		}
 
@@ -609,11 +611,25 @@ void CentipedeBoss::Update(float deltaTime)
 			if (m_resetTimeShot[2]) {
 				m_startTimePerhead[2] = glfwGetTime();
 				m_resetTimeShot[2] = false;
+				m_fireRatePerhead[2] = m_fireRatePerhead[2] - ((m_speed * 0.001) * ((m_speed) / glm::abs(m_speed)));
 			}
 		}
 
-
-		glm::vec3 rotationvector = glm::vec3(0, 10, 0);
+		if (m_speed <= 20 && !m_flip)
+			m_speed += deltaTime;
+		
+		else if (m_speed >= -20 && m_flip)
+			m_speed -= deltaTime;
+			
+		if (m_speed > 20 || m_speed < -20)
+		{
+			m_flip = !m_flip;
+			m_fireRatePerhead[0] = 0.6f;
+			m_fireRatePerhead[1] = 0.6f;
+			m_fireRatePerhead[2] = 0.6f;
+		}
+		
+		glm::vec3 rotationvector = glm::vec3(0, m_speed, 0);
 		enemyTrans.RotateLocal(rotationvector);
 		
 		}
@@ -648,6 +664,10 @@ void HiveMindBoss::JellyFishDefeated()
 void HiveMindBoss::CentipedeDefeated()
 {
 	m_CentipedeDefeat = true;
+}
+
+void HiveMindBoss::Update(float deltaTime)
+{
 }
 
 void HiveMindBoss::Init()

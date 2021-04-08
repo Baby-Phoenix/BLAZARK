@@ -11,11 +11,12 @@ enum class PlayerMesh { PLAYERSHIPXWINGS, PLAYERSHIPXWINGE = 2, PLAYERSHIPPENCIL
 enum class EnemyMesh { SCAVENGERU1S = 6, SCAVENGERU1E = 8, NEROTISTU1, KAMAKAZI, BOMBARDIER };
 
 enum class PlanetMesh { SOLARI = int(EnemyMesh::BOMBARDIER)+1, VERASTEN, YECHIN, KERANTIA, LUNARI, GUERISTIS, KEMINTH,
-						LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MAGAANTU , COMET};
+						LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MAGAANTU , 
+						RALEI, DARKP, DUALP, PINKP, SPIKEP, WHITEP, COMET};
 
 enum Universe19SS { SVC, SYC, SKRC, SGC, SKEC, SOLARI, VERASTEN, YECHIN, KERANTIA, GUERISTIS, KEMINTH, KEMINTHRING, HPC };
 enum Universe27SS { LDMC, LTC, LKC, LPC, LDRC, LRC, LMC, LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MEGAANTU};
-enum Universe5SS {};
+enum Universe5SS { RDKC, RDLC, RPC, RSC, RWC, RALEI, DARKP, DUALP, PINKP, SPIKEP, WHITEP };
 
 std::vector<Mesh*> Scene::m_meshes;
 std::vector<Texture*> Scene::m_textures;
@@ -146,6 +147,20 @@ Scene::Scene(std::string name)
 		loadOBJ("Resource Files/OBJFiles/Universe-27/Planets/Rhetoid.obj", *m_meshes[int(PlanetMesh::RHETOID)]);
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Universe-27/Planets/Magaantu.obj", *m_meshes[int(PlanetMesh::MAGAANTU)]);
+		// Universe-5 //
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Universe-5/Planets/blacksun.obj", *m_meshes[int(PlanetMesh::RALEI)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Universe-5/Planets/darkPlanet.obj", *m_meshes[int(PlanetMesh::DARKP)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Universe-5/Planets/dualPlanet.obj", *m_meshes[int(PlanetMesh::DUALP)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Universe-5/Planets/pinkPlanet.obj", *m_meshes[int(PlanetMesh::PINKP)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Universe-5/Planets/spikePlanet.obj", *m_meshes[int(PlanetMesh::SPIKEP)]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Universe-5/Planets/whitePlanet.obj", *m_meshes[int(PlanetMesh::WHITEP)]);
+
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Misc/Comet2.obj", *m_meshes[int(PlanetMesh::COMET)]);
 		m_meshes.push_back(new Mesh());
@@ -192,6 +207,25 @@ Scene::Scene(std::string name)
 		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/27/Asteroids_Cluster_7G.obj", *m_meshes[int(PlanetMesh::COMET) + 21]);
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/27/Asteroids_Cluster_8G.obj", *m_meshes[int(PlanetMesh::COMET) + 22]);
+
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/5/Asteroids_RING3.obj", *m_meshes[int(PlanetMesh::COMET) + 23]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/5/Asteroids_Cluster_1R.obj", *m_meshes[int(PlanetMesh::COMET) + 24]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/5/Asteroids_Cluster_2R.obj", *m_meshes[int(PlanetMesh::COMET) + 25]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/5/Asteroids_Cluster_3R.obj", *m_meshes[int(PlanetMesh::COMET) + 26]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/5/Asteroids_Cluster_4R.obj", *m_meshes[int(PlanetMesh::COMET) + 27]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/5/Asteroids_Cluster_5R.obj", *m_meshes[int(PlanetMesh::COMET) + 28]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/5/Asteroids_Cluster_6R.obj", *m_meshes[int(PlanetMesh::COMET) + 29]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/5/Asteroids_Cluster_7R.obj", *m_meshes[int(PlanetMesh::COMET) + 30]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/5/Asteroids_Cluster_8R.obj", *m_meshes[int(PlanetMesh::COMET) + 31]);
 	}
 }
 
@@ -1228,8 +1262,240 @@ void Universe::InitScene()
 			}
 		}
 		else if (m_name == "Universe_5") {
-		HiveMindBoss::Init();
+			HiveMindBoss::Init();
 			m_SceneResumeNo = int(ScenesNum::UNIVERSE_5);
+
+			//m_meshes.push_back(new Mesh());
+			loadOBJ("Resource Files/OBJFiles/Universe-5/EnemyShips/Nerotist.obj", *m_meshes[int(EnemyMesh::NEROTISTU1)]);
+
+			//m_meshes.push_back(new Mesh());
+			loadOBJ("Resource Files/OBJFiles/Universe-5/EnemyShips/Kamikazi.obj", *m_meshes[int(EnemyMesh::KAMAKAZI)]);
+
+			//m_meshes.push_back(new Mesh());
+			loadOBJ("Resource Files/OBJFiles/Universe-5/EnemyShips/Bombardier.obj", *m_meshes[int(EnemyMesh::BOMBARDIER)]);
+
+			// Solar System Centerpoint
+			auto DarkPCEntity = GameObject::Allocate();
+			m_solarSystem.push_back(DarkPCEntity->GetID());
+			DarkPCEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+			auto DualPCEntity = GameObject::Allocate();
+			m_solarSystem.push_back(DualPCEntity->GetID());
+			DualPCEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+			auto PinkPCEntity = GameObject::Allocate();
+			m_solarSystem.push_back(PinkPCEntity->GetID());
+			PinkPCEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+			auto SpikePCEntity = GameObject::Allocate();
+			m_solarSystem.push_back(SpikePCEntity->GetID());
+			SpikePCEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+			auto WhitePCEntity = GameObject::Allocate();
+			m_solarSystem.push_back(WhitePCEntity->GetID());
+			WhitePCEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+
+
+			// Ra'lei - Black Hole/Sun
+			auto sunEntity = GameObject::Allocate();
+			m_solarSystem.push_back(sunEntity->GetID());
+			sunEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+			sunEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), sunEntity->GetID(), *m_meshes[int(PlanetMesh::RALEI)], nullptr, true);
+			sunEntity->GetComponent<Transform>().SetRadius(3 * (m_meshes[int(PlanetMesh::RALEI)]->GetWidth() / 2));
+			sunEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
+
+			// Dark planet
+			auto darkPEntity = GameObject::Allocate();
+			m_solarSystem.push_back(darkPEntity->GetID());
+			darkPEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 1750));
+			darkPEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), darkPEntity->GetID(), *m_meshes[int(PlanetMesh::DARKP)], nullptr);
+
+			// Dual planet
+			auto dualPEntity = GameObject::Allocate();
+			m_solarSystem.push_back(dualPEntity->GetID());
+			dualPEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(1500, 0, 0));
+			dualPEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), dualPEntity->GetID(), *m_meshes[int(PlanetMesh::DUALP)], nullptr);
+
+			// Pink planet
+			auto pinkPEntity = GameObject::Allocate();
+			m_solarSystem.push_back(pinkPEntity->GetID());
+			pinkPEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -2250));
+			pinkPEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), pinkPEntity->GetID(), *m_meshes[int(PlanetMesh::PINKP)], nullptr);
+
+			// Spike planet
+			auto spikePEntity = GameObject::Allocate();
+			m_solarSystem.push_back(spikePEntity->GetID());
+			spikePEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(-2875, 0, 0));
+			spikePEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), spikePEntity->GetID(), *m_meshes[int(PlanetMesh::SPIKEP)], nullptr);
+
+			// White planet
+			auto whitePEntity = GameObject::Allocate();
+			m_solarSystem.push_back(whitePEntity->GetID());
+			whitePEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(-2875, 0, 0));
+			whitePEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), whitePEntity->GetID(), *m_meshes[int(PlanetMesh::WHITEP)], nullptr);
+
+			//Setting Solar System Parent/Childe	
+			darkPEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RDKC]);
+			dualPEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RDLC]);
+			pinkPEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RPC]);
+			spikePEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RSC]);
+			whitePEntity->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RWC]);
+
+			//Dark planet enemies
+			for (int i = 0; i < 15; i++) {
+				auto enemy = GameObject::Allocate();
+				enemy->AttachComponent<Transform>();
+				enemy->AttachComponent<KamikaziAI>(enemy->GetID(), darkPEntity->GetID(), playerEntity->GetID()).SetBulletMesh(m_meshes[int(PlayerMesh::PLAYERBULLET)]);;
+				enemy->AttachComponent<EntityType>() = EntityType::KAMIKAZI;
+				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::KAMAKAZI)], nullptr);
+				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::KAMAKAZI)]->GetWidth(), m_meshes[int(EnemyMesh::KAMAKAZI)]->GetHeight(), m_meshes[int(EnemyMesh::KAMAKAZI)]->GetDepth()));
+
+			}
+			//White planet enemies
+			for (int i = 0; i < 10; i++) {
+				auto enemy = GameObject::Allocate();
+				enemy->AttachComponent<Transform>();
+				enemy->AttachComponent<BasicAI>(enemy->GetID(), whitePEntity->GetID(), playerEntity->GetID());
+				enemy->AttachComponent<EntityType>() = EntityType::NEROTIST;
+				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::NEROTISTU1)], nullptr);
+				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::NEROTISTU1)]->GetWidth(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetHeight(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetDepth()));
+
+			}
+			//Dual Planet enemies
+			for (int i = 0; i < 10; i++) {
+				auto enemy = GameObject::Allocate();
+				enemy->AttachComponent<Transform>();
+				enemy->AttachComponent<BasicAI>(enemy->GetID(), dualPEntity->GetID(), playerEntity->GetID());
+				enemy->AttachComponent<EntityType>() = EntityType::NEROTIST;
+				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::NEROTISTU1)], nullptr);
+				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::NEROTISTU1)]->GetWidth(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetHeight(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetDepth()));
+			}
+			for (int i = 0; i < 10; i++) {
+				auto enemy = GameObject::Allocate();
+				enemy->AttachComponent<Transform>();
+				enemy->AttachComponent<KamikaziAI>(enemy->GetID(), spikePEntity->GetID(), playerEntity->GetID());
+				enemy->AttachComponent<EntityType>() = EntityType::KAMIKAZI;
+				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::KAMAKAZI)], nullptr);
+				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::KAMAKAZI)]->GetWidth(), m_meshes[int(EnemyMesh::KAMAKAZI)]->GetHeight(), m_meshes[int(EnemyMesh::KAMAKAZI)]->GetDepth()));
+			}
+			//Kamikaze
+			for (int i = 0; i < 20; i++) {
+				auto enemy = GameObject::Allocate();
+				enemy->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(400, 900), 0, Random::Range1f(-800, -100)));
+				enemy->AttachComponent<KamikaziAI>(enemy->GetID(), enemy->GetID(), playerEntity->GetID());
+				enemy->AttachComponent<EntityType>() = EntityType::KAMIKAZI;
+				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::KAMAKAZI)], nullptr);
+				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::KAMAKAZI)]->GetWidth(), m_meshes[int(EnemyMesh::KAMAKAZI)]->GetHeight(), m_meshes[int(EnemyMesh::KAMAKAZI)]->GetDepth()));
+			}
+			//Bombaridier
+			for (int i = 0; i < 20; i++) {
+				auto enemy = GameObject::Allocate();
+				enemy->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-400, -900), 0, Random::Range1f(-500, 500)));
+				enemy->AttachComponent<BombardierAI>(enemy->GetID(), enemy->GetID(), playerEntity->GetID());
+				enemy->AttachComponent<EntityType>() = EntityType::BOMBARDIER;
+				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::BOMBARDIER)], nullptr);
+				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::BOMBARDIER)]->GetWidth(), m_meshes[int(EnemyMesh::BOMBARDIER)]->GetHeight(), m_meshes[int(EnemyMesh::BOMBARDIER)]->GetDepth()));
+			}
+
+			//Asteroids
+			{
+				//Asteroid belt
+				auto asteroidBelt = GameObject::Allocate();
+				AsteroidBeltID = asteroidBelt->GetID();
+				asteroidBelt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				asteroidBelt->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				//asteroidBelt->GetComponent<Transform>();
+				asteroidBelt->AttachComponent<StaticRenderer>(cameraEntity->GetID(), asteroidBelt->GetID(), *m_meshes[int(PlanetMesh::COMET) + 23], nullptr);
+				asteroidBelt->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RDKC]);
+
+				//Asteroid Clusters
+				auto cluster1 = GameObject::Allocate();
+				cluster1->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster1->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster1->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster1->GetID(), *m_meshes[int(PlanetMesh::COMET) + 24], nullptr);
+				cluster1->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RPC]);
+
+				auto cluster2 = GameObject::Allocate();
+				cluster2->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster2->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster2->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster2->GetID(), *m_meshes[int(PlanetMesh::COMET) + 25], nullptr);
+				cluster2->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RPC]);
+
+				auto cluster3 = GameObject::Allocate();
+				cluster3->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster3->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster3->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster3->GetID(), *m_meshes[int(PlanetMesh::COMET) + 26], nullptr);
+				cluster3->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RPC]);
+
+				auto cluster4 = GameObject::Allocate();
+				cluster4->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster4->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster4->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster4->GetID(), *m_meshes[int(PlanetMesh::COMET) + 27], nullptr);
+				cluster4->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RPC]);
+
+				auto cluster5 = GameObject::Allocate();
+				cluster5->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster5->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster5->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster5->GetID(), *m_meshes[int(PlanetMesh::COMET) + 28], nullptr);
+				cluster5->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RPC]);
+
+				auto cluster6 = GameObject::Allocate();
+				cluster6->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster6->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster6->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster6->GetID(), *m_meshes[int(PlanetMesh::COMET) + 29], nullptr);
+				cluster6->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RPC]);
+
+				auto cluster7 = GameObject::Allocate();
+				cluster7->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster7->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster7->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster7->GetID(), *m_meshes[int(PlanetMesh::COMET) + 30], nullptr);
+				cluster7->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RPC]);
+
+				auto cluster8 = GameObject::Allocate();
+				cluster8->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				cluster8->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				cluster8->AttachComponent<StaticRenderer>(cameraEntity->GetID(), cluster8->GetID(), *m_meshes[int(PlanetMesh::COMET) + 31], nullptr);
+				cluster8->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RPC]);
+			}
+
+			//DEBRIS
+			for (int i = 0; i <= 50; i++) {
+				auto debris = GameObject::Allocate();
+				Transform refrence;
+
+				if (i <= 10)
+				{
+					//Barrel top
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-1500, 1500), Random::Range1f(10, 200), Random::Range1f(1100, 3800)));
+					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(2, 2, 2));
+					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 1], nullptr);
+					debris->GetComponent<Transform>().SetParent(&m_solarSystem[Universe27SS::LDMC]);
+				}
+				else if (i > 10 && i <= 20)
+				{
+					//Barrel bot
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-1500, 1500), Random::Range1f(-200, -10), Random::Range1f(1100, 3800)));
+					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(2, 2, 2));
+					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 1], nullptr);
+					debris->GetComponent<Transform>().SetParent(&m_solarSystem[Universe27SS::LDMC]);
+				}
+				else if (i > 20 && i <= 30)
+				{
+					//Bottle top
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-2000, 2000), Random::Range1f(10, 300), Random::Range1f(1200, 4000)));
+					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(4, 4, 4));
+					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 2], nullptr);
+					debris->GetComponent<Transform>().SetParent(&m_solarSystem[Universe27SS::LDMC]);
+				}
+				else if (i > 30 && i <= 50)
+				{
+					//Box bot
+					debris->AttachComponent<Transform>().SetLocalPos(glm::vec3(Random::Range1f(-2000, 2000), Random::Range1f(-300, -10), Random::Range1f(1200, 4000)));
+					debris->GetComponent<Transform>().SetLocalScale(glm::vec3(4, 4, 4));
+					debris->GetComponent<Transform>().SetLocalRot(Random::Range3f(-300, 300));
+					debris->AttachComponent<StaticRenderer>(cameraEntity->GetID(), debris->GetID(), *m_meshes[int(PlanetMesh::COMET) + 3], nullptr);
+					debris->GetComponent<Transform>().SetParent(&m_solarSystem[Universe27SS::LDMC]);
+				}
+			}
 		}
 
 		//Setting Parent/Childe
@@ -1611,7 +1877,7 @@ void Universe::Update(float deltaTime)
 			if (wasSceneSwitched)
 				wasTransitionActive = true;
 
-			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 100 && !m_isBossSpawn)
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 0 && !m_isBossSpawn)
 			{
 				////BOSS
 
@@ -2251,6 +2517,22 @@ void Universe::SolarSystemUpdate() {
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe27SS::LPC]).RotateLocal(gueristisOrbit);
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe27SS::LRC]).RotateLocal(keminthOrbit);
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe27SS::LTC]).RotateLocal(keminthOrbit);
+	}
+	else if (m_name == "Universe_5") {
+		// Rotation
+		GameObject::GetComponent<Transform>(m_solarSystem[Universe5SS::RALEI]).RotateLocal(sunRotation);
+		GameObject::GetComponent<Transform>(m_solarSystem[Universe5SS::DARKP]).RotateLocal(planetRotation);
+		GameObject::GetComponent<Transform>(m_solarSystem[Universe5SS::DUALP]).RotateLocal(planetRotation);
+		GameObject::GetComponent<Transform>(m_solarSystem[Universe5SS::PINKP]).RotateLocal(planetRotation);
+		GameObject::GetComponent<Transform>(m_solarSystem[Universe5SS::SPIKEP]).RotateLocal(planetRotation);
+		GameObject::GetComponent<Transform>(m_solarSystem[Universe5SS::WHITEP]).RotateLocal(planetRotation);
+
+		// Orbit
+		GameObject::GetComponent<Transform>(m_solarSystem[Universe5SS::RDKC]).RotateLocal(moonOrbit);
+		GameObject::GetComponent<Transform>(m_solarSystem[Universe5SS::RDLC]).RotateLocal(verastenOrbit);
+		GameObject::GetComponent<Transform>(m_solarSystem[Universe5SS::RPC]).RotateLocal(yechinOrbit);
+		GameObject::GetComponent<Transform>(m_solarSystem[Universe5SS::RSC]).RotateLocal(kerantiaOrbit);
+		GameObject::GetComponent<Transform>(m_solarSystem[Universe5SS::RWC]).RotateLocal(gueristisOrbit);
 	}
 }
 
