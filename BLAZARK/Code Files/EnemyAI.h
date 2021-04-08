@@ -147,6 +147,7 @@ public:
 
 	int Phases();
 
+	void Init(entt::entity HiveMindEntityID, entt::entity MainplayerID);
 	void JellyFishDefeated();
 	void CentipedeDefeated();
 
@@ -156,13 +157,16 @@ public:
 
 	static std::vector<Mesh*> m_meshes;
 
+	bool m_JellySpawned = true;
+	bool m_CentipedeSpawned = true;
+
 private:
 	//the 3 phases for the final boss
 	int m_phases = 0;
 
 	float m_startTimeBetweenBoss = 0.0f;
-	float m_DelayBetweenBoss = 1.5f;
-	bool m_allowNewBoss = false;
+	float m_DelayBetweenBoss = 2.5f;
+	bool m_bossPhaseSwitch = true;
 
 	//for jelly fish boss start and end
 	bool m_JellyDefeat = false;
