@@ -656,6 +656,15 @@ int HiveMindBoss::Phases()
 	return m_phases;
 }
 
+void HiveMindBoss::Init(entt::entity HiveMindEntityID, entt::entity MainplayerID)
+{
+	m_enemy = HiveMindEntityID;
+	m_player = MainplayerID;
+	m_distance = 600;
+	m_health = 20;
+	m_fireRate = 1.5f;
+}
+
 void HiveMindBoss::JellyFishDefeated()
 {
 	m_JellyDefeat = true;
@@ -668,8 +677,85 @@ void HiveMindBoss::CentipedeDefeated()
 
 void HiveMindBoss::Update(float deltaTime)
 {
+	CheckForMainPlayer();
+
+	auto& enemyTrans = GameObject::GetComponent<Transform>(m_enemy);
+	glm::vec3 nextPoint;
+	glm::vec3 curPosOfEnemy;
+
+	if (m_isPlayerinRange) {
+	
+//Phase one where the jelly fish boss is summoned
+		if (m_phases == 0) {
+			m_isImmune = true;
+			
+			if (m_bossPhaseSwitch) {
+				if (glfwGetTime() - m_startTimeBetweenBoss >= m_DelayBetweenBoss) {
+					m_JellySpawned = false;
+					m_bossPhaseSwitch = false;
+					
+				}
+			}
+
+			if (m_JellyDefeat)
+			{
+				m_phases++;
+				m_bossPhaseSwitch = true;
+				m_startTimeBetweenBoss = glfwGetTime();
+			}
+		}
+
+
+//Phase one where the jelly fish boss is summoned
+		else if (m_phases == 1) {
+			m_isImmune = true;
+			
+			if (m_bossPhaseSwitch) {
+				if (glfwGetTime() - m_startTimeBetweenBoss >= m_DelayBetweenBoss) {
+					m_CentipedeSpawned = false;
+					m_bossPhaseSwitch = false;
+				}
+			}
+			if (m_CentipedeDefeat)
+			{
+				m_phases++;
+				m_bossPhaseSwitch = true;
+				m_startTimeBetweenBoss = glfwGetTime();
+			}
+		}
+
+		else if (m_phases == 2) {
+			m_isImmune = false;
+			if (glfwGetTime() - m_startTime >= m_fireRate) {
+				auto kamabullet = GameObject::Allocate();
+				kamabullet->AttachComponent<Transform>().SetLocalPos(GameObject::GetComponent<Transform>(m_enemy).GetLocalPos());
+				kamabullet->GetComponent<Transform>().SetLocalScale(glm::vec3(5));
+				kamabullet->AttachComponent<KamakaziBullet>(kamabullet->GetID(), m_player).SetSpeed(25);
+				kamabullet->AttachComponent<EntityType>() = EntityType::KAMIBULLET;
+				kamabullet->AttachComponent<StaticRenderer>(entt::entity(0), kamabullet->GetID(), *m_bulletMesh, nullptr);
+				kamabullet->GetComponent<Transform>().SetWHD(glm::vec3(m_bulletMesh->GetWidth() * 2, m_bulletMesh->GetHeight() * 2, m_bulletMesh->GetDepth() * 2));
+
+				m_resetTime = true;
+			}
+			if (m_resetTime) {
+				m_startTime = glfwGetTime();
+				m_resetTime = false;
+			}
+		}
+	}
+
+	else
+		m_isImmune = true;
+	
+
+	glm::vec3 rotationvector = glm::degrees(glm::eulerAngles(glm::quat_cast(glm::transpose(glm::lookAt(enemyTrans.GetLocalPos(), nextPoint, glm::vec3(0, 1, 0))))));
+	enemyTrans.SetLocalRot(rotationvector);
 }
 
 void HiveMindBoss::Init()
 {
+	for (int i = 0; i < 5; i++) {
+		m_meshes.push_back(new Mesh());
+		loadOBJ(("Resource Files/OBJFiles/Universe-5/EnemyShips/Morph/Boss/Hivemind_" + std::to_string(i) + ".obj").c_str(), *m_meshes[i]);
+	}
 }
