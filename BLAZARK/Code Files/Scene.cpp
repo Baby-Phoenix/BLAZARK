@@ -1519,7 +1519,7 @@ void Universe::Update(float deltaTime)
 			}
 		}
 
-		if (m_score->GetComponent<ScoreHandler>().GetScore() >= 100 && !m_isBossSpawn)
+		if (m_score->GetComponent<ScoreHandler>().GetScore() >= 50 && !m_isBossSpawn)
 		{
 			//// JELLYFIH BOSS
 			
@@ -1590,7 +1590,7 @@ void Universe::Update(float deltaTime)
 
 	else if(m_name == "Universe_27")
 	{
-		if (m_score->GetComponent<ScoreHandler>().GetScore() >= 0 && !m_isBossSpawn)
+		if (m_score->GetComponent<ScoreHandler>().GetScore() >= 100 && !m_isBossSpawn)
 		{
 			////BOSS
 
@@ -1688,12 +1688,12 @@ void Universe::Render(float deltaTime)
 		BufferEntity->GetComponent<ColorCorrectionEffect>().DrawToScreen();
 	}
 	else if (coolCCDraw) {
-		BufferEntity->GetComponent<ColorCorrectionEffect>().SetCurSlot(1);
-		BufferEntity->GetComponent<ColorCorrectionEffect>().ApplyEffect(&BufferEntity->GetComponent<PostEffect>());
-		BufferEntity->GetComponent<ColorCorrectionEffect>().DrawToScreen();
+BufferEntity->GetComponent<ColorCorrectionEffect>().SetCurSlot(1);
+BufferEntity->GetComponent<ColorCorrectionEffect>().ApplyEffect(&BufferEntity->GetComponent<PostEffect>());
+BufferEntity->GetComponent<ColorCorrectionEffect>().DrawToScreen();
 	}
 	else {
-		BufferEntity->GetComponent<PostEffect>().DrawToScreen();
+	BufferEntity->GetComponent<PostEffect>().DrawToScreen();
 	}
 }
 
@@ -1723,69 +1723,110 @@ void Universe::KeyInput()
 	auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
 	auto& camEnt = GameObject::GetComponent<Transform>(CamID);
 	auto& moonEnt = GameObject::GetComponent<Transform>(MoonID);
+	glm::vec3 temp;
 
-	if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
+	if (!isDodge)
 	{
-		glm::vec3 temp = glm::vec3(0, 0, -6);
+
+
+		if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
+		{
+			temp = glm::vec3(0, 0, -4);
+			playerEnt.MoveLocalPos(temp);
+			GameObject::GetComponent<MorphAnimController>(MainPlayerID).SetAnimate(true);
+		}
+		else if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		{
+			temp = glm::vec3(0, 0, 4);
+			playerEnt.MoveLocalPos(temp);
+		}
+		if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		{
+			temp = glm::vec3(0.0f, 2.5f, 0.0f);
+			playerEnt.RotateLocal(temp);
+		}
+		else if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		{
+			temp = glm::vec3(0.0f, -2.5f, 0.0f);
+			playerEnt.RotateLocal(temp);
+		}
+
+		//CamMove
+		if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			temp = glm::vec3(0, 0, -1.5);
+			camEnt.MoveLocalPos(temp);
+		}
+		else if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			temp = glm::vec3(0, 0, 1.5);
+			camEnt.MoveLocalPos(temp);
+		}
+		if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
+		{
+			temp = glm::vec3(0.0f, .5f, 0.0f);
+			camEnt.RotateLocal(temp);
+		}
+		else if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
+		{
+			temp = glm::vec3(0.0f, -.5f, 0.0f);
+			camEnt.RotateLocal(temp);
+		}
+		if (glfwGetKey(m_window, GLFW_KEY_Z) == GLFW_PRESS)
+		{
+			temp = glm::vec3(0.0f, 2.5f, 0.0f);
+			camEnt.MoveLocalPos(temp);
+		}
+		else if (glfwGetKey(m_window, GLFW_KEY_C) == GLFW_PRESS)
+		{
+			temp = glm::vec3(0.0f, -2.5f, 0.0f);
+			camEnt.MoveLocalPos(temp);
+		}
+		if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS)
+		{
+			temp = glm::vec3(-1.0f, 0.0f, 0.0f);
+			camEnt.MoveLocalPos(temp);
+		}
+		else if (glfwGetKey(m_window, GLFW_KEY_E) == GLFW_PRESS)
+		{
+			temp = glm::vec3(1.0f, 0.0f, 0.0f);
+			camEnt.MoveLocalPos(temp);
+		}
+
+	}
+	else if (isDodge)
+	{
+		if (dodgeCount == 0.5)
+		{
+			particleTemp = new ParticleController(4, playerEnt.GetLocalPos(), m_textures[int(TextureType::BLINK)], MainPlayerID);
+			particleTemp->setSize(5);
+			particleTemp->getEmitter()->setLifetime(1.0, 1.0);
+			particleTemp->getEmitter()->setSpeed(10);
+			particleTemp->getEmitter()->init();
+			particleTemp->setModelMatrix(playerEnt.UpdateGlobal());
+			particles.push_back(particleTemp);
+
+		}
+
+		dodgeCount -= m_deltaTime;
+		temp = glm::vec3(10 * tempDir, 0, 0);
 		playerEnt.MoveLocalPos(temp);
-		GameObject::GetComponent<MorphAnimController>(MainPlayerID).SetAnimate(true);
 	}
-	else if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	if (dodgeCount < 0)
 	{
-		glm::vec3 temp = glm::vec3(0, 0, 6);
-		playerEnt.MoveLocalPos(temp);
-	}
-	if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	{
-		glm::vec3 temp = glm::vec3(0.0f, 1.0f, 0.0f);
-		playerEnt.RotateLocal(temp);
-	}
-	else if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-	{
-		glm::vec3 temp = glm::vec3(0.0f, -1.0f, 0.0f);
-		playerEnt.RotateLocal(temp);
+		dodgeCount = 0.5;
+		isDodge = false;
 	}
 
-	//CamMove
-	if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0, 0, -1.5);
-		camEnt.MoveLocalPos(temp);
+		tempDir = -1;
+		isDodge = true;
 	}
-	else if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
+	else if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
-		glm::vec3 temp = glm::vec3(0, 0, 1.5);
-		camEnt.MoveLocalPos(temp);
-	}
-	if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
-	{
-		glm::vec3 temp = glm::vec3(0.0f, .5f, 0.0f);
-		camEnt.RotateLocal(temp);
-	}
-	else if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
-	{
-		glm::vec3 temp = glm::vec3(0.0f, -.5f, 0.0f);
-		camEnt.RotateLocal(temp);
-	}
-	if (glfwGetKey(m_window, GLFW_KEY_Z) == GLFW_PRESS)
-	{
-		glm::vec3 temp = glm::vec3(0.0f, 2.5f, 0.0f);
-		camEnt.MoveLocalPos(temp);
-	}
-	else if (glfwGetKey(m_window, GLFW_KEY_C) == GLFW_PRESS)
-	{
-		glm::vec3 temp = glm::vec3(0.0f, -2.5f, 0.0f);
-		camEnt.MoveLocalPos(temp);
-	}
-	if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS)
-	{
-		glm::vec3 temp = glm::vec3(-1.0f, 0.0f, 0.0f);
-		camEnt.MoveLocalPos(temp);
-	}
-	else if (glfwGetKey(m_window, GLFW_KEY_E) == GLFW_PRESS)
-	{
-		glm::vec3 temp = glm::vec3(1.0f, 0.0f, 0.0f);
-		camEnt.MoveLocalPos(temp);
+		tempDir = 1;
+		isDodge = true;
 	}
 
 	if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
