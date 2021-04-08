@@ -4,7 +4,7 @@
 int Universe::m_PlayerHealth = 0;
 entt::entity Universe::health = entt::entity(0);
 
-enum class TextureType { START = 3 , RESUME, CONTROLS, EXIT, BACKGROUND, CONTROLSMENU, GAMEOVERLOSE, SCORE, SCORENUM, COMET, FIRE, BLINK, YELLOW, ORANGE, SKY27};
+enum class TextureType { START = 3 , RESUME, CONTROLS, EXIT, BACKGROUND, CONTROLSMENU, GAMEOVERLOSE, SCORE, SCORENUM, COMET, FIRE, BLINK, YELLOW, ORANGE, SKY27, SKY5};
 
 enum class PlayerMesh { PLAYERSHIPXWINGS, PLAYERSHIPXWINGE = 2, PLAYERSHIPPENCIL, PLAYERSHIPBAT, PLAYERBULLET };
 
@@ -87,6 +87,8 @@ Scene::Scene(std::string name)
 		m_textures.push_back(new Texture("Resource Files/Textures/yellow.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/orange.png")); 
 		m_textures.push_back(new Texture("Resource Files/Textures/sky27.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/sky5.png"));
+
 	}
 
 	if (m_meshes.size() < 1) {
@@ -647,17 +649,6 @@ void Universe::InitScene()
 		glm::vec3 tempv3 = glm::vec3(120, 0, 2400);
 		GameObject::GetComponent<Transform>(MainPlayerID).MoveLocalPos(tempv3);
 
-		//auto tempEnt = GameObject::Allocate();
-		//tempEnt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
-		////TESTING PORTAL
-		//particleTemp = new ParticleController(3, playerEntity->GetComponent<Transform>().GetLocalPos(), sky2Tex, tempEnt->GetID());
-		////particleTemp->setRotation(glm::vec3(0, 180, 0));
-		//particleTemp->getEmitter()->setRadius(30);
-		//particleTemp->setSize(5);
-		//particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
-		//particleTemp->getEmitter()->setSpeed(0.5);
-		//particleTemp->getEmitter()->init();
-		//particles.push_back(particleTemp);
 
 		//HUD
 		auto healthent = GameObject::Allocate();
@@ -1133,7 +1124,7 @@ void Universe::InitScene()
 			for (int i = 0; i < 10; i++) {
 				auto enemy = GameObject::Allocate();
 				enemy->AttachComponent<Transform>();
-				enemy->AttachComponent<BasicAI>(enemy->GetID(), nullPlanetThreeEntity->GetID(), playerEntity->GetID());
+				enemy->AttachComponent<BasicAI>(enemy->GetID(), mushroomPlanetEntity->GetID(), playerEntity->GetID());
 				enemy->AttachComponent<EntityType>() = EntityType::NEROTIST;
 				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::NEROTISTU1)], nullptr);
 				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::NEROTISTU1)]->GetWidth(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetHeight(), m_meshes[int(EnemyMesh::NEROTISTU1)]->GetDepth()));
@@ -1270,7 +1261,7 @@ void Universe::InitScene()
 			}
 		}
 		else if (m_name == "Universe_5") {
-			HiveMindBoss::Init();
+		HiveMindBoss::Init();
 			m_SceneResumeNo = int(ScenesNum::UNIVERSE_5);
 
 			//m_meshes.push_back(new Mesh());
@@ -1531,7 +1522,12 @@ void Universe::Update(float deltaTime)
 
 		if (intensity >= 1.0) {
 			*switchIt = true;
+		
+			if (m_SceneResumeNo == int(ScenesNum::UNIVERSE_19))
 			*SceneNo = int(ScenesNum::UNIVERSE_27);
+
+			else if (m_SceneResumeNo == int(ScenesNum::UNIVERSE_27))
+				*SceneNo = int(ScenesNum::UNIVERSE_5);
 
 			isTransitionActive = false;
 			wasSceneSwitched = true;
@@ -1651,7 +1647,106 @@ void Universe::Update(float deltaTime)
 
 			else if (type == EntityType::HIVEMIND) {
 				AI.push_back(&GameObject::GetComponent<HiveMindBoss>(enemy));
+				
+				if (GameObject::GetComponent<HiveMindBoss>(enemy).Phases() == 0 && m_isBossDead)
+				{
+					GameObject::GetComponent<HiveMindBoss>(enemy).JellyFishDefeated();
+					m_isBossDead = false;
+				}
+				else if (GameObject::GetComponent<HiveMindBoss>(enemy).Phases() == 1 && m_isBossDead)
+				{
+					GameObject::GetComponent<HiveMindBoss>(enemy).CentipedeDefeated();
+					m_isBossDead = false;
+				}
 				AI[index]->Update(deltaTime);
+
+				if (GameObject::GetComponent<HiveMindBoss>(enemy).Phases() == 0 && !GameObject::GetComponent<HiveMindBoss>(enemy).m_JellySpawned) {
+					auto jellyEntity = GameObject::Allocate();
+					jellyEntity->AttachComponent<JellyFishBoss>().m_enemyMesh = m_meshes[int(EnemyMesh::NEROTISTU1)];
+					jellyEntity->GetComponent<JellyFishBoss>().Init(jellyEntity->GetID(), MainPlayerID);
+
+					jellyEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+					auto& jellypos = jellyEntity->GetComponent<Transform>();
+
+					particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
+					particleTemp->setRotation(glm::vec3(90, 0, 0));
+					particleTemp->getEmitter()->setRadius(1.0);
+					particleTemp->setSize(2);
+					particleTemp->getEmitter()->setAngleDeg(10);
+					particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+					particleTemp->getEmitter()->setSpeed(10);
+					particleTemp->getEmitter()->init();
+					particles.push_back(particleTemp);
+					jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+
+					particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
+					particleTemp->setRotation(glm::vec3(90, 0, 0));
+					particleTemp->getEmitter()->setRadius(1.0);
+					particleTemp->setSize(2);
+					particleTemp->getEmitter()->setAngleDeg(10);
+					particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+					particleTemp->getEmitter()->setSpeed(10);
+					particleTemp->getEmitter()->init();
+					particles.push_back(particleTemp);
+					jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+
+					particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
+					particleTemp->setRotation(glm::vec3(90, 0, 0));
+					particleTemp->getEmitter()->setRadius(1.0);
+					particleTemp->setSize(2);
+					particleTemp->getEmitter()->setAngleDeg(10);
+					particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+					particleTemp->getEmitter()->setSpeed(10);
+					particleTemp->getEmitter()->init();
+					particles.push_back(particleTemp);
+					jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+
+					particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
+					particleTemp->setRotation(glm::vec3(90, 0, 0));
+					particleTemp->getEmitter()->setRadius(1.0);
+					particleTemp->setSize(2);
+					particleTemp->getEmitter()->setAngleDeg(10);
+					particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+					particleTemp->getEmitter()->setSpeed(10);
+					particleTemp->getEmitter()->init();
+					particles.push_back(particleTemp);
+					jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+
+					glm::vec3 temp = GameObject::GetComponent<Transform>(enemy).GetLocalPos() + glm::vec3(30, -30, 50);
+					jellypos.MoveLocalPos(temp);
+
+					jellyEntity->AttachComponent<DynamicRenderer>(CamID, jellyEntity->GetID(), *jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0], nullptr, false);
+					jellyEntity->AttachComponent<MorphAnimController>(int(jellyEntity->GetID())).SetFrames(jellyEntity->GetComponent<JellyFishBoss>().m_meshes, 0, 24);
+					jellyEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
+					jellyEntity->GetComponent<Transform>().SetWHD(glm::vec3(jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetWidth(), jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetHeight() * 3, jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetDepth()));
+					jellyEntity->GetComponent<Transform>().SetRadius((jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetWidth() * 3) / 2);
+					jellyEntity->AttachComponent<EntityType>() = EntityType::JELLY;
+
+					GameObject::GetComponent<HiveMindBoss>(enemy).m_JellySpawned = true;
+				}
+
+				else if (GameObject::GetComponent<HiveMindBoss>(enemy).Phases() == 1 && !GameObject::GetComponent<HiveMindBoss>(enemy).m_CentipedeSpawned) {
+					
+					auto Centipede = GameObject::Allocate();
+					Centipede->AttachComponent<CentipedeBoss>().SetBulletMesh(m_meshes[int(PlayerMesh::PLAYERBULLET)]);
+					Centipede->GetComponent<CentipedeBoss>().Init(Centipede->GetID(), MainPlayerID);
+
+					Centipede->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+					auto& Centipedeypos = Centipede->GetComponent<Transform>();
+
+					glm::vec3 temp = GameObject::GetComponent<Transform>(enemy).GetLocalPos() + glm::vec3(30, 0, 50);
+
+					Centipedeypos.MoveLocalPos(temp);
+
+					Centipede->AttachComponent<DynamicRenderer>(CamID, Centipede->GetID(), *Centipede->GetComponent<CentipedeBoss>().m_meshes[0], nullptr, false);
+					Centipede->AttachComponent<MorphAnimController>(int(Centipede->GetID())).SetFrames(Centipede->GetComponent<CentipedeBoss>().m_meshes, 0, 4);
+					Centipede->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
+					Centipede->GetComponent<Transform>().SetWHD(glm::vec3(Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetWidth(), Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetHeight() * 3, Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetDepth()));
+					Centipede->GetComponent<Transform>().SetRadius((Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetWidth() * 3) / 2);
+					Centipede->AttachComponent<EntityType>() = EntityType::CENTIPEDE;
+
+					GameObject::GetComponent<HiveMindBoss>(enemy).m_CentipedeSpawned = true;
+				}
 			}
 		}
 
@@ -1741,23 +1836,28 @@ void Universe::Update(float deltaTime)
 								particles.push_back(particleTemp);
 							}
 							if (GameObject::GetComponent<JellyFishBoss>(enemy).m_health <= 0) {
-								auto tempEnt = GameObject::Allocate();
-								tempEnt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
-								tempEnt->GetComponent<Transform>().SetWHD(glm::vec3(10, 30, 5));
-								tempEnt->AttachComponent<EntityType>() = EntityType::PORTAL;
-								PortalID = tempEnt->GetID();
+								
+								if (m_name == "Universe_19") {
+									auto tempEnt = GameObject::Allocate();
+									tempEnt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+									tempEnt->GetComponent<Transform>().SetWHD(glm::vec3(10, 30, 5));
+									tempEnt->AttachComponent<EntityType>() = EntityType::PORTAL;
+									PortalID = tempEnt->GetID();
 
-								//PORTAL
-								particleTemp = new ParticleController(3, glm::vec3(0, 0, 0), m_textures[int(TextureType::SKY27)], tempEnt->GetID());
-								particleTemp->getEmitter()->setRadius(30);
-								particleTemp->setSize(5);
-								particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
-								particleTemp->getEmitter()->setSpeed(0.5);
-								particleTemp->getEmitter()->init();
-								particles.push_back(particleTemp);
-								glm::vec3 tempv3 = GameObject::GetComponent<Transform>(enemy).GetLocalPos() + glm::vec3(0, 30, 0);
-								GameObject::GetComponent<Transform>(PortalID).MoveLocalPos(tempv3);
+									//PORTAL
+									particleTemp = new ParticleController(3, glm::vec3(0, 0, 0), m_textures[int(TextureType::SKY27)], tempEnt->GetID());
+									particleTemp->getEmitter()->setRadius(30);
+									particleTemp->setSize(5);
+									particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+									particleTemp->getEmitter()->setSpeed(0.5);
+									particleTemp->getEmitter()->init();
+									particles.push_back(particleTemp);
+									glm::vec3 tempv3 = GameObject::GetComponent<Transform>(enemy).GetLocalPos() + glm::vec3(0, 30, 0);
+									GameObject::GetComponent<Transform>(PortalID).MoveLocalPos(tempv3);
 
+									
+								}
+								
 								m_isBossDead = true;
 
 								m_sceneReg->destroy(enemy);
@@ -1768,15 +1868,41 @@ void Universe::Update(float deltaTime)
 							GameObject::GetComponent<CentipedeBoss>(enemy).m_health--;
 
 							if (GameObject::GetComponent<CentipedeBoss>(enemy).m_health <= 0) {
+							
+								if (m_name == "Universe_27") {
+									auto tempEnt = GameObject::Allocate();
+									tempEnt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+									tempEnt->GetComponent<Transform>().SetWHD(glm::vec3(10, 30, 5));
+									tempEnt->AttachComponent<EntityType>() = EntityType::PORTAL;
+									PortalID = tempEnt->GetID();
+
+									//PORTAL
+									particleTemp = new ParticleController(3, glm::vec3(0, 0, 0), m_textures[int(TextureType::SKY5)], tempEnt->GetID());
+									particleTemp->getEmitter()->setRadius(30);
+									particleTemp->setSize(5);
+									particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+									particleTemp->getEmitter()->setSpeed(0.5);
+									particleTemp->getEmitter()->init();
+									particles.push_back(particleTemp);
+									glm::vec3 tempv3 = GameObject::GetComponent<Transform>(enemy).GetLocalPos();
+									GameObject::GetComponent<Transform>(PortalID).MoveLocalPos(tempv3);
+								}
+								m_isBossDead = true;
+
+
 								m_sceneReg->destroy(enemy);
 								AI.erase(AI.begin() + i);
 							}
+
+
 						}
 
 						else if (type == EntityType::HIVEMIND) {
 							GameObject::GetComponent<HiveMindBoss>(enemy).m_health--;
 
 							if (GameObject::GetComponent<HiveMindBoss>(enemy).m_health <= 0) {
+								
+								m_isBossDead = true;
 								m_sceneReg->destroy(enemy);
 								AI.erase(AI.begin() + i);
 							}
@@ -1816,7 +1942,7 @@ void Universe::Update(float deltaTime)
 				}
 			}
 
-			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 200 && !m_isBossSpawn)
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 10 && !m_isBossSpawn)
 			{
 				//// JELLYFIH BOSS
 
@@ -1895,10 +2021,18 @@ void Universe::Update(float deltaTime)
 			//	}
 			//}
 
+			if (m_isBossDead)
+			{
+				if (isBoxCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(PortalID)))
+				{
+					isTransitionActive = true;
+				}
+			}
+
 			if (wasSceneSwitched)
 				wasTransitionActive = true;
 
-			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 200 && !m_isBossSpawn)
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 10 && !m_isBossSpawn)
 			{
 				////BOSS
 
@@ -1909,9 +2043,7 @@ void Universe::Update(float deltaTime)
 				Centipede->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
 				auto& Centipedeypos = Centipede->GetComponent<Transform>();
 
-				glm::vec3 temp = glm::vec3(GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().x + 700,
-					GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().y,
-					GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos().z + 700);
+				glm::vec3 temp = glm::vec3(0, 0, 2000);
 
 				Centipedeypos.MoveLocalPos(temp);
 
@@ -1935,6 +2067,31 @@ void Universe::Update(float deltaTime)
 			//		GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
 			//	}
 			//}	
+
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 10 && !m_isBossSpawn)
+			{
+				auto HiveMind = GameObject::Allocate();
+				HiveMind->AttachComponent<HiveMindBoss>().SetBulletMesh(m_meshes[int(PlayerMesh::PLAYERBULLET)]);
+				HiveMind->GetComponent<HiveMindBoss>().Init(HiveMind->GetID(), MainPlayerID);
+
+				HiveMind->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+				auto& Centipedeypos = HiveMind->GetComponent<Transform>();
+
+				glm::vec3 temp = glm::vec3(0, 0, 2000);
+
+				Centipedeypos.MoveLocalPos(temp);
+
+				HiveMind->AttachComponent<DynamicRenderer>(CamID, HiveMind->GetID(), *HiveMind->GetComponent<HiveMindBoss>().m_meshes[0], nullptr, false);
+				HiveMind->AttachComponent<MorphAnimController>(int(HiveMind->GetID())).SetFrames(HiveMind->GetComponent<HiveMindBoss>().m_meshes, 0, 3);
+				HiveMind->GetComponent<Transform>().SetLocalScale(glm::vec3(10.0));
+				HiveMind->GetComponent<Transform>().SetWHD(glm::vec3(HiveMind->GetComponent<HiveMindBoss>().m_meshes[0]->GetWidth(), HiveMind->GetComponent<HiveMindBoss>().m_meshes[0]->GetHeight() * 3, HiveMind->GetComponent<HiveMindBoss>().m_meshes[0]->GetDepth()));
+				HiveMind->GetComponent<Transform>().SetRadius((HiveMind->GetComponent<HiveMindBoss>().m_meshes[0]->GetWidth() * 3) / 2);
+				HiveMind->AttachComponent<EntityType>() = EntityType::HIVEMIND;
+
+				m_isBossSpawn = true;
+			}
+
+
 		}
 
 		#pragma endregion
@@ -2038,6 +2195,10 @@ void Universe::KeyInput()
 	if (glfwGetKey(m_window, GLFW_KEY_2) == GLFW_PRESS) {
 		*switchIt = true;
 		*SceneNo = int(ScenesNum::UNIVERSE_27);
+	}
+	if (glfwGetKey(m_window, GLFW_KEY_3) == GLFW_PRESS) {
+		*switchIt = true;
+		*SceneNo = int(ScenesNum::UNIVERSE_5);
 	}
 
 	// Player Movement //

@@ -57,11 +57,12 @@ void BasicAI::Update(float deltaTime)
 		if (glfwGetTime() - m_startTime >= m_fireRate) {
 			auto bullet = GameObject::Allocate();
 			bullet->AttachComponent<Projectile>(&m_enemy, entt::entity(0), bullet.get(), *m_bulletMesh).SetID(bullet->GetID());
-			bullet->GetComponent<Projectile>().SetSpeed(500);
+			bullet->GetComponent<Projectile>().SetSpeed(100);
 			bullet->AttachComponent<EntityType>() = EntityType::ENEMY;
 			bullet->GetComponent<Projectile>().SetVelocity(glm::vec3(0, 0, -1));
 			glm::vec3 offset1 = glm::vec3(0, 0, -10);
 			bullet->GetComponent<Transform>().MoveLocalPos(offset1);
+			bullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
 			m_resetTime = true;
 		}
 		if (m_resetTime) {
@@ -680,7 +681,7 @@ void HiveMindBoss::Update(float deltaTime)
 	CheckForMainPlayer();
 
 	auto& enemyTrans = GameObject::GetComponent<Transform>(m_enemy);
-	glm::vec3 nextPoint;
+	glm::vec3 nextPoint = GameObject::GetComponent<Transform>(m_player).GetLocalPos();
 	glm::vec3 curPosOfEnemy;
 
 	if (m_isPlayerinRange) {
