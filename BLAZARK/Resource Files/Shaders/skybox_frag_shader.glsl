@@ -10,8 +10,7 @@ uniform samplerCube skybox;
 void main()
 {
 	vec4 spaceTex = texture(skybox, vs_texcoord);
-	if (spaceTex.r > 0.50)
-		discard;
+	
 
 	fs_color = spaceTex;
 }
