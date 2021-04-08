@@ -1619,7 +1619,8 @@ void Universe::Update(float deltaTime)
 			else if (type == EntityType::KAMIBULLET) {
 				GameObject::GetComponent<KamakaziBullet>(enemy).Update(deltaTime);
 
-				if (GameObject::GetComponent<KamakaziBullet>(enemy).GetDestroyed() || isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
+				if (GameObject::GetComponent<KamakaziBullet>(enemy).GetDestroyed())
+				{
 					particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
 					particleTemp->setSize(10);
 					particleTemp->getEmitter()->setLifetime(0.2, 0.2);
@@ -1630,6 +1631,21 @@ void Universe::Update(float deltaTime)
 					GameObject::GetComponent<Transform>(enemy).SetLocalScale(glm::vec3(5))->UpdateGlobal();
 					particles.push_back(particleTemp);
 					m_sceneReg->destroy(enemy);
+				}
+				else if(isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
+					particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+					particleTemp->setSize(10);
+					particleTemp->getEmitter()->setLifetime(0.2, 0.2);
+					particleTemp->getEmitter()->setSpeed(100);
+					particleTemp->getEmitter()->init();
+					GameObject::GetComponent<Transform>(enemy).SetLocalScale(glm::vec3(1));
+					particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
+					GameObject::GetComponent<Transform>(enemy).SetLocalScale(glm::vec3(5))->UpdateGlobal();
+					particles.push_back(particleTemp);
+					m_sceneReg->destroy(enemy);
+
+
+
 					m_PlayerHealth -= m_PlayerHealth > 0 ? 1 : 0;
 					GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
 				}
@@ -1867,6 +1883,14 @@ void Universe::Update(float deltaTime)
 						else if (type == EntityType::CENTIPEDE) {
 							GameObject::GetComponent<CentipedeBoss>(enemy).m_health--;
 
+							particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+							particleTemp->setSize(10);
+							particleTemp->getEmitter()->setLifetime(0.5, 0.5);
+							particleTemp->getEmitter()->setSpeed(100);
+							particleTemp->getEmitter()->init();
+							particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
+							particles.push_back(particleTemp);
+
 							if (GameObject::GetComponent<CentipedeBoss>(enemy).m_health <= 0) {
 							
 								if (m_name == "Universe_27") {
@@ -1899,6 +1923,14 @@ void Universe::Update(float deltaTime)
 
 						else if (type == EntityType::HIVEMIND) {
 							GameObject::GetComponent<HiveMindBoss>(enemy).m_health--;
+
+							particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+							particleTemp->setSize(10);
+							particleTemp->getEmitter()->setLifetime(0.5, 0.5);
+							particleTemp->getEmitter()->setSpeed(100);
+							particleTemp->getEmitter()->init();
+							particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
+							particles.push_back(particleTemp);
 
 							if (GameObject::GetComponent<HiveMindBoss>(enemy).m_health <= 0) {
 								
@@ -2050,7 +2082,7 @@ void Universe::Update(float deltaTime)
 				Centipede->AttachComponent<DynamicRenderer>(CamID, Centipede->GetID(), *Centipede->GetComponent<CentipedeBoss>().m_meshes[0], nullptr, false);
 				Centipede->AttachComponent<MorphAnimController>(int(Centipede->GetID())).SetFrames(Centipede->GetComponent<CentipedeBoss>().m_meshes, 0, 4);
 				Centipede->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
-				Centipede->GetComponent<Transform>().SetWHD(glm::vec3(Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetWidth(), Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetHeight() * 3, Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetDepth()));
+				Centipede->GetComponent<Transform>().SetWHD(glm::vec3(3 * Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetWidth(), 3 * Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetHeight(), 3 * Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetDepth()));
 				Centipede->GetComponent<Transform>().SetRadius((Centipede->GetComponent<CentipedeBoss>().m_meshes[0]->GetWidth() * 3) / 2);
 				Centipede->AttachComponent<EntityType>() = EntityType::CENTIPEDE;
 
@@ -2084,7 +2116,7 @@ void Universe::Update(float deltaTime)
 				HiveMind->AttachComponent<DynamicRenderer>(CamID, HiveMind->GetID(), *HiveMind->GetComponent<HiveMindBoss>().m_meshes[0], nullptr, false);
 				HiveMind->AttachComponent<MorphAnimController>(int(HiveMind->GetID())).SetFrames(HiveMind->GetComponent<HiveMindBoss>().m_meshes, 0, 3);
 				HiveMind->GetComponent<Transform>().SetLocalScale(glm::vec3(10.0));
-				HiveMind->GetComponent<Transform>().SetWHD(glm::vec3(HiveMind->GetComponent<HiveMindBoss>().m_meshes[0]->GetWidth(), HiveMind->GetComponent<HiveMindBoss>().m_meshes[0]->GetHeight() * 3, HiveMind->GetComponent<HiveMindBoss>().m_meshes[0]->GetDepth()));
+				HiveMind->GetComponent<Transform>().SetWHD(glm::vec3(10 * HiveMind->GetComponent<HiveMindBoss>().m_meshes[0]->GetWidth(), 10 * HiveMind->GetComponent<HiveMindBoss>().m_meshes[0]->GetHeight() * 3, 10 * HiveMind->GetComponent<HiveMindBoss>().m_meshes[0]->GetDepth()));
 				HiveMind->GetComponent<Transform>().SetRadius((HiveMind->GetComponent<HiveMindBoss>().m_meshes[0]->GetWidth() * 3) / 2);
 				HiveMind->AttachComponent<EntityType>() = EntityType::HIVEMIND;
 
@@ -2181,6 +2213,12 @@ void Universe::KeyInput()
 	{
 		*switchIt = true;
 		*SceneNo = int(ScenesNum::PAUSE_MENU);
+	}
+
+	if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS)
+	{
+		m_PlayerHealth = 3;
+		GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
 	}
 
 	// Scene Switching //
@@ -2353,6 +2391,7 @@ void Universe::KeyInput()
 		isRotate = false;
 	}
 
+	
 	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
 		
