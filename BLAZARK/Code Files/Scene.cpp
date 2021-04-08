@@ -51,6 +51,7 @@ bool isPlayerAnim = false;
 bool isWingOpen = false;
 bool isexplode = false;
 bool isDodge = false;
+bool isRotate = false;
 
 Scene::Scene(std::string name)
 	:m_name(name)
@@ -585,7 +586,7 @@ void Universe::InitScene()
 		playerEntity->AttachComponent<DynamicRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)], nullptr);
 		playerEntity->AttachComponent<EntityType>() = EntityType::PLAYER;
 		playerEntity->GetComponent<Transform>().SetLocalRot(0, 180, 0);
-		playerEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetWidth(), m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetHeight(), m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetDepth()));
+		playerEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetWidth() * 0.5, m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetHeight(), m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetDepth() * 0.5));
 
 		playerEntity->AttachComponent<MorphAnimController>(int(MainPlayerID)).SetFrames(m_meshes, int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/), int(PlayerMesh::PLAYERSHIPXWINGE/*EnemyMesh::SCAVENGERU1E*/), false);
 
@@ -1787,6 +1788,17 @@ void Universe::KeyInput()
 		camEnt.MoveLocalPos(temp);
 	}
 
+	if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		tempDir = -1;
+		isDodge = true;
+	}
+	else if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		tempDir = 1;
+		isDodge = true;
+	}
+
 	if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS && !isexplode) {
 		//explosion
 		particleTemp = new ParticleController(2, moonEnt.GetLocalPos(), new Texture("Resource Files/Textures/red.png"), MoonID);
@@ -1800,6 +1812,22 @@ void Universe::KeyInput()
 	}
 	if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_RELEASE) {
 		isexplode = false;
+	}
+
+	if (glfwGetKey(m_window, GLFW_KEY_F) == GLFW_PRESS && !isRotate)
+	{
+		glm::vec3 temp = glm::vec3(0, 180, 0);
+		camEnt.SetLocalRot(temp);
+		temp = glm::vec3(0, 13, -35);
+		camEnt.SetLocalPos(temp);
+		isRotate = true;
+	}
+	else if (glfwGetKey(m_window, GLFW_KEY_F) == GLFW_RELEASE && isRotate) {
+		glm::vec3 temp = glm::vec3(0, 0, 0);
+		camEnt.SetLocalRot(temp);
+		temp = glm::vec3(0, 13, 25);
+		camEnt.SetLocalPos(temp);
+		isRotate = false;
 	}
 
 	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
