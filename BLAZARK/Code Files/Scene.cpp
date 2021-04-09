@@ -61,6 +61,7 @@ bool wasTransitionActive = false;
 bool wasSceneSwitched = false;
 float intensity = 0.0;
 
+
 Scene::Scene(std::string name)
 	:m_name(name)
 {
@@ -279,6 +280,36 @@ void Scene::SetSceneResumeNo(unsigned int sceneno)
 	m_SceneResumeNo = sceneno;
 }
 
+void Scene::InitFMOD()
+{
+	//Setup FMOD
+	AudioEngine& engine = AudioEngine::Instance();
+	engine.Init();
+	//Bank
+	engine.LoadBank("Master");
+
+	//Bus
+	engine.LoadBus("Music", "{64e20265-cc94-4556-8628-c67fb15f5402}");
+	engine.LoadBus("BGM", "{b6953820-8992-4a3e-b540-c97560b8bb5f}");
+	
+
+	//Create event
+	AudioEvent& menuMusic = engine.CreateEvent("Main Menu", "{4c283484-756b-493b-95e2-731eec9e557f}");
+	AudioEvent& bgmMusic = engine.CreateEvent("BGM", "{f5fb466c-7e26-4fe4-9371-b846dc746337}");
+
+	//Get reference to bus
+	AudioBus& musicBus = engine.GetBus("Music");
+	musicBus.SetVolume(0.1);
+
+	//PLay music event
+	menuMusic.SetParameter("Exit", 1.0f);
+	menuMusic.Play();
+}
+
+void Scene::UpdateFMOD()
+{
+}
+
 Menu::Menu(std::string name, unsigned int* num, bool* change)
 	:Scene(name)
 {
@@ -314,11 +345,19 @@ void Menu::InitScene(int Prescore)
 			engine.Init();
 			engine.LoadBank("Master");
 			engine.LoadBus("Music", "{64e20265-cc94-4556-8628-c67fb15f5402}");
+			engine.LoadBus("BGM", "{b6953820-8992-4a3e-b540-c97560b8bb5f}");
+			
+			//Create event
+			AudioEvent& menuMusic = engine.CreateEvent("Main Menu", "{4c283484-756b-493b-95e2-731eec9e557f}");
+			AudioEvent& bgmMusic = engine.CreateEvent("BGM", "{f5fb466c-7e26-4fe4-9371-b846dc746337}");
+
+			//Get reference to bus
+			AudioBus& musicBus = engine.GetBus("Music");
+			musicBus.SetVolume(0.1);
 
 			//PLay music event
-			AudioEvent& music = engine.CreateEvent("Main Menu", "{4c283484-756b-493b-95e2-731eec9e557f}");
-			music.SetParameter("Exit", 1.0f);
-			music.Play();
+			menuMusic.SetParameter("Exit", 1.0f);
+			menuMusic.Play();
 
 		}
 		else if (m_name == "Main_Menu") {
@@ -449,23 +488,15 @@ void Menu::Update(float deltaTime)
 	// Camera Update
 	camera->Update();
 
+	AudioEngine& engine = AudioEngine::Instance();
+	AudioEvent& musicEvent = engine.GetEvent("Main Menu");
 
-
-	if(isSceneSwitch)
-		AudioEngine::Instance().Shutdown();
-	else
+	if (isSceneSwitch)
 	{
-		AudioEngine& audioEngine = AudioEngine::Instance();
-
-		//Get reference to music
-		AudioEvent& musicEvent = audioEngine.GetEvent("Main Menu");
-
-		//Get reference to bus
-		AudioBus& musicBus = audioEngine.GetBus("Music");
-		musicBus.SetVolume(0.1);
-
-		audioEngine.Update();
+		musicEvent.SetParameter("Exit", 0);	
 	}
+
+	engine.Update();
 }
 
 unsigned int Menu::GetSceneResumeNumber()
@@ -493,6 +524,7 @@ void Menu::KeyInput()
 	if (m_name == "Start_Screen" && glfwGetKey(m_window, GLFW_KEY_ENTER) == GLFW_PRESS) {
 		*switchIt = true;
 		*SceneNo = int(ScenesNum::UNIVERSE_19);
+		isSceneSwitch = true;
 	}
 	/*if (glfwGetKey(m_window, GLFW_KEY_2) == GLFW_PRESS) {
 		*switchIt = true;
@@ -667,6 +699,67 @@ void Universe::InitScene(int Prescore)
 	//Giving the ECS the same registry as the current scene
 	GameObject::SetRegistry(m_sceneReg);
 
+	//Setup FMOD
+	AudioEngine& engine = AudioEngine::Instance();
+	//engine.Init();
+	//engine.LoadBank("Master");
+
+	//Playershooting
+	engine.LoadBus("Playershooting", "{91ac6419-101f-49ef-b413-9e849b361ecc}");
+	AudioBus& playerShootingBus = engine.GetBus("Playershooting");
+	playerShootingBus.SetVolume(0.1);
+
+	//Engine
+	engine.LoadBus("Engine", "{6b1d9408-d98a-4a5a-be17-8648864d619a}");
+	AudioBus& playerEngineBus = engine.GetBus("Engine");
+	playerEngineBus.SetVolume(0.01);
+
+	engine.LoadBus("Blink dodge", "{484066e7-2e58-4e83-9319-dad7fac4f3a9}");
+	AudioBus& blinkBus = engine.GetBus("Blink dodge");
+	//blinkBus.SetVolume(0.01);
+
+	engine.LoadBus("Centipede", "{ad0a3379-c400-48c0-a55e-db508ea6dde3}");
+	AudioBus& centiBus = engine.GetBus("Centipede");
+	//centiBus.SetVolume(0.01);
+
+	engine.LoadBus("Enemyshooting", "{d5290cc9-82d0-4f6a-8d04-35131e2696b0}");
+	AudioBus& enemyShootingBus = engine.GetBus("Enemyshooting");
+	enemyShootingBus.SetVolume(0.5);
+
+	engine.LoadBus("Explosion", "{ffd81674-9e40-4812-ac01-5335642949d5}");
+	AudioBus& explosionBus = engine.GetBus("Explosion");
+	explosionBus.SetVolume(0.07);
+
+	engine.LoadBus("Low HP", "{b22e3224-a5af-4b04-bd3d-3c80a1791e63}");
+	AudioBus& hpBus = engine.GetBus("Low HP");
+	//hpBus.SetVolume(0.01);
+
+	engine.LoadBus("Announcement", "{ec2bdc5c-fc91-4bfd-ab42-d2da9a4876d9}");
+	AudioBus& announcementBus = engine.GetBus("Announcement");
+	//announcementBus.SetVolume(0.01);
+
+	AudioBus& bgmBus = engine.GetBus("BGM");
+	bgmBus.SetVolume(0.7);
+
+	//Create event
+	AudioEvent& playershootSFX = engine.CreateEvent("Playershooting", "{355b48d6-9121-4ca3-9ae2-70bf11df03c0}");
+	AudioEvent& engineSFX = engine.CreateEvent("Engine", "{5988f7a2-021b-4a3e-a655-ff05f2eb2ee7}");
+	AudioEvent& blinkSFX = engine.CreateEvent("Blink Dodge", "{5182038f-722e-4afa-9591-8faa8e8818ff}");
+	AudioEvent& centipedeSFX = engine.CreateEvent("Centipede", "{cabe3bb6-0df5-4a0f-8115-4c8082bbd01e}");
+	AudioEvent& enemyshootSFX = engine.CreateEvent("Enemy Shooting", "{b0e036c8-617f-46ad-9852-a82c1a8677c1}");
+	AudioEvent& explosionSFX = engine.CreateEvent("Explosion", "{708794b1-3ece-4f4b-9a62-6dfbdca75b24}");
+	AudioEvent& lowHPSFX = engine.CreateEvent("Low HP", "{a8245ca6-16d7-4d55-a0a7-5e134671eaf3}");
+
+	AudioEvent& jellyannouncementSFX = engine.CreateEvent("JellyFishAnnouncement", "{b8b3e52d-5896-47ef-b992-fdb5ed0d5c17}");
+	AudioEvent& centiannouncementSFX = engine.CreateEvent("CentipedeAnnouncement", "{86b9f91a-3896-4529-8d61-2550a8944f93}");
+	AudioEvent& hiveannouncementSFX = engine.CreateEvent("HivemindAnnouncement", "{46667b7c-3a8d-43c3-bf42-6137ea78f24c}");
+	//AudioEvent& bgmMusic = engine.CreateEvent("BGM", "{f5fb466c-7e26-4fe4-9371-b846dc746337}");
+	//Get reference to bus
+	//AudioBus& musicBus = engine.GetBus("Main Menu");
+	//musicBus.SetVolume(0.1);
+	//PLay music event
+	//menuMusic.Play();
+
 	if (GameObject::IsEmpty()) {
 		// Camera
 		auto cameraEntity = GameObject::Allocate();
@@ -772,7 +865,12 @@ void Universe::InitScene(int Prescore)
 		BufferEntity->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/WarmLUT.cube");
 		BufferEntity->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/CoolLUT.cube");
 
+		AudioEngine& engine = AudioEngine::Instance();
+		AudioEvent& musicEvent = engine.GetEvent("BGM");
+		AudioEvent& playerEngineEvent = engine.GetEvent("Engine");
 		
+		musicEvent.Play();
+		playerEngineEvent.Play();
 
 		if (m_name == "Universe_19") {
 
@@ -781,6 +879,8 @@ void Universe::InitScene(int Prescore)
 			m_SceneResumeNo = int(ScenesNum::UNIVERSE_19);
 
 			isSceneSwitch = false;
+
+		
 
 			// Solar System Centerpoint
 			auto SVCEntity = GameObject::Allocate();
@@ -1648,6 +1748,19 @@ void Universe::Update(float deltaTime)
 
 				if (isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
 					AI.pop_back();
+
+					AudioEngine& engine = AudioEngine::Instance();
+					//Create event
+					AudioEvent& explosionEvent = engine.GetEvent("Explosion");
+
+					if (!explosionEvent.isPlaying())
+						explosionEvent.Play();
+					else
+					{
+						explosionEvent.Stop();
+						explosionEvent.Play();
+					}
+
 					particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
 					particleTemp->setSize(10);
 					particleTemp->getEmitter()->setLifetime(0.2, 0.2);
@@ -1684,6 +1797,18 @@ void Universe::Update(float deltaTime)
 					GameObject::GetComponent<Transform>(enemy).SetLocalScale(glm::vec3(5))->UpdateGlobal();
 					particles.push_back(particleTemp);
 					m_sceneReg->destroy(enemy);
+
+					AudioEngine& engine = AudioEngine::Instance();
+					//Create event
+					AudioEvent& explosionEvent = engine.GetEvent("Explosion");
+
+					if (!explosionEvent.isPlaying())
+						explosionEvent.Play();
+					else
+					{
+						explosionEvent.Stop();
+						explosionEvent.Play();
+					}
 				}
 				else if(isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
 					particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
@@ -1697,7 +1822,17 @@ void Universe::Update(float deltaTime)
 					particles.push_back(particleTemp);
 					m_sceneReg->destroy(enemy);
 
+					AudioEngine& engine = AudioEngine::Instance();
+					//Create event
+					AudioEvent& explosionEvent = engine.GetEvent("Explosion");
 
+					if (!explosionEvent.isPlaying())
+						explosionEvent.Play();
+					else
+					{
+						explosionEvent.Stop();
+						explosionEvent.Play();
+					}
 
 					m_PlayerHealth -= m_PlayerHealth > 0 ? 1 : 0;
 					GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
@@ -1894,6 +2029,17 @@ void Universe::Update(float deltaTime)
 							m_sceneReg->destroy(enemy);
 							AI.erase(AI.begin() + i);
 
+							AudioEngine& engine = AudioEngine::Instance();
+							//Create event
+							AudioEvent& explosionEvent = engine.GetEvent("Explosion");
+
+							if (!explosionEvent.isPlaying())
+								explosionEvent.Play();
+							else
+							{
+								explosionEvent.Stop();
+								explosionEvent.Play();
+							}
 						}
 						else if (type == EntityType::NEROTIST) {
 							particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
@@ -1907,6 +2053,18 @@ void Universe::Update(float deltaTime)
 							m_score->GetComponent<ScoreHandler>().Add(5);
 							m_sceneReg->destroy(enemy);
 							AI.erase(AI.begin() + i);
+
+							AudioEngine& engine = AudioEngine::Instance();
+							//Create event
+							AudioEvent& explosionEvent = engine.GetEvent("Explosion");
+
+							if (!explosionEvent.isPlaying())
+								explosionEvent.Play();
+							else
+							{
+								explosionEvent.Stop();
+								explosionEvent.Play();
+							}
 						}
 						else if (type == EntityType::BOMBARDIER)
 						{
@@ -1921,6 +2079,18 @@ void Universe::Update(float deltaTime)
 							m_score->GetComponent<ScoreHandler>().Add(10);
 							m_sceneReg->destroy(enemy);
 							AI.erase(AI.begin() + i);
+
+							AudioEngine& engine = AudioEngine::Instance();
+							//Create event
+							AudioEvent& explosionEvent = engine.GetEvent("Explosion");
+
+							if (!explosionEvent.isPlaying())
+								explosionEvent.Play();
+							else
+							{
+								explosionEvent.Stop();
+								explosionEvent.Play();
+							}
 						}
 
 						if (type == EntityType::JELLY) {
@@ -1941,6 +2111,18 @@ void Universe::Update(float deltaTime)
 								temp = glm::vec3(0, -30, 0);
 								GameObject::GetComponent<Transform>(enemy).MoveLocalPosFixed(temp);
 								particles.push_back(particleTemp);
+
+								AudioEngine& engine = AudioEngine::Instance();
+								//Create event
+								AudioEvent& explosionEvent = engine.GetEvent("Explosion");
+
+								if (!explosionEvent.isPlaying())
+									explosionEvent.Play();
+								else
+								{
+									explosionEvent.Stop();
+									explosionEvent.Play();
+								}
 							}
 							if (GameObject::GetComponent<JellyFishBoss>(enemy).m_health <= 0) {
 								
@@ -1982,6 +2164,17 @@ void Universe::Update(float deltaTime)
 							particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
 							particles.push_back(particleTemp);
 
+							AudioEngine& engine = AudioEngine::Instance();
+							//Create event
+							AudioEvent& explosionEvent = engine.GetEvent("Explosion");
+
+							if (!explosionEvent.isPlaying())
+								explosionEvent.Play();
+							else
+							{
+								explosionEvent.Stop();
+								explosionEvent.Play();
+							}
 							if (GameObject::GetComponent<CentipedeBoss>(enemy).m_health <= 0) {
 							
 								if (m_name == "Universe_27") {
@@ -2023,6 +2216,17 @@ void Universe::Update(float deltaTime)
 							particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
 							particles.push_back(particleTemp);
 
+							AudioEngine& engine = AudioEngine::Instance();
+							//Create event
+							AudioEvent& explosionEvent = engine.GetEvent("Explosion");
+
+							if (!explosionEvent.isPlaying())
+								explosionEvent.Play();
+							else
+							{
+								explosionEvent.Stop();
+								explosionEvent.Play();
+							}
 							if (GameObject::GetComponent<HiveMindBoss>(enemy).m_health <= 0) {
 								
 								m_isBossDead = true;
@@ -2068,10 +2272,15 @@ void Universe::Update(float deltaTime)
 				}
 			}
 
-			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 200 && !m_isBossSpawn)
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 300 && !m_isBossSpawn)
 			{
 				//// JELLYFIH BOSS
 				{
+					AudioEngine& engine = AudioEngine::Instance();
+					//Create event
+					AudioEvent& announcement = engine.GetEvent("JellyFishAnnouncement");
+					announcement.Play();
+
 					auto jellyEntity = GameObject::Allocate();
 					jellyEntity->AttachComponent<JellyFishBoss>().m_enemyMesh = m_meshes[int(EnemyMesh::NEROTISTU1)];
 					jellyEntity->GetComponent<JellyFishBoss>().Init(jellyEntity->GetID(), MainPlayerID);
@@ -2167,9 +2376,13 @@ void Universe::Update(float deltaTime)
 			if (wasSceneSwitched)
 				wasTransitionActive = true;
 
-			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 200 && !m_isBossSpawn)
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 600 && !m_isBossSpawn)
 			{
 				////BOSS
+				AudioEngine& engine = AudioEngine::Instance();
+				//Create event
+				AudioEvent& announcement = engine.GetEvent("CentipedeAnnouncement");
+				announcement.Play();
 
 				auto Centipede = GameObject::Allocate();
 				Centipede->AttachComponent<CentipedeBoss>().SetBulletMesh(m_meshes[int(PlayerMesh::PLAYERBULLET)]);
@@ -2203,8 +2416,13 @@ void Universe::Update(float deltaTime)
 			//	}
 			//}	
 
-			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 200 && !m_isBossSpawn)
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 900 && !m_isBossSpawn)
 			{
+				AudioEngine& engine = AudioEngine::Instance();
+				//Create event
+				AudioEvent& announcement = engine.GetEvent("HivemindAnnouncement");
+				announcement.Play();
+
 				auto HiveMind = GameObject::Allocate();
 				HiveMind->AttachComponent<HiveMindBoss>().SetBulletMesh(m_meshes[int(PlayerMesh::PLAYERBULLET)]);
 				HiveMind->GetComponent<HiveMindBoss>().Init(HiveMind->GetID(), MainPlayerID);
@@ -2230,6 +2448,16 @@ void Universe::Update(float deltaTime)
 		}
 
 		#pragma endregion
+
+		if (m_PlayerHealth == 1)
+		{
+			AudioEngine& engine = AudioEngine::Instance();
+
+			//Create event
+			AudioEvent& hp = engine.GetEvent("Low HP");
+
+			hp.Play();
+		}
 
 		#pragma region Shadows
 		shadowProjection = glm::perspective(glm::radians(90.0f), Application::GetWindowWidth() / Application::GetWindowHeight(), 0.1f, 1000.0f);
@@ -2313,11 +2541,14 @@ BufferEntity->GetComponent<ColorCorrectionEffect>().DrawToScreen();
 
 void Universe::KeyInput()
 {
+	AudioEngine& engine = AudioEngine::Instance();
+
 	if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		*switchIt = true;
 		*SceneNo = int(ScenesNum::PAUSE_MENU);
 	}
+
 
 	/*if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS)
 	{
@@ -2359,7 +2590,21 @@ void Universe::KeyInput()
 		{
 			temp = glm::vec3(0, 0, -4);
 			playerEnt.MoveLocalPos(temp);
-			GameObject::GetComponent<MorphAnimController>(MainPlayerID).SetAnimate(true);
+			if (!isWingOpen && !GameObject::GetComponent<MorphAnimController>(MainPlayerID).getAnimate())
+			{
+				GameObject::GetComponent<MorphAnimController>(MainPlayerID).SetAnimate(true);
+				isPlayerAnim = true;
+				isWingOpen = true;
+			}
+		}
+		else if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_RELEASE)
+		{
+			if (isWingOpen && !GameObject::GetComponent<MorphAnimController>(MainPlayerID).getAnimate())
+			{
+				GameObject::GetComponent<MorphAnimController>(MainPlayerID).SetAnimate(true);
+				isPlayerAnim = true;
+				isWingOpen = false;
+			}
 		}
 		else if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
 		{
@@ -2432,6 +2677,17 @@ void Universe::KeyInput()
 			particleTemp->setModelMatrix(playerEnt.UpdateGlobal());
 			particles.push_back(particleTemp);
 
+			//Create event
+			AudioEvent& dodgeEvent = engine.GetEvent("Blink Dodge");
+
+
+			if (!dodgeEvent.isPlaying())
+				dodgeEvent.Play();
+			else
+			{
+				dodgeEvent.Stop();
+				dodgeEvent.Play();
+			}
 		}
 
 		dodgeCount -= m_deltaTime;
@@ -2496,7 +2752,7 @@ void Universe::KeyInput()
 		camEnt.SetLocalPos(temp);
 		isRotate = false;
 	}
-
+	
 	
 	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
@@ -2504,7 +2760,26 @@ void Universe::KeyInput()
 		if (glfwGetTime() - m_startTime >= m_fireRate) {
 			// Shoot Bullet Right
 			
+			//Setup FMOD
+			
+			
+			//engine.Init();
+			//engine.LoadBank("Master");
+			//engine.LoadBus("Playershooting", "{91ac6419-101f-49ef-b413-9e849b361ecc}");
+			//engine.LoadBus("BGM", "{b6953820-8992-4a3e-b540-c97560b8bb5f}");
 
+			//Create event
+			AudioEvent& shoot = engine.GetEvent("Playershooting");
+
+
+			if(!shoot.isPlaying())
+				shoot.Play();
+			else
+			{
+				shoot.Stop();
+				shoot.Play();
+			}
+			
 			auto RightBullet = GameObject::Allocate();
 			RightBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), RightBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(RightBullet->GetID());
 			RightBullet->GetComponent<Projectile>().SetSpeed(500);
@@ -2572,10 +2847,13 @@ void Universe::KeyInput()
 	if (glfwGetKey(m_window, GLFW_KEY_K) == GLFW_RELEASE) {
 		cccTglPressed = false;
 	}
+
+	engine.Update();
 }
 
 void Universe::GamepadInput()
 {
+	AudioEngine& engine = AudioEngine::Instance();
 
 	if (gamepad.getGamepadInput()) {
 		auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
@@ -2609,7 +2887,7 @@ void Universe::GamepadInput()
 
 			if (!isDodge)
 			{
-				//Left Trigger
+				//Left Trigger LOOK BACK
 				{
 
 					if (gamepad.trigger.LT >= -1 && gamepad.trigger.LT < -0.8) {
@@ -2630,11 +2908,24 @@ void Universe::GamepadInput()
 
 				}
 
-				//Right Trigger
+				//Right Trigger SHOOTING
 				{
 
 					if (gamepad.trigger.RT > -0.8) {
 						if (glfwGetTime() - m_startTime >= m_fireRate) {
+
+							//Create event
+							AudioEvent& shoot = engine.GetEvent("Playershooting");
+
+
+							if (!shoot.isPlaying())
+								shoot.Play();
+							else
+							{
+								shoot.Stop();
+								shoot.Play();
+							}
+
 							// Shoot Bullet Right
 							auto RightBullet = GameObject::Allocate();
 							RightBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), RightBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(RightBullet->GetID());
@@ -2706,12 +2997,14 @@ void Universe::GamepadInput()
 					}
 					//MOVE FORWARD
 					if (gamepad.axes[Joystick::LEFT].Y > -0.17) {
+
 						if (isWingOpen && !GameObject::GetComponent<MorphAnimController>(MainPlayerID).getAnimate())
 						{
 							GameObject::GetComponent<MorphAnimController>(MainPlayerID).SetAnimate(true);
 							isPlayerAnim = true;
 							isWingOpen = false;
 						}
+
 					}
 					else if (gamepad.axes[Joystick::LEFT].Y < -0.17 && gamepad.axes[Joystick::LEFT].Y > -0.25) {
 						temp = glm::vec3(0, 0, -0.8);
@@ -2763,6 +3056,17 @@ void Universe::GamepadInput()
 					particleTemp->setModelMatrix(playerEnt.UpdateGlobal());
 					particles.push_back(particleTemp);
 
+					//Create event
+					AudioEvent& dodgeEvent = engine.GetEvent("Blink Dodge");
+
+
+					if (!dodgeEvent.isPlaying())
+						dodgeEvent.Play();
+					else
+					{
+						dodgeEvent.Stop();
+						dodgeEvent.Play();
+					}
 				}
 
 				dodgeCount -= m_deltaTime;

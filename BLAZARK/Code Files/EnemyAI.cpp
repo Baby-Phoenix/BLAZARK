@@ -32,6 +32,9 @@ void BasicAI::Update(float deltaTime)
 	glm::vec3 nextPoint;
 	glm::vec3 curPosOfEnemy;
 
+	AudioEngine& engine = AudioEngine::Instance();
+	AudioEvent& shoot = engine.GetEvent("Enemy Shooting");
+
 	if (m_isPlayerinRange) {
 
 #pragma region movement
@@ -55,6 +58,15 @@ void BasicAI::Update(float deltaTime)
 #pragma region BulletShooting
 
 		if (glfwGetTime() - m_startTime >= m_fireRate) {
+			
+			if (!shoot.isPlaying())
+				shoot.Play();
+			else
+			{
+				shoot.Stop();
+				shoot.Play();
+			}
+
 			auto bullet = GameObject::Allocate();
 			bullet->AttachComponent<Projectile>(&m_enemy, entt::entity(0), bullet.get(), *m_bulletMesh).SetID(bullet->GetID());
 			bullet->GetComponent<Projectile>().SetSpeed(100);
@@ -286,6 +298,9 @@ void BombardierAI::Update(float deltaTime)
 
 	CheckForMainPlayer();
 
+	AudioEngine& engine = AudioEngine::Instance();
+	AudioEvent& shoot = engine.GetEvent("Enemy Shooting");
+
 	auto& enemyTrans = GameObject::GetComponent<Transform>(m_enemy);
 
 	glm::vec3 curPoint;
@@ -315,6 +330,14 @@ void BombardierAI::Update(float deltaTime)
 #pragma region BulletShooting
 
 		if (glfwGetTime() - m_startTime >= m_fireRate) {
+			if (!shoot.isPlaying())
+				shoot.Play();
+			else
+			{
+				shoot.Stop();
+				shoot.Play();
+			}
+
 			auto kamabullet = GameObject::Allocate();
 			kamabullet->AttachComponent<Transform>().SetLocalPos(GameObject::GetComponent<Transform>(m_enemy).GetLocalPos());
 			kamabullet->GetComponent<Transform>().SetLocalScale(glm::vec3(5));
@@ -452,6 +475,9 @@ void JellyFishBoss::Update(float deltaTime)
 {
 	CheckForMainPlayer();
 
+	AudioEngine& engine = AudioEngine::Instance();
+	AudioEvent& shoot = engine.GetEvent("Enemy Shooting");
+
 	if (m_isPlayerinRange) {
 		m_isImmune = false;
 		auto& enemyTrans = GameObject::GetComponent<Transform>(m_enemy);
@@ -463,6 +489,15 @@ void JellyFishBoss::Update(float deltaTime)
 		curPosOfEnemy = enemyTrans.GetLocalPos(); //current position
 
 		if (glfwGetTime() - m_startTime >= m_fireRate) {
+
+			if (!shoot.isPlaying())
+				shoot.Play();
+			else
+			{
+				shoot.Stop();
+				shoot.Play();
+			}
+
 			auto bullet = GameObject::Allocate();
 			bullet->AttachComponent<Projectile>(&m_enemy, entt::entity(0), bullet.get(), *m_bulletMesh).SetID(bullet->GetID());
 			bullet->GetComponent<Projectile>().SetSpeed(300);
@@ -544,6 +579,9 @@ void CentipedeBoss::Update(float deltaTime)
 {
 	CheckForMainPlayer();
 
+	AudioEngine& engine = AudioEngine::Instance();
+	AudioEvent& shoot = engine.GetEvent("Centipede");
+
 	if (m_isPlayerinRange) {
 		m_isImmune = false;
 		auto& enemyTrans = GameObject::GetComponent<Transform>(m_enemy);
@@ -556,6 +594,15 @@ void CentipedeBoss::Update(float deltaTime)
 
 		//main head
 		if (glfwGetTime() - m_startTimePerhead[0] >= m_fireRatePerhead[0]) {
+
+			if (!shoot.isPlaying())
+				shoot.Play();
+			else
+			{
+				shoot.Stop();
+				shoot.Play();
+			}
+
 			auto bullet = GameObject::Allocate();
 			bullet->AttachComponent<Projectile>(&m_enemy, entt::entity(0), bullet.get(), *m_bulletMesh).SetID(bullet->GetID());
 			bullet->GetComponent<Projectile>().SetSpeed(250);

@@ -7,6 +7,7 @@
 #include "Projectile.h"
 #include "ParticleSystem.h"
 #include "MorphAnimController.h"
+#include "AudioEngine.h"
 
 enum class EntityType { PLAYER, ENEMY, NEROTIST, KAMIKAZI, SCAVENGER, BOMBARDIER, KAMIBULLET, JELLY, CENTIPEDE, HIVEMIND, PORTAL};
 
