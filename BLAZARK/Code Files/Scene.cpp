@@ -12,7 +12,7 @@ enum class EnemyMesh { SCAVENGERU1S = 6, SCAVENGERU1E = 8, NEROTISTU1, KAMAKAZI,
 
 enum class PlanetMesh { SOLARI = int(EnemyMesh::BOMBARDIER)+1, VERASTEN, YECHIN, KERANTIA, LUNARI, GUERISTIS, KEMINTH,
 						LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MAGAANTU , 
-						RALEI, DARKP, DUALP, PINKP, SPIKEP, WHITEP, COMET};
+						RALEI, DARKP, DUALP, PINKP, SPIKEP, WHITEP, COMET, ARROW = COMET + 32 };
 
 enum Universe19SS { SVC, SYC, SKRC, SGC, SKEC, SOLARI, VERASTEN, YECHIN, KERANTIA, GUERISTIS, KEMINTH, KEMINTHRING, HPC };
 enum Universe27SS { LDMC, LTC, LKC, LPC, LDRC, LRC, LMC, LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MEGAANTU};
@@ -229,6 +229,8 @@ Scene::Scene(std::string name)
 		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/5/Asteroids_Cluster_7R.obj", *m_meshes[int(PlanetMesh::COMET) + 30]);
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Misc/Asteroids/5/Asteroids_Cluster_8R.obj", *m_meshes[int(PlanetMesh::COMET) + 31]);
+		m_meshes.push_back(new Mesh());
+		loadOBJ("Resource Files/OBJFiles/Misc/Arrow.obj", *m_meshes[int(PlanetMesh::ARROW)]);
 	}
 }
 
@@ -237,7 +239,7 @@ std::string Scene::GetName()
 	return m_name;
 }
 
-void Scene::InitScene()
+void Scene::InitScene(int Prescore)
 {
 	//creating a new registry for the scene when initialised
 	if (m_sceneReg == nullptr)
@@ -254,6 +256,11 @@ void Scene::InitScene()
 void Scene::SetWindow(GLFWwindow* window)
 {
 	m_window = window;
+}
+
+int Scene::GetSceneScore()
+{
+	return 0;
 }
 
 entt::registry* Scene::GetScene()
@@ -278,7 +285,7 @@ Menu::Menu(std::string name, unsigned int* num, bool* change)
 	switchIt = change;
 }
 
-void Menu::InitScene()
+void Menu::InitScene(int Prescore)
 {
 	//creating a new registry for the scene when initialised
 	if (m_sceneReg == nullptr) 
@@ -291,6 +298,7 @@ void Menu::InitScene()
 
 		auto cameraEntity = GameObject::Allocate();
 		cameraEntity->AttachComponent<Transform>();
+		entt::entity* camentity = new entt::entity(cameraEntity->GetID());
 		camera = &cameraEntity->AttachComponent<Camera>(int(cameraEntity->GetID()));
 		cameraEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 100.0f));
 
@@ -305,12 +313,20 @@ void Menu::InitScene()
 		else if (m_name == "Game_Over") {
 			auto loseScreen = GameObject::Allocate();
 			loseScreen->AttachComponent<Sprite2D>(m_textures[int(TextureType::GAMEOVER)], loseScreen->GetID(), 100, 100);
-			loseScreen->AttachComponent<Transform>();
+			loseScreen->AttachComponent<Transform>().SetLocalPos(0, 0, -5);
+
+			score = new ScoreHandler(glm::vec3(0, 0, 10), m_textures[int(TextureType::SCORENUM)], camentity);
+			score->Add(Prescore);
 		}
 		else if (m_name == "Win") {
 			auto winScreen = GameObject::Allocate();
 			winScreen->AttachComponent<Sprite2D>(m_textures[int(TextureType::WIN)], winScreen->GetID(), 100, 100);
 			winScreen->AttachComponent<Transform>();
+
+		/*	score = GameObject::Allocate();
+			score->AttachComponent<Transform>().SetLocalPos(0, -30, 10);
+			score->AttachComponent<ScoreHandler>(score->GetComponent<Transform>().GetLocalPos(), m_textures[int(TextureType::SCORENUM)], camentity).Add(Prescore);
+			std::cout << "Score is :" << Prescore << std::endl;*/
 		}
 		else if (m_name == "Pause_Menu") {
 
@@ -428,6 +444,11 @@ unsigned int Menu::GetSceneResumeNumber()
 void Menu::SetSceneResumeNo(unsigned int sceneno)
 {
 	m_SceneResumeNo = sceneno;
+}
+
+int Menu::GetSceneScore()
+{
+	return 0;
 }
 
 void Menu::KeyInput()
@@ -605,7 +626,7 @@ void Universe::SetSceneResumeNo(unsigned int sceneno)
 {
 }
 
-void Universe::InitScene()
+void Universe::InitScene(int Prescore)
 {
 	//creating a new registry for the scene when initialised
 	if (m_sceneReg == nullptr)
@@ -697,13 +718,6 @@ void Universe::InitScene()
 		healthent->AttachComponent<Sprite2D>(m_textures[0], healthent->GetID(), 15, 15, true, tempAnim);
 		healthent->AttachComponent<Transform>().SetLocalPos(glm::vec3(-80, -80, -10));
 
-		auto abilities = GameObject::Allocate();
-		abilities->AttachComponent<Sprite2D>(m_textures[1], abilities->GetID(), 15, 15);
-		abilities->AttachComponent<Transform>().SetLocalPos(glm::vec3(80, -80, -10));
-		auto powerUp = GameObject::Allocate();
-		powerUp->AttachComponent<Sprite2D>(m_textures[2], powerUp->GetID(), 6, 45);
-		powerUp->AttachComponent<Transform>().SetLocalPos(glm::vec3(-90, 10, -10));
-
 		glm::vec3 scorePos;
 		auto score = GameObject::Allocate();
 		score->AttachComponent<Sprite2D>(m_textures[int(TextureType::SCORE)], score->GetID(), 10, 5);
@@ -712,7 +726,7 @@ void Universe::InitScene()
 		scorePos = score->GetComponent<Transform>().GetLocalPos();
 
 		m_score = GameObject::Allocate();
-		m_score->AttachComponent<ScoreHandler>(scorePos, m_textures[int(TextureType::SCORENUM)], camentity);
+		m_score->AttachComponent<ScoreHandler>(scorePos, m_textures[int(TextureType::SCORENUM)], camentity).Add(Prescore);
 
 		// Effects
 		BufferEntity = GameObject::Allocate();
@@ -1511,8 +1525,6 @@ void Universe::InitScene()
 		//Setting Parent/Childe
 		cameraEntity->GetComponent<Transform>().SetParent(new entt::entity(playerEntity->GetID()));
 		healthent->GetComponent<Transform>().SetParent(camentity);
-		abilities->GetComponent<Transform>().SetParent(camentity);
-		powerUp->GetComponent<Transform>().SetParent(camentity);
 		score->GetComponent<Transform>().SetParent(camentity);
 
 		
@@ -1669,11 +1681,36 @@ void Universe::Update(float deltaTime)
 			else if (type == EntityType::JELLY) {
 				AI.push_back(&GameObject::GetComponent<JellyFishBoss>(enemy));
 				AI[index]->Update(deltaTime);
+
+				if (m_arrowTotheBoss.get() != nullptr) {
+
+					glm::vec3 playerPos = GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos();
+					playerPos += glm::vec3(0, 20, 0);
+
+					m_arrowTotheBoss->GetComponent<Transform>().SetLocalPos(playerPos);
+
+					glm::vec3 rotationvector = glm::degrees(glm::eulerAngles(glm::quat_cast(glm::transpose(glm::lookAt(playerPos, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), glm::vec3(0, 1, 0))))));
+
+					m_arrowTotheBoss->GetComponent<Transform>().SetLocalRot(rotationvector);
+				}
 			}
 
 			else if (type == EntityType::CENTIPEDE) {
 				AI.push_back(&GameObject::GetComponent<CentipedeBoss>(enemy));
 				AI[index]->Update(deltaTime);
+
+				if (m_arrowTotheBoss.get() != nullptr) {
+
+					glm::vec3 playerPos = GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos();
+					playerPos += glm::vec3(0, 20, 0);
+
+					m_arrowTotheBoss->GetComponent<Transform>().SetLocalPos(playerPos);
+
+					glm::vec3 rotationvector = glm::degrees(glm::eulerAngles(glm::quat_cast(glm::transpose(glm::lookAt(playerPos, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), glm::vec3(0, 1, 0))))));
+
+					m_arrowTotheBoss->GetComponent<Transform>().SetLocalRot(rotationvector);
+				}
+
 			}
 
 			else if (type == EntityType::HIVEMIND) {
@@ -1778,6 +1815,19 @@ void Universe::Update(float deltaTime)
 
 					GameObject::GetComponent<HiveMindBoss>(enemy).m_CentipedeSpawned = true;
 				}
+
+				if (m_arrowTotheBoss.get() != nullptr) {
+
+					glm::vec3 playerPos = GameObject::GetComponent<Transform>(MainPlayerID).GetLocalPos();
+					playerPos += glm::vec3(0, 20, 0);
+
+					m_arrowTotheBoss->GetComponent<Transform>().SetLocalPos(playerPos);
+
+					glm::vec3 rotationvector = glm::degrees(glm::eulerAngles(glm::quat_cast(glm::transpose(glm::lookAt(playerPos, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), glm::vec3(0, 1, 0))))));
+
+					m_arrowTotheBoss->GetComponent<Transform>().SetLocalRot(rotationvector);
+				}
+
 			}
 		}
 
@@ -1995,69 +2045,78 @@ void Universe::Update(float deltaTime)
 			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 10 && !m_isBossSpawn)
 			{
 				//// JELLYFIH BOSS
+				{
+					auto jellyEntity = GameObject::Allocate();
+					jellyEntity->AttachComponent<JellyFishBoss>().m_enemyMesh = m_meshes[int(EnemyMesh::NEROTISTU1)];
+					jellyEntity->GetComponent<JellyFishBoss>().Init(jellyEntity->GetID(), MainPlayerID);
 
-				auto jellyEntity = GameObject::Allocate();
-				jellyEntity->AttachComponent<JellyFishBoss>().m_enemyMesh = m_meshes[int(EnemyMesh::NEROTISTU1)];
-				jellyEntity->GetComponent<JellyFishBoss>().Init(jellyEntity->GetID(), MainPlayerID);
+					jellyEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+					auto& jellypos = jellyEntity->GetComponent<Transform>();
 
-				jellyEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
-				auto& jellypos = jellyEntity->GetComponent<Transform>();
+					particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
+					particleTemp->setRotation(glm::vec3(90, 0, 0));
+					particleTemp->getEmitter()->setRadius(1.0);
+					particleTemp->setSize(2);
+					particleTemp->getEmitter()->setAngleDeg(10);
+					particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+					particleTemp->getEmitter()->setSpeed(10);
+					particleTemp->getEmitter()->init();
+					particles.push_back(particleTemp);
+					jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
 
-				particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
-				particleTemp->setRotation(glm::vec3(90, 0, 0));
-				particleTemp->getEmitter()->setRadius(1.0);
-				particleTemp->setSize(2);
-				particleTemp->getEmitter()->setAngleDeg(10);
-				particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
-				particleTemp->getEmitter()->setSpeed(10);
-				particleTemp->getEmitter()->init();
-				particles.push_back(particleTemp);
-				jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+					particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
+					particleTemp->setRotation(glm::vec3(90, 0, 0));
+					particleTemp->getEmitter()->setRadius(1.0);
+					particleTemp->setSize(2);
+					particleTemp->getEmitter()->setAngleDeg(10);
+					particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+					particleTemp->getEmitter()->setSpeed(10);
+					particleTemp->getEmitter()->init();
+					particles.push_back(particleTemp);
+					jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
 
-				particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z + 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
-				particleTemp->setRotation(glm::vec3(90, 0, 0));
-				particleTemp->getEmitter()->setRadius(1.0);
-				particleTemp->setSize(2);
-				particleTemp->getEmitter()->setAngleDeg(10);
-				particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
-				particleTemp->getEmitter()->setSpeed(10);
-				particleTemp->getEmitter()->init();
-				particles.push_back(particleTemp);
-				jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+					particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
+					particleTemp->setRotation(glm::vec3(90, 0, 0));
+					particleTemp->getEmitter()->setRadius(1.0);
+					particleTemp->setSize(2);
+					particleTemp->getEmitter()->setAngleDeg(10);
+					particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+					particleTemp->getEmitter()->setSpeed(10);
+					particleTemp->getEmitter()->init();
+					particles.push_back(particleTemp);
+					jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
 
-				particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x - 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
-				particleTemp->setRotation(glm::vec3(90, 0, 0));
-				particleTemp->getEmitter()->setRadius(1.0);
-				particleTemp->setSize(2);
-				particleTemp->getEmitter()->setAngleDeg(10);
-				particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
-				particleTemp->getEmitter()->setSpeed(10);
-				particleTemp->getEmitter()->init();
-				particles.push_back(particleTemp);
-				jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+					particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
+					particleTemp->setRotation(glm::vec3(90, 0, 0));
+					particleTemp->getEmitter()->setRadius(1.0);
+					particleTemp->setSize(2);
+					particleTemp->getEmitter()->setAngleDeg(10);
+					particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
+					particleTemp->getEmitter()->setSpeed(10);
+					particleTemp->getEmitter()->init();
+					particles.push_back(particleTemp);
+					jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
 
-				particleTemp = new ParticleController(1, glm::vec3(jellypos.GetLocalPos().x + 6, jellypos.GetLocalPos().y + 13.0, jellypos.GetLocalPos().z - 6), m_textures[int(TextureType::YELLOW)], m_textures[int(TextureType::FIRE)], jellyEntity->GetID());
-				particleTemp->setRotation(glm::vec3(90, 0, 0));
-				particleTemp->getEmitter()->setRadius(1.0);
-				particleTemp->setSize(2);
-				particleTemp->getEmitter()->setAngleDeg(10);
-				particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
-				particleTemp->getEmitter()->setSpeed(10);
-				particleTemp->getEmitter()->init();
-				particles.push_back(particleTemp);
-				jellyEntity->GetComponent<JellyFishBoss>().m_particles.push_back(particleTemp);
+					glm::vec3 temp = glm::vec3(0, -30, 2500);
+					jellypos.MoveLocalPos(temp);
 
-				glm::vec3 temp = glm::vec3(0, -30, 2500);
-				jellypos.MoveLocalPos(temp);
+					jellyEntity->AttachComponent<DynamicRenderer>(CamID, jellyEntity->GetID(), *jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0], nullptr, false);
+					jellyEntity->AttachComponent<MorphAnimController>(int(jellyEntity->GetID())).SetFrames(jellyEntity->GetComponent<JellyFishBoss>().m_meshes, 0, 24);
+					jellyEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
+					jellyEntity->GetComponent<Transform>().SetWHD(glm::vec3(jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetWidth(), jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetHeight() * 3, jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetDepth()));
+					jellyEntity->GetComponent<Transform>().SetRadius((jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetWidth() * 3) / 2);
+					jellyEntity->AttachComponent<EntityType>() = EntityType::JELLY;
 
-				jellyEntity->AttachComponent<DynamicRenderer>(CamID, jellyEntity->GetID(), *jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0], nullptr, false);
-				jellyEntity->AttachComponent<MorphAnimController>(int(jellyEntity->GetID())).SetFrames(jellyEntity->GetComponent<JellyFishBoss>().m_meshes, 0, 24);
-				jellyEntity->GetComponent<Transform>().SetLocalScale(glm::vec3(3.0));
-				jellyEntity->GetComponent<Transform>().SetWHD(glm::vec3(jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetWidth(), jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetHeight() * 3, jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetDepth()));
-				jellyEntity->GetComponent<Transform>().SetRadius((jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetWidth() * 3) / 2);
-				jellyEntity->AttachComponent<EntityType>() = EntityType::JELLY;
+					m_isBossSpawn = true; 
+				}
 
-				m_isBossSpawn = true;
+				//arrow to direct to the boss
+				{
+					m_arrowTotheBoss = GameObject::Allocate();
+
+					m_arrowTotheBoss->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+					m_arrowTotheBoss->AttachComponent<StaticRenderer>(CamID, m_arrowTotheBoss->GetID(), *m_meshes[int(PlanetMesh::ARROW)], nullptr);
+				}
 			}
 		}
 
@@ -2784,6 +2843,11 @@ void Universe::SolarSystemUpdate() {
 
 		GameObject::GetComponent<Transform>(AsteroidBeltID).RotateLocal(asteroidOrbit);
 	}
+}
+
+int Universe::GetSceneScore()
+{
+	return m_score->GetComponent<ScoreHandler>().GetScore();
 }
 
 bool Universe::isBoxCollide(Transform Obj1, Transform Obj2)
