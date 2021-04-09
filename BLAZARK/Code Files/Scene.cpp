@@ -1,20 +1,23 @@
 #include "Scene.h"
 
+
 int Universe::m_PlayerHealth = 0;
 entt::entity Universe::health = entt::entity(0);
 
-enum class TextureType { START = 3 , RESUME, CONTROLS, EXIT, BACKGROUND, CONTROLSMENU, GAMEOVER, WIN, SCORE, SCORENUM, COMET, FIRE, BLINK, YELLOW, ORANGE, SKY27, SKY5};
+enum class TextureType { START = 3, RESUME, CONTROLS, EXIT, BACKGROUND, CONTROLSMENU, GAMEOVER, WIN, SCORE, SCORENUM, COMET, FIRE, BLINK, YELLOW, ORANGE, SKY27, SKY5 };
 
 enum class PlayerMesh { PLAYERSHIPXWINGS, PLAYERSHIPXWINGE = 2, PLAYERSHIPPENCIL, PLAYERSHIPBAT, PLAYERBULLET };
 
 enum class EnemyMesh { SCAVENGERU1S = 6, SCAVENGERU1E = 8, NEROTISTU1, KAMAKAZI, BOMBARDIER };
 
-enum class PlanetMesh { SOLARI = int(EnemyMesh::BOMBARDIER)+1, VERASTEN, YECHIN, KERANTIA, LUNARI, GUERISTIS, KEMINTH,
-						LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MAGAANTU , 
-						RALEI, DARKP, DUALP, PINKP, SPIKEP, WHITEP, COMET, ARROW = COMET + 32 };
+enum class PlanetMesh {
+	SOLARI = int(EnemyMesh::BOMBARDIER) + 1, VERASTEN, YECHIN, KERANTIA, LUNARI, GUERISTIS, KEMINTH,
+	LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MAGAANTU,
+	RALEI, DARKP, DUALP, PINKP, SPIKEP, WHITEP, COMET, ARROW = COMET + 32
+};
 
 enum Universe19SS { SVC, SYC, SKRC, SGC, SKEC, SOLARI, VERASTEN, YECHIN, KERANTIA, GUERISTIS, KEMINTH, KEMINTHRING, HPC };
-enum Universe27SS { LDMC, LTC, LKC, LPC, LDRC, LRC, LMC, LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MEGAANTU};
+enum Universe27SS { LDMC, LTC, LKC, LPC, LDRC, LRC, LMC, LUTERO, DEDMOS, TITANIUS, KREILLO, PAXALLUS, DERANGI, RHETOID, MEGAANTU };
 enum Universe5SS { RDKC, RDLC, RPC, RSC, RWC, RALEI, DARKP, DUALP, PINKP, SPIKEP, WHITEP };
 
 std::vector<Mesh*> Scene::m_meshes;
@@ -45,6 +48,7 @@ bool isexplode = false;
 bool isDodge = false;
 bool isRotate = false;
 bool isSceneSwitch = false;
+bool isFMODINIT = false;
 
 // Pixelation Transition
 bool isTransitionActive = false;
@@ -61,6 +65,7 @@ Scene::Scene(std::string name)
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/health_spritesheet.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/Abilities_Unavailable_Temp.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/PowerUP_Unavailable_Temp.png"));
+
 		/////////
 		m_textures.push_back(new Texture("Resource Files/Textures/Menu/TitleScreen.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/Menu/Resume.png"));
@@ -78,7 +83,7 @@ Scene::Scene(std::string name)
 		m_textures.push_back(new Texture("Resource Files/Textures/red.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/blink.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/yellow.png"));
-		m_textures.push_back(new Texture("Resource Files/Textures/orange.png")); 
+		m_textures.push_back(new Texture("Resource Files/Textures/orange.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/sky27.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/sky5.png"));
 
@@ -101,7 +106,7 @@ Scene::Scene(std::string name)
 			m_meshes.push_back(new Mesh());
 			loadOBJ(("Resource Files/OBJFiles/Universe-19/EnemyShips/Morph/Scavenger_Idle_" + std::to_string(i) + ".obj").c_str(), *m_meshes[i + int(PlayerMesh::PLAYERBULLET)]);
 		}
-		
+
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Universe-19/EnemyShips/Nerotist.obj", *m_meshes[int(EnemyMesh::NEROTISTU1)]);
 
@@ -160,7 +165,7 @@ Scene::Scene(std::string name)
 		loadOBJ("Resource Files/OBJFiles/Misc/Comet2.obj", *m_meshes[int(PlanetMesh::COMET)]);
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Misc/Debris/Barrel.obj", *m_meshes[int(PlanetMesh::COMET) + 1]);
-		m_meshes.push_back(new Mesh()); 
+		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Misc/Debris/Bottle.obj", *m_meshes[int(PlanetMesh::COMET) + 2]);
 		m_meshes.push_back(new Mesh());
 		loadOBJ("Resource Files/OBJFiles/Misc/Debris/BoxContainer.obj", *m_meshes[int(PlanetMesh::COMET) + 3]);
@@ -235,7 +240,7 @@ void Scene::InitScene(int Prescore)
 {
 	//creating a new registry for the scene when initialised
 	if (m_sceneReg == nullptr)
-	m_sceneReg = new entt::registry();
+		m_sceneReg = new entt::registry();
 
 	//Giving the ECS the same registry as the current scene
 	GameObject::SetRegistry(m_sceneReg);
@@ -281,7 +286,7 @@ void Scene::InitFMOD()
 	//Bus
 	engine.LoadBus("Music", "{64e20265-cc94-4556-8628-c67fb15f5402}");
 	engine.LoadBus("BGM", "{b6953820-8992-4a3e-b540-c97560b8bb5f}");
-	
+
 
 	//Create event
 	AudioEvent& menuMusic = engine.CreateEvent("Main Menu", "{4c283484-756b-493b-95e2-731eec9e557f}");
@@ -309,10 +314,11 @@ Menu::Menu(std::string name, unsigned int* num, bool* change)
 
 void Menu::InitScene(int Prescore)
 {
+
 	//creating a new registry for the scene when initialised
-	if (m_sceneReg == nullptr) 
+	if (m_sceneReg == nullptr)
 		m_sceneReg = new entt::registry();
-	
+
 	//Giving the ECS the same registry as the current scene
 	GameObject::SetRegistry(m_sceneReg);
 
@@ -320,6 +326,7 @@ void Menu::InitScene(int Prescore)
 
 		auto cameraEntity = GameObject::Allocate();
 		cameraEntity->AttachComponent<Transform>();
+		entt::entity* camentity = new entt::entity(cameraEntity->GetID());
 		camera = &cameraEntity->AttachComponent<Camera>(int(cameraEntity->GetID()));
 		cameraEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 100.0f));
 
@@ -334,7 +341,7 @@ void Menu::InitScene(int Prescore)
 			engine.LoadBank("Master");
 			engine.LoadBus("Music", "{64e20265-cc94-4556-8628-c67fb15f5402}");
 			engine.LoadBus("BGM", "{b6953820-8992-4a3e-b540-c97560b8bb5f}");
-			
+
 			//Create event
 			AudioEvent& menuMusic = engine.CreateEvent("Main Menu", "{4c283484-756b-493b-95e2-731eec9e557f}");
 			AudioEvent& bgmMusic = engine.CreateEvent("BGM", "{f5fb466c-7e26-4fe4-9371-b846dc746337}");
@@ -349,24 +356,23 @@ void Menu::InitScene(int Prescore)
 
 		}
 		else if (m_name == "Game_Over") {
-		
 			std::unique_ptr<GameObject> m_score = GameObject::Allocate();
 			m_score->AttachComponent<Transform>().SetLocalPos(40, -27, 10);
 			m_score->AttachComponent<ScoreHandler>(m_score->GetComponent<Transform>().GetLocalPos(), m_textures[int(TextureType::SCORENUM)]).Add(Prescore);
 
 			auto loseScreen = GameObject::Allocate();
-			loseScreen->AttachComponent<Sprite2D>(m_textures[int(TextureType::GAMEOVER)], loseScreen->GetID(), 100, 100);
-			loseScreen->AttachComponent<Transform>().SetLocalPos(0, 0, -5);
-
+            loseScreen->AttachComponent<Sprite2D>(m_textures[int(TextureType::GAMEOVER)], loseScreen->GetID(), 100, 100);
+            loseScreen->AttachComponent<Transform>().SetLocalPos(0, 0, -5);
 		}
 		else if (m_name == "Win") {
+			std::unique_ptr<GameObject> m_score = GameObject::Allocate();
+			m_score->AttachComponent<Transform>().SetLocalPos(-30, -20, 10);
+			m_score->AttachComponent<ScoreHandler>(m_score->GetComponent<Transform>().GetLocalPos(), m_textures[int(TextureType::SCORENUM)]).Add(Prescore);
+
 			auto winScreen = GameObject::Allocate();
 			winScreen->AttachComponent<Sprite2D>(m_textures[int(TextureType::WIN)], winScreen->GetID(), 100, 100);
 			winScreen->AttachComponent<Transform>();
 
-			std::unique_ptr<GameObject> m_score = GameObject::Allocate();
-			m_score->AttachComponent<Transform>().SetLocalPos(-30, -20, 10);
-			m_score->AttachComponent<ScoreHandler>(m_score->GetComponent<Transform>().GetLocalPos(), m_textures[int(TextureType::SCORENUM)]).Add(Prescore);
 		}
 		else if (m_name == "Pause_Menu") {
 
@@ -406,7 +412,7 @@ void Menu::InitScene(int Prescore)
 				Oneclip.SetSecPerFrame(1.0);
 				anim.AddAnimation(Oneclip);
 				anim.SetActiveAnim(0);
-				 
+
 				Animation2D Twoclip;
 				Twoclip.AddFrame(UVS(glm::vec2(348, 50), glm::vec2(693, 1)));
 
@@ -441,6 +447,7 @@ void Menu::InitScene(int Prescore)
 				anim.AddAnimation(Twoclip);
 				anim.SetActiveAnim(0);
 
+
 				m_StartOrResume[2]->AttachComponent<Sprite2D>(m_textures[int(TextureType::EXIT)], m_StartOrResume[2]->GetID(), 10, 6, true, tempAnim);
 				m_StartOrResume[2]->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, -65, 10));
 			}
@@ -452,7 +459,7 @@ void Menu::InitScene(int Prescore)
 				m_StartOrResume[3]->AttachComponent<Sprite2D>(m_textures[int(TextureType::CONTROLSMENU)], m_StartOrResume[3]->GetID(), 100, 100);
 				m_StartOrResume[3]->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -10));
 			}
-		
+
 			auto background = GameObject::Allocate();
 			background->AttachComponent<Sprite2D>(m_textures[int(TextureType::BACKGROUND)], background->GetID(), 100, 100);
 			background->AttachComponent<Transform>().SetLocalPos(0, 0, -5);
@@ -479,7 +486,7 @@ void Menu::Update(float deltaTime)
 
 	if (isSceneSwitch)
 	{
-		musicEvent.SetParameter("Exit", 0);	
+		musicEvent.SetParameter("Exit", 0);
 	}
 
 	engine.Update();
@@ -503,11 +510,20 @@ int Menu::GetSceneScore()
 void Menu::KeyInput()
 {
 	// Scene Switching //
+	/*if (glfwGetKey(m_window, GLFW_KEY_0) == GLFW_PRESS) {
+		*switchIt = true;
+		*SceneNo = int(ScenesNum::START_SCREEN);
+	}*/
 	if (m_name == "Start_Screen" && glfwGetKey(m_window, GLFW_KEY_ENTER) == GLFW_PRESS) {
 		*switchIt = true;
 		*SceneNo = int(ScenesNum::UNIVERSE_19);
 		isSceneSwitch = true;
 	}
+	/*if (glfwGetKey(m_window, GLFW_KEY_2) == GLFW_PRESS) {
+		*switchIt = true;
+		*SceneNo = int(ScenesNum::UNIVERSE_27);
+	}*/
+
 
 	if (m_name == "Pause_Menu") {
 		if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -575,6 +591,7 @@ void Menu::KeyInput()
 
 void Menu::GamepadInput()
 {
+
 	if (gamepad.getGamepadInput()) {
 		//button input
 		if (gamepad.buttons.A) {
@@ -593,8 +610,10 @@ void Menu::GamepadInput()
 		//trigger input
 		//Left Trigger move forward
 		if (gamepad.trigger.LT > 0 && gamepad.trigger.LT < 1) {
-			
+			/*temp = glm::vec3(0, 0, -2);
+			playerEnt.MoveLocalPos(temp);*/
 		}
+
 		else if (gamepad.trigger.LT > -1 && gamepad.trigger.LT < 0) {
 
 		}
@@ -602,9 +621,11 @@ void Menu::GamepadInput()
 		if (gamepad.trigger.RT > 0 && gamepad.trigger.RT < 1) {
 
 		}
+
 		else if (gamepad.trigger.RT > -1 && gamepad.trigger.RT < 0) {
 
 		}
+
 
 		//Left Joystick rotate left
 		if (gamepad.axes[Joystick::LEFT].X > -0.1f && gamepad.axes[Joystick::LEFT].X > -0.33) {
@@ -615,6 +636,7 @@ void Menu::GamepadInput()
 		else if (gamepad.axes[Joystick::LEFT].X < -0.66) {
 
 		}
+
 
 		if (gamepad.axes[Joystick::LEFT].Y > 0 && gamepad.axes[Joystick::LEFT].Y < 1) {
 
@@ -674,55 +696,60 @@ void Universe::InitScene(int Prescore)
 	//engine.Init();
 	//engine.LoadBank("Master");
 
-	//Playershooting
-	engine.LoadBus("Playershooting", "{91ac6419-101f-49ef-b413-9e849b361ecc}");
-	AudioBus& playerShootingBus = engine.GetBus("Playershooting");
-	playerShootingBus.SetVolume(0.1);
+	if (!isFMODINIT)
+	{
+		//Playershooting
+		engine.LoadBus("Playershooting", "{91ac6419-101f-49ef-b413-9e849b361ecc}");
+		AudioBus& playerShootingBus = engine.GetBus("Playershooting");
+		playerShootingBus.SetVolume(0.1);
 
-	//Engine
-	engine.LoadBus("Engine", "{6b1d9408-d98a-4a5a-be17-8648864d619a}");
-	AudioBus& playerEngineBus = engine.GetBus("Engine");
-	playerEngineBus.SetVolume(0.01);
+		//Engine
+		engine.LoadBus("Engine", "{6b1d9408-d98a-4a5a-be17-8648864d619a}");
+		AudioBus& playerEngineBus = engine.GetBus("Engine");
+		playerEngineBus.SetVolume(0.01);
 
-	engine.LoadBus("Blink dodge", "{484066e7-2e58-4e83-9319-dad7fac4f3a9}");
-	AudioBus& blinkBus = engine.GetBus("Blink dodge");
-	//blinkBus.SetVolume(0.01);
+		engine.LoadBus("Blink dodge", "{484066e7-2e58-4e83-9319-dad7fac4f3a9}");
+		AudioBus& blinkBus = engine.GetBus("Blink dodge");
+		//blinkBus.SetVolume(0.01);
 
-	engine.LoadBus("Centipede", "{ad0a3379-c400-48c0-a55e-db508ea6dde3}");
-	AudioBus& centiBus = engine.GetBus("Centipede");
-	//centiBus.SetVolume(0.01);
+		engine.LoadBus("Centipede", "{ad0a3379-c400-48c0-a55e-db508ea6dde3}");
+		AudioBus& centiBus = engine.GetBus("Centipede");
+		//centiBus.SetVolume(0.01);
 
-	engine.LoadBus("Enemyshooting", "{d5290cc9-82d0-4f6a-8d04-35131e2696b0}");
-	AudioBus& enemyShootingBus = engine.GetBus("Enemyshooting");
-	enemyShootingBus.SetVolume(0.5);
+		engine.LoadBus("Enemyshooting", "{d5290cc9-82d0-4f6a-8d04-35131e2696b0}");
+		AudioBus& enemyShootingBus = engine.GetBus("Enemyshooting");
+		enemyShootingBus.SetVolume(0.5);
 
-	engine.LoadBus("Explosion", "{ffd81674-9e40-4812-ac01-5335642949d5}");
-	AudioBus& explosionBus = engine.GetBus("Explosion");
-	explosionBus.SetVolume(0.07);
+		engine.LoadBus("Explosion", "{ffd81674-9e40-4812-ac01-5335642949d5}");
+		AudioBus& explosionBus = engine.GetBus("Explosion");
+		explosionBus.SetVolume(0.07);
 
-	engine.LoadBus("Low HP", "{b22e3224-a5af-4b04-bd3d-3c80a1791e63}");
-	AudioBus& hpBus = engine.GetBus("Low HP");
-	//hpBus.SetVolume(0.01);
+		engine.LoadBus("Low HP", "{b22e3224-a5af-4b04-bd3d-3c80a1791e63}");
+		AudioBus& hpBus = engine.GetBus("Low HP");
+		//hpBus.SetVolume(0.01);
 
-	engine.LoadBus("Announcement", "{ec2bdc5c-fc91-4bfd-ab42-d2da9a4876d9}");
-	AudioBus& announcementBus = engine.GetBus("Announcement");
-	//announcementBus.SetVolume(0.01);
+		engine.LoadBus("Announcement", "{ec2bdc5c-fc91-4bfd-ab42-d2da9a4876d9}");
+		AudioBus& announcementBus = engine.GetBus("Announcement");
+		//announcementBus.SetVolume(0.01);
 
+		//Create event
+		AudioEvent& playershootSFX = engine.CreateEvent("Playershooting", "{355b48d6-9121-4ca3-9ae2-70bf11df03c0}");
+		AudioEvent& engineSFX = engine.CreateEvent("Engine", "{5988f7a2-021b-4a3e-a655-ff05f2eb2ee7}");
+		AudioEvent& blinkSFX = engine.CreateEvent("Blink Dodge", "{5182038f-722e-4afa-9591-8faa8e8818ff}");
+		AudioEvent& centipedeSFX = engine.CreateEvent("Centipede", "{cabe3bb6-0df5-4a0f-8115-4c8082bbd01e}");
+		AudioEvent& enemyshootSFX = engine.CreateEvent("Enemy Shooting", "{b0e036c8-617f-46ad-9852-a82c1a8677c1}");
+		AudioEvent& explosionSFX = engine.CreateEvent("Explosion", "{708794b1-3ece-4f4b-9a62-6dfbdca75b24}");
+		AudioEvent& lowHPSFX = engine.CreateEvent("Low HP", "{a8245ca6-16d7-4d55-a0a7-5e134671eaf3}");
+
+		AudioEvent& jellyannouncementSFX = engine.CreateEvent("JellyFishAnnouncement", "{b8b3e52d-5896-47ef-b992-fdb5ed0d5c17}");
+		AudioEvent& centiannouncementSFX = engine.CreateEvent("CentipedeAnnouncement", "{86b9f91a-3896-4529-8d61-2550a8944f93}");
+		AudioEvent& hiveannouncementSFX = engine.CreateEvent("HivemindAnnouncement", "{46667b7c-3a8d-43c3-bf42-6137ea78f24c}");
+		isFMODINIT = true;
+	}
 	AudioBus& bgmBus = engine.GetBus("BGM");
 	bgmBus.SetVolume(0.7);
 
-	//Create event
-	AudioEvent& playershootSFX = engine.CreateEvent("Playershooting", "{355b48d6-9121-4ca3-9ae2-70bf11df03c0}");
-	AudioEvent& engineSFX = engine.CreateEvent("Engine", "{5988f7a2-021b-4a3e-a655-ff05f2eb2ee7}");
-	AudioEvent& blinkSFX = engine.CreateEvent("Blink Dodge", "{5182038f-722e-4afa-9591-8faa8e8818ff}");
-	AudioEvent& centipedeSFX = engine.CreateEvent("Centipede", "{cabe3bb6-0df5-4a0f-8115-4c8082bbd01e}");
-	AudioEvent& enemyshootSFX = engine.CreateEvent("Enemy Shooting", "{b0e036c8-617f-46ad-9852-a82c1a8677c1}");
-	AudioEvent& explosionSFX = engine.CreateEvent("Explosion", "{708794b1-3ece-4f4b-9a62-6dfbdca75b24}");
-	AudioEvent& lowHPSFX = engine.CreateEvent("Low HP", "{a8245ca6-16d7-4d55-a0a7-5e134671eaf3}");
 
-	AudioEvent& jellyannouncementSFX = engine.CreateEvent("JellyFishAnnouncement", "{b8b3e52d-5896-47ef-b992-fdb5ed0d5c17}");
-	AudioEvent& centiannouncementSFX = engine.CreateEvent("CentipedeAnnouncement", "{86b9f91a-3896-4529-8d61-2550a8944f93}");
-	AudioEvent& hiveannouncementSFX = engine.CreateEvent("HivemindAnnouncement", "{46667b7c-3a8d-43c3-bf42-6137ea78f24c}");
 	//AudioEvent& bgmMusic = engine.CreateEvent("BGM", "{f5fb466c-7e26-4fe4-9371-b846dc746337}");
 	//Get reference to bus
 	//AudioBus& musicBus = engine.GetBus("Main Menu");
@@ -745,11 +772,12 @@ void Universe::InitScene(int Prescore)
 		auto playerEntity = GameObject::Allocate();
 		MainPlayerID = playerEntity->GetID();
 		playerEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
-		playerEntity->AttachComponent<DynamicRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS)], nullptr);
+		playerEntity->AttachComponent<DynamicRenderer>(cameraEntity->GetID(), MainPlayerID, *m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)], nullptr);
 		playerEntity->AttachComponent<EntityType>() = EntityType::PLAYER;
 		playerEntity->GetComponent<Transform>().SetLocalRot(0, 180, 0);
-		playerEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS)]->GetWidth() * 0.5, m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS)]->GetHeight(), m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS)]->GetDepth() * 0.5));
-		playerEntity->AttachComponent<MorphAnimController>(int(MainPlayerID)).SetFrames(m_meshes, int(PlayerMesh::PLAYERSHIPXWINGS), int(PlayerMesh::PLAYERSHIPXWINGE), false);
+		playerEntity->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetWidth() * 0.5, m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetHeight(), m_meshes[int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/)]->GetDepth() * 0.5));
+
+		playerEntity->AttachComponent<MorphAnimController>(int(MainPlayerID)).SetFrames(m_meshes, int(PlayerMesh::PLAYERSHIPXWINGS/*EnemyMesh::SCAVENGERU1S*/), int(PlayerMesh::PLAYERSHIPXWINGE/*EnemyMesh::SCAVENGERU1E*/), false);
 
 		//Player Thrusters
 		//Left - 0
@@ -757,7 +785,7 @@ void Universe::InitScene(int Prescore)
 		particleTemp = new ParticleController(1, glm::vec3(playerPos.x - 0.6, playerPos.y - 0.0, playerPos.z + 2.2f), m_textures[int(TextureType::FIRE)], MainPlayerID);
 		particleTemp->getEmitter()->setRadius(0.3);
 		particleTemp->getEmitter()->setLifetime(0.1f, 1.5f);
-		particleTemp->getEmitter()->setSpeed(2);	
+		particleTemp->getEmitter()->setSpeed(2);
 		particleTemp->getEmitter()->init();
 		particles.push_back(particleTemp);
 		//Center Right - 1
@@ -770,13 +798,14 @@ void Universe::InitScene(int Prescore)
 		glm::vec3 tempv3 = glm::vec3(120, 0, 2400);
 		GameObject::GetComponent<Transform>(MainPlayerID).MoveLocalPos(tempv3);
 
+
 		//HUD
 		auto healthent = GameObject::Allocate();
 		health = healthent->GetID();
 		auto* tempAnim = &healthent->AttachComponent<AnimationHandler>();
 		auto* anim = &healthent->GetComponent<AnimationHandler>();
 		anim->InitUVS(m_textures[0]);
-		
+
 		Animation2D Oneclip;
 		Oneclip.AddFrame(UVS(glm::vec2(1, 235), glm::vec2(235, 1)));
 		Oneclip.SetIsRepeating(false);
@@ -797,6 +826,10 @@ void Universe::InitScene(int Prescore)
 		Oneclip.Clear();
 
 		Oneclip.AddFrame(UVS(glm::vec2(706, 235), glm::vec2(939, 1)));
+		/*Oneclip.AddFrame(UVS(glm::vec2(1, 235), glm::vec2(235, 1)));
+		Oneclip.AddFrame(UVS(glm::vec2(236, 235), glm::vec2(470, 1)));
+		Oneclip.AddFrame(UVS(glm::vec2(471, 235), glm::vec2(705, 1)));
+		Oneclip.AddFrame(UVS(glm::vec2(706, 235), glm::vec2(939, 1)));*/
 
 		Oneclip.SetIsRepeating(false);
 		Oneclip.SetSecPerFrame(1.0);
@@ -819,15 +852,13 @@ void Universe::InitScene(int Prescore)
 
 		// Effects
 		BufferEntity = GameObject::Allocate();
-		BufferEntity->AttachComponent<FrameBuffer>().AddDepthTarget();
-		BufferEntity->GetComponent<FrameBuffer>().Init(4096, 4096, true);
 		BufferEntity->AttachComponent<PostEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 		BufferEntity->AttachComponent<PixelationEffect>().Init(Application::GetWindowWidth(), Application::GetWindowHeight());
 
 		AudioEngine& engine = AudioEngine::Instance();
 		AudioEvent& musicEvent = engine.GetEvent("BGM");
 		AudioEvent& playerEngineEvent = engine.GetEvent("Engine");
-		
+
 		musicEvent.Play();
 		playerEngineEvent.Play();
 
@@ -839,7 +870,7 @@ void Universe::InitScene(int Prescore)
 
 			isSceneSwitch = false;
 
-		
+
 
 			// Solar System Centerpoint
 			auto SVCEntity = GameObject::Allocate();
@@ -872,10 +903,11 @@ void Universe::InitScene(int Prescore)
 			lavaPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 750));
 			lavaPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), lavaPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::VERASTEN)], nullptr);
 			lavaPlanetEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::VERASTEN)]->GetWidth() / 2));
-			
+
 			//Comet
 			auto Cometent = GameObject::Allocate();
 			CometID = Cometent->GetID();
+			//Cometent->AttachComponent<Transform>().SetLocalPos(glm::vec3(-12000, 2500, 6000));
 			Cometent->AttachComponent<Transform>().SetLocalScale(glm::vec3(40, 40, 40));
 			Cometent->AttachComponent<StaticRenderer>(cameraEntity->GetID(), Cometent->GetID(), *m_meshes[int(PlanetMesh::COMET)], m_textures[int(TextureType::COMET)], true);
 			auto& cometPos = Cometent->GetComponent<Transform>().GetLocalPos();
@@ -897,14 +929,14 @@ void Universe::InitScene(int Prescore)
 			desertPlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(1500, 0, 0));
 			desertPlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), desertPlanetEntity->GetID(), *m_meshes[int(PlanetMesh::YECHIN)], nullptr);
 			desertPlanetEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::YECHIN)]->GetWidth() / 2));
-			
+
 			// Kerantia
 			auto homePlanetEntity = GameObject::Allocate();
 			m_solarSystem.push_back(homePlanetEntity->GetID());
 			homePlanetEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, -2250));
 			homePlanetEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), homePlanetEntity->GetID(), *m_meshes[int(PlanetMesh::KERANTIA)], nullptr);
 			homePlanetEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::KERANTIA)]->GetWidth() / 2));
-			
+
 			// Lunari
 			auto moonEntity = GameObject::Allocate();
 			MoonID = moonEntity->GetID();
@@ -1006,7 +1038,7 @@ void Universe::InitScene(int Prescore)
 				enemy->AttachComponent<StaticRenderer>(cameraEntity->GetID(), enemy->GetID(), *m_meshes[int(EnemyMesh::BOMBARDIER)], nullptr);
 				enemy->GetComponent<Transform>().SetWHD(glm::vec3(m_meshes[int(EnemyMesh::BOMBARDIER)]->GetWidth(), m_meshes[int(EnemyMesh::BOMBARDIER)]->GetHeight(), m_meshes[int(EnemyMesh::BOMBARDIER)]->GetDepth()));
 			}
-			
+
 			//Asteroids
 			{
 				//Asteroid belt
@@ -1017,7 +1049,7 @@ void Universe::InitScene(int Prescore)
 				//asteroidBelt->GetComponent<Transform>();
 				asteroidBelt->AttachComponent<StaticRenderer>(cameraEntity->GetID(), asteroidBelt->GetID(), *m_meshes[int(PlanetMesh::COMET) + 4], nullptr);
 				asteroidBelt->GetComponent<Transform>().SetParent(&m_solarSystem[Universe19SS::SVC]);
-					
+
 				//Asteroid Clusters
 				auto cluster1 = GameObject::Allocate();
 				cluster1->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
@@ -1072,7 +1104,7 @@ void Universe::InitScene(int Prescore)
 			for (int i = 0; i <= 50; i++) {
 				auto debris = GameObject::Allocate();
 				Transform refrence;
-				
+
 				if (i <= 10)
 				{
 					//Barrel top
@@ -1277,6 +1309,7 @@ void Universe::InitScene(int Prescore)
 				AsteroidBeltID = asteroidBelt->GetID();
 				asteroidBelt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
 				asteroidBelt->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				//asteroidBelt->GetComponent<Transform>();
 				asteroidBelt->AttachComponent<StaticRenderer>(cameraEntity->GetID(), asteroidBelt->GetID(), *m_meshes[int(PlanetMesh::COMET) + 14], nullptr);
 				asteroidBelt->GetComponent<Transform>().SetParent(&m_solarSystem[Universe27SS::LDMC]);
 
@@ -1374,7 +1407,7 @@ void Universe::InitScene(int Prescore)
 			}
 		}
 		else if (m_name == "Universe_5") {
-		HiveMindBoss::Init();
+			HiveMindBoss::Init();
 			m_SceneResumeNo = int(ScenesNum::UNIVERSE_5);
 
 			//m_meshes.push_back(new Mesh());
@@ -1402,6 +1435,7 @@ void Universe::InitScene(int Prescore)
 			auto WhitePCEntity = GameObject::Allocate();
 			m_solarSystem.push_back(WhitePCEntity->GetID());
 			WhitePCEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
+
 
 			// Ra'lei - Black Hole/Sun
 			auto sunEntity = GameObject::Allocate();
@@ -1516,6 +1550,7 @@ void Universe::InitScene(int Prescore)
 				AsteroidBeltID = asteroidBelt->GetID();
 				asteroidBelt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
 				asteroidBelt->GetComponent<Transform>().SetLocalScale(glm::vec3(50, 50, 50));
+				//asteroidBelt->GetComponent<Transform>();
 				asteroidBelt->AttachComponent<StaticRenderer>(cameraEntity->GetID(), asteroidBelt->GetID(), *m_meshes[int(PlanetMesh::COMET) + 23], nullptr);
 				asteroidBelt->GetComponent<Transform>().SetParent(&m_solarSystem[Universe5SS::RDKC]);
 
@@ -1612,11 +1647,13 @@ void Universe::InitScene(int Prescore)
 				}
 			}
 		}
-		
+
 		//Setting Parent/Childe
 		cameraEntity->GetComponent<Transform>().SetParent(new entt::entity(playerEntity->GetID()));
 		healthent->GetComponent<Transform>().SetParent(camentity);
 		score->GetComponent<Transform>().SetParent(camentity);
+
+
 	}
 
 	Skybox::Init(m_name);
@@ -1629,9 +1666,9 @@ void Universe::Update(float deltaTime)
 
 		if (intensity >= 1.0) {
 			*switchIt = true;
-		
+
 			if (m_SceneResumeNo == int(ScenesNum::UNIVERSE_19))
-			*SceneNo = int(ScenesNum::UNIVERSE_27);
+				*SceneNo = int(ScenesNum::UNIVERSE_27);
 
 			else if (m_SceneResumeNo == int(ScenesNum::UNIVERSE_27))
 				*SceneNo = int(ScenesNum::UNIVERSE_5);
@@ -1659,8 +1696,10 @@ void Universe::Update(float deltaTime)
 		// Camera Update 
 		camera->Update();
 
-		// Solar System Rotation
+		// Solar System Rotation (IN-PROGRESS) 
 		SolarSystemUpdate();
+
+		//playerController->Update(deltaTime);
 
 		//Particle
 		for (int i = 0; i <= particles.size() - 1; i++)
@@ -1679,9 +1718,11 @@ void Universe::Update(float deltaTime)
 		m_sceneReg->view<AnimationHandler>().each([=](AnimationHandler& anim) { anim.Update(deltaTime); });
 		m_sceneReg->view<MorphAnimController>().each([=](MorphAnimController& anim) { anim.Update(deltaTime); });
 
-		#pragma region Collision
+		//particles[2]->update(deltaTime, camera->GetProj(), camera->GetView(), glm::mat4(1));
 
-		//Enemy collisions with the player as well as bullets
+#pragma region Collision
+
+//Enemy collisions with the player as well as bullets
 		std::vector<BasicAI*> AI;
 		for (auto enemy : m_sceneReg->view<EntityType>()) {
 			int index = AI.size();
@@ -1730,6 +1771,7 @@ void Universe::Update(float deltaTime)
 				AI.push_back(&GameObject::GetComponent<BombardierAI>(enemy));
 				AI[index]->Update(deltaTime);
 			}
+
 			else if (type == EntityType::KAMIBULLET) {
 				GameObject::GetComponent<KamakaziBullet>(enemy).Update(deltaTime);
 
@@ -1758,7 +1800,7 @@ void Universe::Update(float deltaTime)
 						explosionEvent.Play();
 					}
 				}
-				else if(isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
+				else if (isBoxCollide(GameObject::GetComponent<Transform>(enemy), GameObject::GetComponent<Transform>(MainPlayerID))) {
 					particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
 					particleTemp->setSize(10);
 					particleTemp->getEmitter()->setLifetime(0.2, 0.2);
@@ -1786,6 +1828,7 @@ void Universe::Update(float deltaTime)
 					GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
 				}
 			}
+
 			else if (type == EntityType::JELLY) {
 				AI.push_back(&GameObject::GetComponent<JellyFishBoss>(enemy));
 				AI[index]->Update(deltaTime);
@@ -1802,6 +1845,7 @@ void Universe::Update(float deltaTime)
 					m_arrowTotheBoss->GetComponent<Transform>().SetLocalRot(rotationvector);
 				}
 			}
+
 			else if (type == EntityType::CENTIPEDE) {
 				AI.push_back(&GameObject::GetComponent<CentipedeBoss>(enemy));
 				AI[index]->Update(deltaTime);
@@ -1817,10 +1861,12 @@ void Universe::Update(float deltaTime)
 
 					m_arrowTotheBoss->GetComponent<Transform>().SetLocalRot(rotationvector);
 				}
+
 			}
+
 			else if (type == EntityType::HIVEMIND) {
 				AI.push_back(&GameObject::GetComponent<HiveMindBoss>(enemy));
-				
+
 				if (GameObject::GetComponent<HiveMindBoss>(enemy).Phases() == 0 && m_isBossDead)
 				{
 					GameObject::GetComponent<HiveMindBoss>(enemy).JellyFishDefeated();
@@ -1899,7 +1945,7 @@ void Universe::Update(float deltaTime)
 				}
 
 				else if (GameObject::GetComponent<HiveMindBoss>(enemy).Phases() == 1 && !GameObject::GetComponent<HiveMindBoss>(enemy).m_CentipedeSpawned) {
-					
+
 					auto Centipede = GameObject::Allocate();
 					Centipede->AttachComponent<CentipedeBoss>().SetBulletMesh(m_meshes[int(PlayerMesh::PLAYERBULLET)]);
 					Centipede->GetComponent<CentipedeBoss>().Init(Centipede->GetID(), MainPlayerID);
@@ -1932,6 +1978,7 @@ void Universe::Update(float deltaTime)
 
 					m_arrowTotheBoss->GetComponent<Transform>().SetLocalRot(rotationvector);
 				}
+
 			}
 		}
 
@@ -1942,6 +1989,8 @@ void Universe::Update(float deltaTime)
 
 		//Bullet and enemy collision update
 		for (auto Bulletentity : m_sceneReg->view<Projectile>()) {
+
+
 			GameObject::GetComponent<Projectile>(Bulletentity).Update(deltaTime);
 
 			if (GameObject::GetComponent<Projectile>(Bulletentity).GetDestroyed()) {
@@ -1955,6 +2004,7 @@ void Universe::Update(float deltaTime)
 					EntityType type = GameObject::GetComponent<EntityType>(enemy);
 					if (isBoxCollide(GameObject::GetComponent<Transform>(Bulletentity), GameObject::GetComponent<Transform>(AI[i]->GetID())))
 					{
+
 						if (type == EntityType::KAMIKAZI)
 						{
 							particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
@@ -2065,7 +2115,7 @@ void Universe::Update(float deltaTime)
 								}
 							}
 							if (GameObject::GetComponent<JellyFishBoss>(enemy).m_health <= 0) {
-								
+
 								if (m_name == "Universe_19") {
 									auto tempEnt = GameObject::Allocate();
 									tempEnt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
@@ -2084,9 +2134,9 @@ void Universe::Update(float deltaTime)
 									glm::vec3 tempv3 = GameObject::GetComponent<Transform>(enemy).GetLocalPos() + glm::vec3(0, 30, 0);
 									GameObject::GetComponent<Transform>(PortalID).MoveLocalPos(tempv3);
 
-									
+
 								}
-								
+
 								m_isBossDead = true;
 
 								m_sceneReg->destroy(enemy);
@@ -2094,17 +2144,15 @@ void Universe::Update(float deltaTime)
 							}
 						}
 						else if (type == EntityType::CENTIPEDE) {
-							if (!GameObject::GetComponent<CentipedeBoss>(enemy).m_isImmune) {
-								GameObject::GetComponent<CentipedeBoss>(enemy).m_health--;
+							GameObject::GetComponent<CentipedeBoss>(enemy).m_health--;
 
-								particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
-								particleTemp->setSize(10);
-								particleTemp->getEmitter()->setLifetime(0.3, 0.3);
-								particleTemp->getEmitter()->setSpeed(100);
-								particleTemp->getEmitter()->init();
-								particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
-								particles.push_back(particleTemp);
-							}
+							particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+							particleTemp->setSize(10);
+							particleTemp->getEmitter()->setLifetime(0.3, 0.3);
+							particleTemp->getEmitter()->setSpeed(100);
+							particleTemp->getEmitter()->init();
+							particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
+							particles.push_back(particleTemp);
 
 							AudioEngine& engine = AudioEngine::Instance();
 							//Create event
@@ -2118,7 +2166,7 @@ void Universe::Update(float deltaTime)
 								explosionEvent.Play();
 							}
 							if (GameObject::GetComponent<CentipedeBoss>(enemy).m_health <= 0) {
-							
+
 								if (m_name == "Universe_27") {
 									auto tempEnt = GameObject::Allocate();
 									tempEnt->AttachComponent<Transform>().SetLocalPos(glm::vec3(0, 0, 0));
@@ -2143,20 +2191,20 @@ void Universe::Update(float deltaTime)
 								m_sceneReg->destroy(enemy);
 								AI.erase(AI.begin() + i);
 							}
+
+
 						}
 
 						else if (type == EntityType::HIVEMIND) {
-							if (!GameObject::GetComponent<HiveMindBoss>(enemy).m_isImmune) {
-								GameObject::GetComponent<HiveMindBoss>(enemy).m_health--;
+							GameObject::GetComponent<HiveMindBoss>(enemy).m_health--;
 
-								particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
-								particleTemp->setSize(10);
-								particleTemp->getEmitter()->setLifetime(0.3, 0.3);
-								particleTemp->getEmitter()->setSpeed(100);
-								particleTemp->getEmitter()->init();
-								particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
-								particles.push_back(particleTemp);
-							}
+							particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+							particleTemp->setSize(10);
+							particleTemp->getEmitter()->setLifetime(0.3, 0.3);
+							particleTemp->getEmitter()->setSpeed(100);
+							particleTemp->getEmitter()->init();
+							particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
+							particles.push_back(particleTemp);
 
 							AudioEngine& engine = AudioEngine::Instance();
 							//Create event
@@ -2170,7 +2218,7 @@ void Universe::Update(float deltaTime)
 								explosionEvent.Play();
 							}
 							if (GameObject::GetComponent<HiveMindBoss>(enemy).m_health <= 0) {
-								
+
 								m_isBossDead = true;
 								m_sceneReg->destroy(enemy);
 								AI.erase(AI.begin() + i);
@@ -2194,9 +2242,18 @@ void Universe::Update(float deltaTime)
 					GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
 				}
 			}
+
 		}
 
 		if (m_name == "Universe_19") {
+			////collisions of player with planets
+			//for (int i = Universe19SS::SOLARI; i <= Universe19SS::KEMINTH; i++) {
+			//	if (isBoxCircleCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(m_solarSystem[i]))) {
+			//		m_PlayerHealth = 0;
+			//		GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+			//	}
+			//}
+
 			if (m_isBossDead)
 			{
 				if (isBoxCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(PortalID)))
@@ -2275,7 +2332,7 @@ void Universe::Update(float deltaTime)
 					jellyEntity->GetComponent<Transform>().SetRadius((jellyEntity->GetComponent<JellyFishBoss>().m_meshes[0]->GetWidth() * 3) / 2);
 					jellyEntity->AttachComponent<EntityType>() = EntityType::JELLY;
 
-					m_isBossSpawn = true; 
+					m_isBossSpawn = true;
 				}
 
 				//arrow to direct to the boss
@@ -2290,6 +2347,14 @@ void Universe::Update(float deltaTime)
 
 		else if (m_name == "Universe_27")
 		{
+			////collisions of player with planets
+			//for (int i = Universe27SS::LUTERO; i <= Universe27SS::MEGAANTU; i++) {
+			//	if (isBoxCircleCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(m_solarSystem[i]))) {
+			//		m_PlayerHealth = 0;
+			//		GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
+			//	}
+			//}
+
 			if (m_isBossDead)
 			{
 				if (isBoxCollide(GameObject::GetComponent<Transform>(MainPlayerID), GameObject::GetComponent<Transform>(PortalID)))
@@ -2328,18 +2393,10 @@ void Universe::Update(float deltaTime)
 				Centipede->AttachComponent<EntityType>() = EntityType::CENTIPEDE;
 
 				m_isBossSpawn = true;
-
-				//arrow to direct to the boss
-				{
-					m_arrowTotheBoss = GameObject::Allocate();
-
-					m_arrowTotheBoss->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
-					m_arrowTotheBoss->AttachComponent<StaticRenderer>(CamID, m_arrowTotheBoss->GetID(), *m_meshes[int(PlanetMesh::ARROW)], nullptr);
-				}
 			}
 		}
 
-		else if (m_name == "Universe_5") 
+		else if (m_name == "Universe_5")
 		{
 			////collisions of player with planets
 			//for (int i = Universe5SS::RALEI; i <= Universe5SS::WHITEP; i++) {
@@ -2375,18 +2432,12 @@ void Universe::Update(float deltaTime)
 				HiveMind->AttachComponent<EntityType>() = EntityType::HIVEMIND;
 
 				m_isBossSpawn = true;
-
-				//arrow to direct to the boss
-				{
-					m_arrowTotheBoss = GameObject::Allocate();
-
-					m_arrowTotheBoss->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
-					m_arrowTotheBoss->AttachComponent<StaticRenderer>(CamID, m_arrowTotheBoss->GetID(), *m_meshes[int(PlanetMesh::ARROW)], nullptr);
-				}
 			}
+
+
 		}
 
-		#pragma endregion
+#pragma endregion
 
 		if (m_PlayerHealth == 1)
 		{
@@ -2397,30 +2448,22 @@ void Universe::Update(float deltaTime)
 
 			hp.Play();
 		}
-
-		#pragma region Shadows
-		shadowProjection = glm::perspective(glm::radians(90.0f), Application::GetWindowWidth() / Application::GetWindowHeight(), 0.1f, 1000.0f);
-		shadowTransformations[0] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
-		shadowTransformations[1] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0));
-		shadowTransformations[2] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0));
-		shadowTransformations[3] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0));
-		shadowTransformations[4] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0));
-		shadowTransformations[5] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0));
-		#pragma endregion
 	}
+
 }
 
 void Universe::Render(float deltaTime)
 {
-	BufferEntity->GetComponent<FrameBuffer>().Clear();
 	BufferEntity->GetComponent<PostEffect>().Clear();
 	BufferEntity->GetComponent<PixelationEffect>().Clear();
 
-	if (isTransitionActive) {
+	if (isTransitionActive)
+	{
+
 		// Basic Effect //
 		BufferEntity->GetComponent<PostEffect>().BindBuffer(0);
 		{
-			m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) {	renderer.Draw(); });
+			m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) { renderer.Draw(); });
 			m_sceneReg->view<DynamicRenderer>().each([=](DynamicRenderer& renderer) { renderer.Draw(); });
 
 			Skybox::Draw(camera->GetView(), camera->GetProj());
@@ -2435,13 +2478,18 @@ void Universe::Render(float deltaTime)
 		}
 		BufferEntity->GetComponent<PostEffect>().UnbindBuffer();
 
-		// Framebuffer Draw //
-		BufferEntity->GetComponent<PixelationEffect>().SetIntensity(intensity);
-		BufferEntity->GetComponent<PixelationEffect>().ApplyEffect(&BufferEntity->GetComponent<PostEffect>());
-		BufferEntity->GetComponent<PixelationEffect>().DrawToScreen();
+		if (isTransitionActive) {
+			BufferEntity->GetComponent<PixelationEffect>().SetIntensity(intensity);
+			BufferEntity->GetComponent<PixelationEffect>().ApplyEffect(&BufferEntity->GetComponent<PostEffect>());
+			BufferEntity->GetComponent<PixelationEffect>().DrawToScreen();
+		}
+		else {
+			BufferEntity->GetComponent<PostEffect>().DrawToScreen();
+		}
 	}
-	else {
-		m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) {	renderer.Draw(); });
+	else
+	{
+		m_sceneReg->view<StaticRenderer>().each([=](StaticRenderer& renderer) { renderer.Draw(); });
 		m_sceneReg->view<DynamicRenderer>().each([=](DynamicRenderer& renderer) { renderer.Draw(); });
 
 		Skybox::Draw(camera->GetView(), camera->GetProj());
@@ -2466,33 +2514,6 @@ void Universe::KeyInput()
 		*SceneNo = int(ScenesNum::PAUSE_MENU);
 	}
 
-
-	/*if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS)
-	{
-		m_PlayerHealth = 3;
-		GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
-	}*/
-
-	// Scene Switching //
-	/*if (glfwGetKey(m_window, GLFW_KEY_0) == GLFW_PRESS) {
-		*switchIt = true;
-		*SceneNo = int(ScenesNum::START_SCREEN);
-	}
-	if (glfwGetKey(m_window, GLFW_KEY_1) == GLFW_PRESS) {
-		*switchIt = true;
-		*SceneNo = int(ScenesNum::UNIVERSE_19);
-
-		isSceneSwitch = true;
-	}
-	if (glfwGetKey(m_window, GLFW_KEY_2) == GLFW_PRESS) {
-		*switchIt = true;
-		*SceneNo = int(ScenesNum::UNIVERSE_27);
-	}
-	if (glfwGetKey(m_window, GLFW_KEY_3) == GLFW_PRESS) {
-		*switchIt = true;
-		*SceneNo = int(ScenesNum::UNIVERSE_5);
-	}*/
-
 	// Player Movement //
 	auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
 	auto& camEnt = GameObject::GetComponent<Transform>(CamID);
@@ -2501,6 +2522,8 @@ void Universe::KeyInput()
 
 	if (!isDodge)
 	{
+
+
 		if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS)
 		{
 			temp = glm::vec3(0, 0, -4);
@@ -2523,19 +2546,9 @@ void Universe::KeyInput()
 		}
 		else if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
 		{
-			if (isWingOpen && !GameObject::GetComponent<MorphAnimController>(MainPlayerID).getAnimate())
-			{
-				GameObject::GetComponent<MorphAnimController>(MainPlayerID).SetAnimate(true);
-				isPlayerAnim = true;
-				isWingOpen = false;
-			}
-		}
-		/*else if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		{
 			temp = glm::vec3(0, 0, 4);
 			playerEnt.MoveLocalPos(temp);
-		}*/
-
+		}
 		if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		{
 			temp = glm::vec3(0.0f, 2.5f, 0.0f);
@@ -2546,6 +2559,7 @@ void Universe::KeyInput()
 			temp = glm::vec3(0.0f, -2.5f, 0.0f);
 			playerEnt.RotateLocal(temp);
 		}
+
 	}
 	else if (isDodge)
 	{
@@ -2576,7 +2590,6 @@ void Universe::KeyInput()
 		temp = glm::vec3(10 * tempDir, 0, 0);
 		playerEnt.MoveLocalPos(temp);
 	}
-
 	if (dodgeCount < 0)
 	{
 		dodgeCount = 0.5;
@@ -2605,6 +2618,7 @@ void Universe::KeyInput()
 		isDodge = true;
 	}
 
+
 	if (glfwGetKey(m_window, GLFW_KEY_F) == GLFW_PRESS && !isRotate)
 	{
 		glm::vec3 temp = glm::vec3(0, 180, 0);
@@ -2620,33 +2634,25 @@ void Universe::KeyInput()
 		camEnt.SetLocalPos(temp);
 		isRotate = false;
 	}
-	
-	
+
+
 	if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
+
 		if (glfwGetTime() - m_startTime >= m_fireRate) {
-			// Shoot Bullet Right
-			
-			//Setup FMOD
-			
-			
-			//engine.Init();
-			//engine.LoadBank("Master");
-			//engine.LoadBus("Playershooting", "{91ac6419-101f-49ef-b413-9e849b361ecc}");
-			//engine.LoadBus("BGM", "{b6953820-8992-4a3e-b540-c97560b8bb5f}");
 
 			//Create event
 			AudioEvent& shoot = engine.GetEvent("Playershooting");
 
 
-			if(!shoot.isPlaying())
+			if (!shoot.isPlaying())
 				shoot.Play();
 			else
 			{
 				shoot.Stop();
 				shoot.Play();
 			}
-			
+
 			auto RightBullet = GameObject::Allocate();
 			RightBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), RightBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(RightBullet->GetID());
 			RightBullet->GetComponent<Projectile>().SetSpeed(500);
@@ -2656,7 +2662,7 @@ void Universe::KeyInput()
 			RightBullet->GetComponent<Transform>().MoveLocalPos(offset1);
 			RightBullet->GetComponent<Transform>().SetLocalScale(glm::vec3(3));
 
-            // Shoot Bullet Left
+			// Shoot Bullet Left
 			auto LeftBullet = GameObject::Allocate();
 			LeftBullet->AttachComponent<Projectile>(&MainPlayerID, entt::entity(0), LeftBullet.get(), *m_meshes[int(PlayerMesh::PLAYERBULLET)]).SetID(LeftBullet->GetID());
 			LeftBullet->GetComponent<Projectile>().SetSpeed(500);
@@ -2684,6 +2690,8 @@ void Universe::KeyInput()
 	if (glfwGetKey(m_window, GLFW_KEY_T) == GLFW_RELEASE) {
 		texTglPressed = false;
 	}
+
+	engine.Update();
 }
 
 void Universe::GamepadInput()
@@ -2694,6 +2702,7 @@ void Universe::GamepadInput()
 		auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
 		auto& camEnt = GameObject::GetComponent<Transform>(CamID);
 		glm::vec3 temp;
+
 
 		if (gamepad.getGamepadInput()) {
 			//button input
@@ -2709,12 +2718,11 @@ void Universe::GamepadInput()
 					tempDir = -1;
 					isDodge = true;
 				}
-
 				if (gamepad.axes[Joystick::LEFT].X > 0.17f)
 				{
 					tempDir = 1;
 					isDodge = true;
-				}			
+				}
 			}
 			else if (gamepad.buttons.Y) {
 
@@ -2724,6 +2732,7 @@ void Universe::GamepadInput()
 			{
 				//Left Trigger LOOK BACK
 				{
+
 					if (gamepad.trigger.LT >= -1 && gamepad.trigger.LT < -0.8) {
 						glm::vec3 temp = glm::vec3(0, 0, 0);
 						camEnt.SetLocalRot(temp);
@@ -2739,10 +2748,12 @@ void Universe::GamepadInput()
 						camEnt.SetLocalPos(temp);
 						isRotate = true;
 					}
+
 				}
 
 				//Right Trigger SHOOTING
 				{
+
 					if (gamepad.trigger.RT > -0.8) {
 						if (glfwGetTime() - m_startTime >= m_fireRate) {
 
@@ -2871,11 +2882,12 @@ void Universe::GamepadInput()
 						}
 					}
 
+
 					particles[ParticleName::PLAYER_CENTER_LEFT]->getEmitter()->setSpeed(tempSpeed);
 					particles[ParticleName::PLAYER_CENTER_RIGHT]->getEmitter()->setSpeed(tempSpeed);
 				}
 			}
-			else if(isDodge)
+			else if (isDodge)
 			{
 				if (dodgeCount == 0.5)
 				{
@@ -2903,17 +2915,21 @@ void Universe::GamepadInput()
 				dodgeCount -= m_deltaTime;
 				temp = glm::vec3(10 * tempDir, 0, 0);
 				playerEnt.MoveLocalPos(temp);
-			}
 
+
+
+
+			}
 			if (dodgeCount < 0)
 			{
 				dodgeCount = 0.5;
 				isDodge = false;
 			}
+
 		}
 	}
-	else
-		std::cout << "No controller connected" << std::endl;
+	//else
+	//	std::cout << "No controller connected" << std::endl;
 }
 
 void Universe::SolarSystemUpdate() {
@@ -2931,12 +2947,12 @@ void Universe::SolarSystemUpdate() {
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe19SS::SVC]).RotateLocal(verastenOrbit);
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe19SS::SYC]).RotateLocal(yechinOrbit);
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe19SS::SKRC]).RotateLocal(kerantiaOrbit);
-		GameObject::GetComponent<Transform>(m_solarSystem[Universe19SS::SGC]).RotateLocal(gueristisOrbit); 
+		GameObject::GetComponent<Transform>(m_solarSystem[Universe19SS::SGC]).RotateLocal(gueristisOrbit);
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe19SS::SKEC]).RotateLocal(keminthOrbit);
 
 		GameObject::GetComponent<Transform>(AsteroidBeltID).RotateLocal(asteroidOrbit);
 		GameObject::GetComponent<Transform>(CometID).MoveLocalPos(cometVelocity);
-		
+
 	}
 	else if (m_name == "Universe_27") {
 		// Rotation
@@ -2948,7 +2964,7 @@ void Universe::SolarSystemUpdate() {
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe27SS::DERANGI]).RotateLocal(planetRotation);
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe27SS::RHETOID]).RotateLocal(planetRotation);
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe27SS::MEGAANTU]).RotateLocal(planetRotation);
-	
+
 		// Orbit
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe27SS::LDMC]).RotateLocal(moonOrbit);
 		GameObject::GetComponent<Transform>(m_solarSystem[Universe27SS::LDRC]).RotateLocal(verastenOrbit);
@@ -3005,8 +3021,8 @@ bool Universe::isBoxCollide(Transform Obj1, Transform Obj2)
 
 bool Universe::isBoxCircleCollide(Transform objBox, Transform objCircle)
 {
-	bool collisionX = objBox.GetLocalPos().x + objBox.GetWHD().x >= objCircle.GetLocalPos().x 
-		&& objCircle.GetLocalPos().x + objCircle.GetRadius()>=objBox.GetLocalPos().x;
+	bool collisionX = objBox.GetLocalPos().x + objBox.GetWHD().x >= objCircle.GetLocalPos().x
+		&& objCircle.GetLocalPos().x + objCircle.GetRadius() >= objBox.GetLocalPos().x;
 
 	bool collisionZ = objBox.GetLocalPos().z + objBox.GetWHD().z >= objCircle.GetLocalPos().z
 		&& objCircle.GetLocalPos().z + objCircle.GetRadius() >= objBox.GetLocalPos().z;
