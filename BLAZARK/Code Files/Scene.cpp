@@ -4,7 +4,7 @@
 int Universe::m_PlayerHealth = 0;
 entt::entity Universe::health = entt::entity(0);
 
-enum class TextureType { START = 3 , RESUME, CONTROLS, EXIT, BACKGROUND, CONTROLSMENU, GAMEOVERLOSE, SCORE, SCORENUM, COMET, FIRE, BLINK, YELLOW, ORANGE, SKY27, SKY5};
+enum class TextureType { START = 3 , RESUME, CONTROLS, EXIT, BACKGROUND, CONTROLSMENU, GAMEOVER, WIN, SCORE, SCORENUM, COMET, FIRE, BLINK, YELLOW, ORANGE, SKY27, SKY5};
 
 enum class PlayerMesh { PLAYERSHIPXWINGS, PLAYERSHIPXWINGE = 2, PLAYERSHIPPENCIL, PLAYERSHIPBAT, PLAYERBULLET };
 
@@ -77,6 +77,7 @@ Scene::Scene(std::string name)
 		m_textures.push_back(new Texture("Resource Files/Textures/Menu/Pause_Menu_Background.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/Menu/Controls.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/Menu/Game_Over_Screen.png"));
+		m_textures.push_back(new Texture("Resource Files/Textures/Menu/Win_Screen.png"));
 
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/SCORE_LABEL.png"));
 		m_textures.push_back(new Texture("Resource Files/Textures/HUD/ScoreAnim.png"));
@@ -301,10 +302,15 @@ void Menu::InitScene()
 		else if (m_name == "Main_Menu") {
 
 		}
-		else if (m_name == "Game_Over_Lose") {
+		else if (m_name == "Game_Over") {
 			auto loseScreen = GameObject::Allocate();
-			loseScreen->AttachComponent<Sprite2D>(m_textures[int(TextureType::GAMEOVERLOSE)], loseScreen->GetID(), 100, 100);
+			loseScreen->AttachComponent<Sprite2D>(m_textures[int(TextureType::GAMEOVER)], loseScreen->GetID(), 100, 100);
 			loseScreen->AttachComponent<Transform>();
+		}
+		else if (m_name == "Win") {
+			auto winScreen = GameObject::Allocate();
+			winScreen->AttachComponent<Sprite2D>(m_textures[int(TextureType::WIN)], winScreen->GetID(), 100, 100);
+			winScreen->AttachComponent<Transform>();
 		}
 		else if (m_name == "Pause_Menu") {
 
@@ -496,7 +502,7 @@ void Menu::KeyInput()
 	}
 	else
 	{
-		if (m_name == "Game_Over_Lose") {
+		if (m_name == "Game_Over") {
 			if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			{
 				glfwSetWindowShouldClose(m_window, GLFW_TRUE);
@@ -1515,6 +1521,15 @@ void Universe::InitScene()
 	Skybox::Init(m_name);
 }
 
+void Universe::InitFmod()
+{
+	//Setup FMOD
+	AudioEngine& engine = AudioEngine::Instance();
+	engine.Init();
+	engine.LoadBank("Master");
+	engine.LoadBus("MusicBus", "{a5b53ded-d7b3-4e6b-a920-0b241ef6f268}");
+}
+
 void Universe::Update(float deltaTime)
 {
 	if (isTransitionActive) {
@@ -1766,10 +1781,10 @@ void Universe::Update(float deltaTime)
 			}
 		}
 
-		/*if (m_PlayerHealth <= 0) {
+		if (m_PlayerHealth <= 0) {
 			*switchIt = true;
-			*SceneNo = int(ScenesNum::GAME_OVER_LOSE);
-		}*/
+			*SceneNo = int(ScenesNum::GAME_OVER);
+		}
 
 		//Bullet and enemy collision update
 		for (auto Bulletentity : m_sceneReg->view<Projectile>()) {
@@ -1937,6 +1952,9 @@ void Universe::Update(float deltaTime)
 								m_isBossDead = true;
 								m_sceneReg->destroy(enemy);
 								AI.erase(AI.begin() + i);
+
+								*switchIt = true;
+								*SceneNo = int(ScenesNum::WIN);
 							}
 						}
 

@@ -12,8 +12,9 @@
 #include "SepiaEffect.h"
 #include "EnemyAI.h"
 #include "ScoreHandler.h"
+#include "AudioEngine.h"
 
-enum class ScenesNum { START_SCREEN, MAIN_MENU, PAUSE_MENU, GAME_OVER_LOSE, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
+enum class ScenesNum { START_SCREEN, MAIN_MENU, PAUSE_MENU, GAME_OVER, WIN, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
 
 class Scene {
 
@@ -104,6 +105,8 @@ public:
 	 void SetSceneResumeNo(unsigned int sceneno) override;
 
 	void InitScene() override;
+
+	void InitFmod();
 
 	void Update(float deltaTime) override;
 
