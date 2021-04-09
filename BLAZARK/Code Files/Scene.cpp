@@ -357,7 +357,7 @@ void Menu::InitScene(int Prescore)
 		}
 		else if (m_name == "Game_Over") {
 			std::unique_ptr<GameObject> m_score = GameObject::Allocate();
-			m_score->AttachComponent<Transform>().SetLocalPos(40, -27, 10);
+			m_score->AttachComponent<Transform>().SetLocalPos(-15, -27, 10);
 			m_score->AttachComponent<ScoreHandler>(m_score->GetComponent<Transform>().GetLocalPos(), m_textures[int(TextureType::SCORENUM)]).Add(Prescore);
 
 			auto loseScreen = GameObject::Allocate();
@@ -1469,7 +1469,7 @@ void Universe::InitScene(int Prescore)
 			// Spike planet
 			auto spikePEntity = GameObject::Allocate();
 			m_solarSystem.push_back(spikePEntity->GetID());
-			spikePEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(-2875, 0, 0));
+			spikePEntity->AttachComponent<Transform>().SetLocalPos(glm::vec3(-1500, 0, 2000));
 			spikePEntity->AttachComponent<StaticRenderer>(cameraEntity->GetID(), spikePEntity->GetID(), *m_meshes[int(PlanetMesh::SPIKEP)], nullptr);
 			spikePEntity->GetComponent<Transform>().SetRadius((m_meshes[int(PlanetMesh::SPIKEP)]->GetWidth() / 2));
 
@@ -2144,16 +2144,18 @@ void Universe::Update(float deltaTime)
 							}
 						}
 						else if (type == EntityType::CENTIPEDE) {
-							GameObject::GetComponent<CentipedeBoss>(enemy).m_health--;
+							if (!GameObject::GetComponent<CentipedeBoss>(enemy).m_isImmune)
+							{
+								GameObject::GetComponent<CentipedeBoss>(enemy).m_health--;
 
-							particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
-							particleTemp->setSize(10);
-							particleTemp->getEmitter()->setLifetime(0.3, 0.3);
-							particleTemp->getEmitter()->setSpeed(100);
-							particleTemp->getEmitter()->init();
-							particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
-							particles.push_back(particleTemp);
-
+								particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+								particleTemp->setSize(10);
+								particleTemp->getEmitter()->setLifetime(0.3, 0.3);
+								particleTemp->getEmitter()->setSpeed(100);
+								particleTemp->getEmitter()->init();
+								particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
+								particles.push_back(particleTemp);
+							}
 							AudioEngine& engine = AudioEngine::Instance();
 							//Create event
 							AudioEvent& explosionEvent = engine.GetEvent("Explosion");
@@ -2196,16 +2198,18 @@ void Universe::Update(float deltaTime)
 						}
 
 						else if (type == EntityType::HIVEMIND) {
-							GameObject::GetComponent<HiveMindBoss>(enemy).m_health--;
+							if (!GameObject::GetComponent<HiveMindBoss>(enemy).m_isImmune)
+							{
+								GameObject::GetComponent<HiveMindBoss>(enemy).m_health--;
 
-							particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
-							particleTemp->setSize(10);
-							particleTemp->getEmitter()->setLifetime(0.3, 0.3);
-							particleTemp->getEmitter()->setSpeed(100);
-							particleTemp->getEmitter()->init();
-							particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
-							particles.push_back(particleTemp);
-
+								particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
+								particleTemp->setSize(10);
+								particleTemp->getEmitter()->setLifetime(0.3, 0.3);
+								particleTemp->getEmitter()->setSpeed(100);
+								particleTemp->getEmitter()->init();
+								particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
+								particles.push_back(particleTemp);
+							}
 							AudioEngine& engine = AudioEngine::Instance();
 							//Create event
 							AudioEvent& explosionEvent = engine.GetEvent("Explosion");
@@ -2393,6 +2397,12 @@ void Universe::Update(float deltaTime)
 				Centipede->AttachComponent<EntityType>() = EntityType::CENTIPEDE;
 
 				m_isBossSpawn = true;
+				{
+					m_arrowTotheBoss = GameObject::Allocate();
+
+					m_arrowTotheBoss->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+					m_arrowTotheBoss->AttachComponent<StaticRenderer>(CamID, m_arrowTotheBoss->GetID(), *m_meshes[int(PlanetMesh::ARROW)], nullptr);
+				}
 			}
 		}
 
@@ -2432,6 +2442,12 @@ void Universe::Update(float deltaTime)
 				HiveMind->AttachComponent<EntityType>() = EntityType::HIVEMIND;
 
 				m_isBossSpawn = true;
+				{
+					m_arrowTotheBoss = GameObject::Allocate();
+
+					m_arrowTotheBoss->AttachComponent<Transform>().SetLocalPos(glm::vec3(0));
+					m_arrowTotheBoss->AttachComponent<StaticRenderer>(CamID, m_arrowTotheBoss->GetID(), *m_meshes[int(PlanetMesh::ARROW)], nullptr);
+				}
 			}
 
 
