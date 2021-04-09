@@ -28,9 +28,11 @@ public:
 
 	virtual void Update(float deltaTime) {	}
 
-	virtual void InitScene();
+	virtual void InitScene(int Prescore);
 
 	void SetWindow(GLFWwindow* window);
+
+	virtual int GetSceneScore();
 
 	entt::registry* GetScene();
 
@@ -73,12 +75,14 @@ public:
 
 	Menu(std::string name, unsigned int* num = nullptr, bool* change = nullptr);
 
-	void InitScene() override;
+	void InitScene(int Prescore) override;
 
 	void Update(float deltaTime) override;
 
 	 unsigned int GetSceneResumeNumber() override;
 	 void SetSceneResumeNo(unsigned int sceneno) override;
+
+	 int GetSceneScore() override;
 
 	void KeyInput() override;
 
@@ -90,6 +94,7 @@ private:
 	std::unique_ptr<GameObject> m_StartOrResume[4];
 	float m_scoreTime = 1.0f;
 
+	ScoreHandler* score = nullptr;
 
 	unsigned int m_curButton = 0;
 	bool m_switchButton = false;
@@ -106,7 +111,7 @@ public:
 	 unsigned int GetSceneResumeNumber() override;
 	 void SetSceneResumeNo(unsigned int sceneno) override;
 
-	void InitScene() override;
+	void InitScene(int Prescore) override;
 
 	void Update(float deltaTime) override;
 
@@ -117,6 +122,8 @@ public:
 	void GamepadInput() override;
 
 	void SolarSystemUpdate();
+
+	int GetSceneScore() override;
 
 	bool isBoxCollide(Transform Obj1, Transform Obj2);
 	bool isBoxCircleCollide(Transform objBox, Transform objCircle);
@@ -133,6 +140,7 @@ private:
 
 	std::vector<entt::entity> m_solarSystem;
 	std::unique_ptr<GameObject> m_score;
+	std::unique_ptr<GameObject> m_arrowTotheBoss;
 	std::vector<Projectile*> m_bullets;
 
 	glm::mat4 shadowProjection = glm::mat4(0);
@@ -151,4 +159,15 @@ private:
 	bool m_isBossDead = false;
 	static entt::entity health;
 	static int m_PlayerHealth;
+};
+
+class Tutorial : public Scene 
+{
+public:
+
+
+
+private:
+
+
 };

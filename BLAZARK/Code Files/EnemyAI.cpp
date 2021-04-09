@@ -442,7 +442,7 @@ void JellyFishBoss::Init(entt::entity jellyEntityID, entt::entity MainplayerID)
 {
 	m_enemy = jellyEntityID;
 	m_player = MainplayerID;
-	m_distance = 200;
+	m_distance = 550;
 	m_health = 10;
 
 }

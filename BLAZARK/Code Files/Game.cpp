@@ -23,15 +23,17 @@ void Game::InitGame()
 
 	//setting the first scene
 	m_curScene = m_scenes[int(ScenesNum::START_SCREEN)];
-	m_curScene->InitScene();
+	m_curScene->InitScene(0);
 	m_curScene->SetWindow(m_window);// giving the current scene the window
 }
 
 void Game::SwitchScene()
 {
+	int PreScore = m_curScene->GetSceneScore();
+
 	m_scenes[m_SceneNo]->SetSceneResumeNo(m_curScene->GetSceneResumeNumber());
 	m_curScene = m_scenes[m_SceneNo];
-	m_curScene->InitScene();
+	m_curScene->InitScene(PreScore);
 	m_curScene->SetWindow(Application::GetWindow());
 	m_isSceneSwitch = false;
 }
