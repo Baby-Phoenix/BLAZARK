@@ -39,6 +39,9 @@ public:
 	virtual unsigned int GetSceneResumeNumber();
 	virtual void SetSceneResumeNo(unsigned int sceneno);
 
+	void InitFMOD();
+	void UpdateFMOD();
+
 protected:
 
 	unsigned int* SceneNo = nullptr;
@@ -62,6 +65,7 @@ protected:
 	static std::vector<Mesh*> m_meshes;
 
 	
+
 };
 
 class Menu : public Scene
