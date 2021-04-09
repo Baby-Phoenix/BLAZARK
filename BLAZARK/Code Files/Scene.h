@@ -64,6 +64,8 @@ protected:
 
 	static std::vector<Texture*> m_textures;
 	static std::vector<Mesh*> m_meshes;
+
+	
 };
 
 class Menu : public Scene
@@ -108,8 +110,6 @@ public:
 	 void SetSceneResumeNo(unsigned int sceneno) override;
 
 	void InitScene(int Prescore) override;
-
-	void InitFmod();
 
 	void Update(float deltaTime) override;
 

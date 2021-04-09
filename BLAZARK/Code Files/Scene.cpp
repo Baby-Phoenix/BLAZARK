@@ -53,6 +53,7 @@ bool isWingOpen = false;
 bool isexplode = false;
 bool isDodge = false;
 bool isRotate = false;
+bool isSceneSwitch = false;
 
 // Pixelation Transition
 bool isTransitionActive = false;
@@ -287,6 +288,7 @@ Menu::Menu(std::string name, unsigned int* num, bool* change)
 
 void Menu::InitScene(int Prescore)
 {
+
 	//creating a new registry for the scene when initialised
 	if (m_sceneReg == nullptr) 
 		m_sceneReg = new entt::registry();
@@ -305,6 +307,18 @@ void Menu::InitScene(int Prescore)
 			auto titleScreen = GameObject::Allocate();
 			titleScreen->AttachComponent<Sprite2D>(m_textures[int(TextureType::START)], titleScreen->GetID(), 100, 100);
 			titleScreen->AttachComponent<Transform>();
+
+			//Setup FMOD
+			AudioEngine& engine = AudioEngine::Instance();
+			engine.Init();
+			engine.LoadBank("Master");
+			engine.LoadBus("Music", "{64e20265-cc94-4556-8628-c67fb15f5402}");
+
+			//PLay music event
+			AudioEvent& music = engine.CreateEvent("Main Menu", "{4c283484-756b-493b-95e2-731eec9e557f}");
+			music.SetParameter("Exit", 1.0f);
+			music.Play();
+
 		}
 		else if (m_name == "Main_Menu") {
 
@@ -435,6 +449,24 @@ void Menu::Update(float deltaTime)
 
 	// Camera Update
 	camera->Update();
+
+
+
+	if(isSceneSwitch)
+		AudioEngine::Instance().Shutdown();
+	else
+	{
+		AudioEngine& audioEngine = AudioEngine::Instance();
+
+		//Get reference to music
+		AudioEvent& musicEvent = audioEngine.GetEvent("Main Menu");
+
+		//Get reference to bus
+		AudioBus& musicBus = audioEngine.GetBus("Music");
+		musicBus.SetVolume(0.1);
+
+		audioEngine.Update();
+	}
 }
 
 unsigned int Menu::GetSceneResumeNumber()
@@ -455,18 +487,18 @@ int Menu::GetSceneScore()
 void Menu::KeyInput()
 {
 	// Scene Switching //
-	if (glfwGetKey(m_window, GLFW_KEY_0) == GLFW_PRESS) {
+	/*if (glfwGetKey(m_window, GLFW_KEY_0) == GLFW_PRESS) {
 		*switchIt = true;
 		*SceneNo = int(ScenesNum::START_SCREEN);
-	}
-	if (glfwGetKey(m_window, GLFW_KEY_1) == GLFW_PRESS) {
+	}*/
+	if (m_name == "Start_Screen" && glfwGetKey(m_window, GLFW_KEY_ENTER) == GLFW_PRESS) {
 		*switchIt = true;
 		*SceneNo = int(ScenesNum::UNIVERSE_19);
 	}
-	if (glfwGetKey(m_window, GLFW_KEY_2) == GLFW_PRESS) {
+	/*if (glfwGetKey(m_window, GLFW_KEY_2) == GLFW_PRESS) {
 		*switchIt = true;
 		*SceneNo = int(ScenesNum::UNIVERSE_27);
-	}
+	}*/
 
 
 	if (m_name == "Pause_Menu") {
@@ -741,11 +773,15 @@ void Universe::InitScene(int Prescore)
 		BufferEntity->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/WarmLUT.cube");
 		BufferEntity->GetComponent<ColorCorrectionEffect>().AddLUT("Resource Files/LUTs/CoolLUT.cube");
 
+		
+
 		if (m_name == "Universe_19") {
 
 			JellyFishBoss::Init();
 
 			m_SceneResumeNo = int(ScenesNum::UNIVERSE_19);
+
+			isSceneSwitch = false;
 
 			// Solar System Centerpoint
 			auto SVCEntity = GameObject::Allocate();
@@ -1522,25 +1558,16 @@ void Universe::InitScene(int Prescore)
 				}
 			}
 		}
-
+		
 		//Setting Parent/Childe
 		cameraEntity->GetComponent<Transform>().SetParent(new entt::entity(playerEntity->GetID()));
 		healthent->GetComponent<Transform>().SetParent(camentity);
 		score->GetComponent<Transform>().SetParent(camentity);
 
-		
+	
 	}
 
 	Skybox::Init(m_name);
-}
-
-void Universe::InitFmod()
-{
-	//Setup FMOD
-	AudioEngine& engine = AudioEngine::Instance();
-	engine.Init();
-	engine.LoadBank("Master");
-	engine.LoadBus("MusicBus", "{a5b53ded-d7b3-4e6b-a920-0b241ef6f268}");
 }
 
 void Universe::Update(float deltaTime)
@@ -1582,7 +1609,6 @@ void Universe::Update(float deltaTime)
 
 		// Solar System Rotation (IN-PROGRESS) 
 		SolarSystemUpdate();
-
 
 		//playerController->Update(deltaTime);
 
@@ -1951,7 +1977,7 @@ void Universe::Update(float deltaTime)
 
 							particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
 							particleTemp->setSize(10);
-							particleTemp->getEmitter()->setLifetime(0.5, 0.5);
+							particleTemp->getEmitter()->setLifetime(0.3, 0.3);
 							particleTemp->getEmitter()->setSpeed(100);
 							particleTemp->getEmitter()->init();
 							particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
@@ -1992,7 +2018,7 @@ void Universe::Update(float deltaTime)
 
 							particleTemp = new ParticleController(2, GameObject::GetComponent<Transform>(enemy).GetLocalPos(), m_textures[int(TextureType::YELLOW)], enemy);
 							particleTemp->setSize(10);
-							particleTemp->getEmitter()->setLifetime(0.5, 0.5);
+							particleTemp->getEmitter()->setLifetime(0.3, 0.3);
 							particleTemp->getEmitter()->setSpeed(100);
 							particleTemp->getEmitter()->init();
 							particleTemp->setModelMatrix(GameObject::GetComponent<Transform>(enemy).UpdateGlobal());
@@ -2043,7 +2069,7 @@ void Universe::Update(float deltaTime)
 				}
 			}
 
-			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 10 && !m_isBossSpawn)
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 200 && !m_isBossSpawn)
 			{
 				//// JELLYFIH BOSS
 				{
@@ -2142,7 +2168,7 @@ void Universe::Update(float deltaTime)
 			if (wasSceneSwitched)
 				wasTransitionActive = true;
 
-			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 10 && !m_isBossSpawn)
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 200 && !m_isBossSpawn)
 			{
 				////BOSS
 
@@ -2178,7 +2204,7 @@ void Universe::Update(float deltaTime)
 			//	}
 			//}	
 
-			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 10 && !m_isBossSpawn)
+			if (m_score->GetComponent<ScoreHandler>().GetScore() >= 200 && !m_isBossSpawn)
 			{
 				auto HiveMind = GameObject::Allocate();
 				HiveMind->AttachComponent<HiveMindBoss>().SetBulletMesh(m_meshes[int(PlayerMesh::PLAYERBULLET)]);
@@ -2216,6 +2242,7 @@ void Universe::Update(float deltaTime)
 		shadowTransformations[5] = shadowProjection * glm::lookAt(glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 0.0) + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0));
 		#pragma endregion
 	}
+
 }
 
 void Universe::Render(float deltaTime)
@@ -2293,14 +2320,14 @@ void Universe::KeyInput()
 		*SceneNo = int(ScenesNum::PAUSE_MENU);
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS)
+	/*if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS)
 	{
 		m_PlayerHealth = 3;
 		GameObject::GetComponent<AnimationHandler>(health).SetActiveAnim(m_PlayerHealth);
-	}
+	}*/
 
 	// Scene Switching //
-	if (glfwGetKey(m_window, GLFW_KEY_0) == GLFW_PRESS) {
+	/*if (glfwGetKey(m_window, GLFW_KEY_0) == GLFW_PRESS) {
 		*switchIt = true;
 		*SceneNo = int(ScenesNum::WIN);
 	}
@@ -2315,7 +2342,7 @@ void Universe::KeyInput()
 	if (glfwGetKey(m_window, GLFW_KEY_3) == GLFW_PRESS) {
 		*switchIt = true;
 		*SceneNo = int(ScenesNum::UNIVERSE_5);
-	}
+	}*/
 
 	// Player Movement //
 	auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
@@ -2349,47 +2376,47 @@ void Universe::KeyInput()
 			playerEnt.RotateLocal(temp);
 		}
 
-		//CamMove
-		if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
-		{
-			temp = glm::vec3(0, 0, -1.5);
-			camEnt.MoveLocalPos(temp);
-		}
-		else if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
-		{
-			temp = glm::vec3(0, 0, 1.5);
-			camEnt.MoveLocalPos(temp);
-		}
-		if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
-		{
-			temp = glm::vec3(0.0f, .5f, 0.0f);
-			camEnt.RotateLocal(temp);
-		}
-		else if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
-		{
-			temp = glm::vec3(0.0f, -.5f, 0.0f);
-			camEnt.RotateLocal(temp);
-		}
-		if (glfwGetKey(m_window, GLFW_KEY_Z) == GLFW_PRESS)
-		{
-			temp = glm::vec3(0.0f, 2.5f, 0.0f);
-			camEnt.MoveLocalPos(temp);
-		}
-		else if (glfwGetKey(m_window, GLFW_KEY_C) == GLFW_PRESS)
-		{
-			temp = glm::vec3(0.0f, -2.5f, 0.0f);
-			camEnt.MoveLocalPos(temp);
-		}
-		if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS)
-		{
-			temp = glm::vec3(-1.0f, 0.0f, 0.0f);
-			camEnt.MoveLocalPos(temp);
-		}
-		else if (glfwGetKey(m_window, GLFW_KEY_E) == GLFW_PRESS)
-		{
-			temp = glm::vec3(1.0f, 0.0f, 0.0f);
-			camEnt.MoveLocalPos(temp);
-		}
+		////CamMove
+		//if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
+		//{
+		//	temp = glm::vec3(0, 0, -1.5);
+		//	camEnt.MoveLocalPos(temp);
+		//}
+		//else if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
+		//{
+		//	temp = glm::vec3(0, 0, 1.5);
+		//	camEnt.MoveLocalPos(temp);
+		//}
+		//if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
+		//{
+		//	temp = glm::vec3(0.0f, .5f, 0.0f);
+		//	camEnt.RotateLocal(temp);
+		//}
+		//else if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
+		//{
+		//	temp = glm::vec3(0.0f, -.5f, 0.0f);
+		//	camEnt.RotateLocal(temp);
+		//}
+		//if (glfwGetKey(m_window, GLFW_KEY_Z) == GLFW_PRESS)
+		//{
+		//	temp = glm::vec3(0.0f, 2.5f, 0.0f);
+		//	camEnt.MoveLocalPos(temp);
+		//}
+		//else if (glfwGetKey(m_window, GLFW_KEY_C) == GLFW_PRESS)
+		//{
+		//	temp = glm::vec3(0.0f, -2.5f, 0.0f);
+		//	camEnt.MoveLocalPos(temp);
+		//}
+		//if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS)
+		//{
+		//	temp = glm::vec3(-1.0f, 0.0f, 0.0f);
+		//	camEnt.MoveLocalPos(temp);
+		//}
+		//else if (glfwGetKey(m_window, GLFW_KEY_E) == GLFW_PRESS)
+		//{
+		//	temp = glm::vec3(1.0f, 0.0f, 0.0f);
+		//	camEnt.MoveLocalPos(temp);
+		//}
 
 	}
 	else if (isDodge)
@@ -2438,20 +2465,20 @@ void Universe::KeyInput()
 		isDodge = true;
 	}
 
-	if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS && !isexplode) {
-		//explosion
-		particleTemp = new ParticleController(2, moonEnt.GetLocalPos(), new Texture("Resource Files/Textures/red.png"), MoonID);
-		particleTemp->setSize(10);
-		particleTemp->getEmitter()->setLifetime(.8, .8);
-		particleTemp->getEmitter()->setSpeed(100);
-		particleTemp->getEmitter()->init();
-		particles.push_back(particleTemp);
-		isexplode = true;
+	//if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS && !isexplode) {
+	//	//explosion
+	//	particleTemp = new ParticleController(2, moonEnt.GetLocalPos(), new Texture("Resource Files/Textures/red.png"), MoonID);
+	//	particleTemp->setSize(10);
+	//	particleTemp->getEmitter()->setLifetime(.8, .8);
+	//	particleTemp->getEmitter()->setSpeed(100);
+	//	particleTemp->getEmitter()->init();
+	//	particles.push_back(particleTemp);
+	//	isexplode = true;
 
-	}
-	if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_RELEASE) {
+	//}
+	/*if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_RELEASE) {
 		isexplode = false;
-	}
+	}*/
 
 	if (glfwGetKey(m_window, GLFW_KEY_F) == GLFW_PRESS && !isRotate)
 	{
@@ -2551,6 +2578,7 @@ void Universe::GamepadInput()
 
 	if (gamepad.getGamepadInput()) {
 		auto& playerEnt = GameObject::GetComponent<Transform>(MainPlayerID);
+		auto& camEnt = GameObject::GetComponent<Transform>(CamID);
 		glm::vec3 temp; 
 		
 
@@ -2583,46 +2611,20 @@ void Universe::GamepadInput()
 				//Left Trigger
 				{
 
-					if (gamepad.trigger.LT > -1 && gamepad.trigger.LT < -0.8) {
-						temp = glm::vec3(0, 0, -0.2);
-						playerEnt.MoveLocalPos(temp);
+					if (gamepad.trigger.LT >= -1 && gamepad.trigger.LT < -0.8) {
+						glm::vec3 temp = glm::vec3(0, 0, 0);
+						camEnt.SetLocalRot(temp);
+						temp = glm::vec3(0, 13, 25);
+						camEnt.SetLocalPos(temp);
+						isRotate = false;
 
 					}
-					else if (gamepad.trigger.LT > -0.8 && gamepad.trigger.LT < -0.6) {
-						temp = glm::vec3(0, 0, -0.4);
-						playerEnt.MoveLocalPos(temp);
-					}
-					else if (gamepad.trigger.LT > -0.6 && gamepad.trigger.LT < -0.4) {
-						temp = glm::vec3(0, 0, -0.6);
-						playerEnt.MoveLocalPos(temp);
-					}
-					else if (gamepad.trigger.LT > -0.4 && gamepad.trigger.LT < -0.2) {
-						temp = glm::vec3(0, 0, -0.8);
-						playerEnt.MoveLocalPos(temp);
-					}
-					else if (gamepad.trigger.LT > -0.2 && gamepad.trigger.LT < 0) {
-						temp = glm::vec3(0, 0, -1.0);
-						playerEnt.MoveLocalPos(temp);
-					}
-					else if (gamepad.trigger.LT > 0 && gamepad.trigger.LT < 0.2) {
-						temp = glm::vec3(0, 0, -1.2);
-						playerEnt.MoveLocalPos(temp);
-					}
-					else if (gamepad.trigger.LT > 0.2 && gamepad.trigger.LT < 0.4) {
-						temp = glm::vec3(0, 0, -1.4);
-						playerEnt.MoveLocalPos(temp);
-					}
-					else if (gamepad.trigger.LT > 1 && gamepad.trigger.LT < 0.6) {
-						temp = glm::vec3(0, 0, -1.6);
-						playerEnt.MoveLocalPos(temp);
-					}
-					else if (gamepad.trigger.LT > 1 && gamepad.trigger.LT < 0.8) {
-						temp = glm::vec3(0, 0, -1.8);
-						playerEnt.MoveLocalPos(temp);
-					}
 					else if (gamepad.trigger.LT > 0.8) {
-						temp = glm::vec3(0, 0, -2);
-						playerEnt.MoveLocalPos(temp);
+						glm::vec3 temp = glm::vec3(0, 180, 0);
+						camEnt.SetLocalRot(temp);
+						temp = glm::vec3(0, 13, -35);
+						camEnt.SetLocalPos(temp);
+						isRotate = true;
 					}
 
 				}
