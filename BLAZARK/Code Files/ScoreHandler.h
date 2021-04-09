@@ -11,7 +11,7 @@ class ScoreHandler {
 
 public:
 	ScoreHandler() = default;
-	ScoreHandler(glm::vec3 scorePos, Texture* tex, entt::entity* cam);
+	ScoreHandler(glm::vec3 scorePos, Texture* tex, entt::entity* cam = nullptr);
 
 	void SetTexture(Texture* tex);
 	void SetScorePos(glm::vec3 scorePos);
@@ -29,5 +29,6 @@ private:
 	std::vector<std::unique_ptr<GameObject>> m_scoreObj;
 	glm::vec3 m_ScorePos;
 	Texture* m_scoreTex = nullptr;
-	static entt::entity* camentity;
+	entt::entity* camentity = nullptr;
+
 };
