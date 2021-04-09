@@ -1,5 +1,4 @@
 #include "Application.h"
-#include "Input.h"
 #include "FrameBuffer.h"
 
 GLFWwindow* Application::m_window = nullptr;

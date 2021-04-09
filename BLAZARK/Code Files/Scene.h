@@ -1,27 +1,23 @@
 #pragma once
 
-
 #include "btBulletDynamicsCommon.h"
 #include "Skybox.h"
 #include "Sprite2D.h"
 #include "Random.h"
 #include "GamepadInput.h"
 #include "PixelationEffect.h"
-#include "ColorCorrection.h"
-#include "GreyscaleEffect.h"
-#include "SepiaEffect.h"
 #include "EnemyAI.h"
 #include "ScoreHandler.h"
 #include "AudioEngine.h"
 
-enum class ScenesNum { START_SCREEN, MAIN_MENU, PAUSE_MENU, GAME_OVER, WIN, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
+enum class ScenesNum { START_SCREEN, PAUSE_MENU, GAME_OVER, WIN, UNIVERSE_19, UNIVERSE_27, UNIVERSE_5 };
 
 class Scene {
 
 public:
 	Scene(std::string name);
-
 	Scene() { }
+
 	std::string GetName();
 
 	virtual void Render(float deltaTime) {	}
@@ -142,9 +138,6 @@ private:
 	std::unique_ptr<GameObject> m_score;
 	std::unique_ptr<GameObject> m_arrowTotheBoss;
 	std::vector<Projectile*> m_bullets;
-
-	glm::mat4 shadowProjection = glm::mat4(0);
-	std::vector<glm::mat4> shadowTransformations;
 
 	entt::entity MainPlayerID;
 	entt::entity BossID;

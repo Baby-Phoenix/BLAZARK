@@ -1,17 +1,9 @@
 #include "Game.h"
 
-
-
-
-
-
-
 int main() {
-	Application::Init("Blazark", false); // DONT SET FULLSCREEN
+	Application::Init("Blazark", false); // DON'T SET TO FULLSCREEN
 
 	Game game(Application::GetWindow());
-
-
 
 	while (!Application::IsExitProgram())
 	{

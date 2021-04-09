@@ -21,7 +21,7 @@ public:
 
 	void toggleTexture();
 
-	virtual void Draw(std::vector<glm::mat4>, FrameBuffer* = nullptr, bool depthRender = false);
+	virtual void Draw();
 
 protected:
 	entt::entity m_camera;
