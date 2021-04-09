@@ -289,7 +289,6 @@ void Menu::InitScene(int Prescore)
 
 		auto cameraEntity = GameObject::Allocate();
 		cameraEntity->AttachComponent<Transform>();
-		entt::entity* camentity = new entt::entity(cameraEntity->GetID());
 		camera = &cameraEntity->AttachComponent<Camera>(int(cameraEntity->GetID()));
 		cameraEntity->GetComponent<Transform>().SetLocalPos(glm::vec3(0.0f, 0.0f, 100.0f));
 
@@ -311,17 +310,24 @@ void Menu::InitScene(int Prescore)
 
 		}
 		else if (m_name == "Game_Over") {
+		
+			std::unique_ptr<GameObject> m_score = GameObject::Allocate();
+			m_score->AttachComponent<Transform>().SetLocalPos(40, -27, 10);
+			m_score->AttachComponent<ScoreHandler>(m_score->GetComponent<Transform>().GetLocalPos(), m_textures[int(TextureType::SCORENUM)]).Add(Prescore);
+
 			auto loseScreen = GameObject::Allocate();
 			loseScreen->AttachComponent<Sprite2D>(m_textures[int(TextureType::GAMEOVER)], loseScreen->GetID(), 100, 100);
 			loseScreen->AttachComponent<Transform>().SetLocalPos(0, 0, -5);
 
-			score = new ScoreHandler(glm::vec3(0, 0, 10), m_textures[int(TextureType::SCORENUM)], camentity);
-			score->Add(Prescore);
 		}
 		else if (m_name == "Win") {
 			auto winScreen = GameObject::Allocate();
 			winScreen->AttachComponent<Sprite2D>(m_textures[int(TextureType::WIN)], winScreen->GetID(), 100, 100);
 			winScreen->AttachComponent<Transform>();
+
+			std::unique_ptr<GameObject> m_score = GameObject::Allocate();
+			m_score->AttachComponent<Transform>().SetLocalPos(-30, -20, 10);
+			m_score->AttachComponent<ScoreHandler>(m_score->GetComponent<Transform>().GetLocalPos(), m_textures[int(TextureType::SCORENUM)]).Add(Prescore);
 		}
 		else if (m_name == "Pause_Menu") {
 

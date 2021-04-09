@@ -1,13 +1,11 @@
 #include "ScoreHandler.h"
 
-entt::entity* ScoreHandler::camentity = nullptr;
-
 ScoreHandler::ScoreHandler(glm::vec3 scorePos, Texture* tex, entt::entity* cam)
 {
 	m_ScorePos = scorePos;
 	m_score.push_back(0);
 	
-	if (camentity == nullptr)
+	if (cam != nullptr)
 		camentity = cam;
 
 	SetTexture(tex);
@@ -205,6 +203,8 @@ void ScoreHandler::CreateSprite()
 	anim.SetActiveAnim(0);
 
 	m_scoreObj[index]->AttachComponent<Sprite2D>(m_scoreTex, m_scoreObj[index]->GetID(), 3, 5, false, tempAnim);
+	
+	if (camentity != nullptr)
 	m_scoreObj[index]->GetComponent<Transform>().SetParent(camentity);
 	
 }

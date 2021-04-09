@@ -90,8 +90,6 @@ private:
 	std::unique_ptr<GameObject> m_StartOrResume[4];
 	float m_scoreTime = 1.0f;
 
-	ScoreHandler* score = nullptr;
-
 	unsigned int m_curButton = 0;
 	bool m_switchButton = false;
 	bool m_ControlsSelected = false;
