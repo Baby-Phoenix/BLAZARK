@@ -13,7 +13,6 @@ void Game::InitGame()
 {
 	//pushing back all the scenes
 	m_scenes.push_back(new Menu("Start_Screen", &m_SceneNo, &m_isSceneSwitch));
-	m_scenes.push_back(new Menu("Main_Menu", &m_SceneNo, &m_isSceneSwitch));
 	m_scenes.push_back(new Menu("Pause_Menu", &m_SceneNo, &m_isSceneSwitch));
 	m_scenes.push_back(new Menu("Game_Over", &m_SceneNo, &m_isSceneSwitch));
 	m_scenes.push_back(new Menu("Win", &m_SceneNo, &m_isSceneSwitch));
@@ -49,13 +48,7 @@ void Game::update(float deltaTime)
 
 void Game::Render()
 {
-	
 	m_curScene->Render(m_dt);
-
-	//glBindVertexArray(0);
-	//glUseProgram(0);
-	//glActiveTexture(0);
-	//glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Game::UpdateScene()

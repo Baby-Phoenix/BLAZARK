@@ -13,7 +13,6 @@ DynamicRenderer::DynamicRenderer(entt::entity camera, entt::entity entity, const
 		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/textured_unlit.frag"));
 		m_shader.push_back(new Shader("Resource Files/Shaders/static_shader.vert", "Resource Files/Shaders/textured_lit.frag"));
 		m_shader.push_back(new Shader("Resource Files/Shaders/dynamic_shader.vert", "Resource Files/Shaders/untextured_unlit.frag"));
-		m_shader.push_back(new Shader("Resource Files/Shaders/depth.vert", "Resource Files/Shaders/depth.frag", "Resource Files/Shaders/depth.geom"));
 	}
 
 	const VertexBuffer* vbo;
@@ -54,7 +53,7 @@ void DynamicRenderer::UpdateVAO(const Mesh& frameS, const Mesh& frameE, float t)
 	m_t = t;
 }
 
-void DynamicRenderer::Draw(std::vector<glm::mat4> shadowTransformations) {
+void DynamicRenderer::Draw() {
 	auto& transform = GameObject::GetComponent<Transform>(m_entity);
 	
 	currShader = 4;
@@ -71,7 +70,6 @@ void DynamicRenderer::Draw(std::vector<glm::mat4> shadowTransformations) {
 	m_shader[currShader]->setMat4fv(transform.GetGlobal(), "ModelMatrix");
 	m_shader[currShader]->setMat3fv(transform.GetNormal(), "NormalMatrix");
 	m_shader[currShader]->set1f(m_t, "t");
-	m_shader[currShader]->set1i(false, "Shadows");
 
 	m_vao->DrawArray();
 	m_shader[currShader]->unuse();

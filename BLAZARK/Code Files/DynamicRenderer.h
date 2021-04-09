@@ -26,7 +26,7 @@ public:
 
 	void UpdateVAO(const Mesh& frameS, const Mesh& frameE, float t);
 
-	virtual void Draw(std::vector<glm::mat4>);
+	virtual void Draw();
 
 protected:
 	float m_t;
